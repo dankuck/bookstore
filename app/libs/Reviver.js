@@ -2,28 +2,35 @@
 export default class Reviver
 {
     constructor() {
-        this.classes = [];
+        this.matchers = [];
     }
 
-    add(classToRevive, revive, replace) {
-        this.classes.push({
-            'class': classToRevive,
-            revive: revive,
-            replace: replace,
+    addClass(classToRevive, revive, replace) {
+        this.addMatch(
+            classToRevive.name,
+            () => false,
+            revive,
+            replace
+        );
+    }
+
+    addMatch(name, matches, revive, replace) {
+        this.matchers.push({
+            name,
+            matches,
+            revive,
+            replace,
         });
     }
 
-    findMatch(value) {
-        return this.classes
+    findMatch(name, value) {
+        return this.matchers
             .reduce(
                 (found, match) => {
                     if (found) {
                         return found;
                     }
-                    if (value instanceof match.class) {
-                        return match;
-                    }
-                    if (value && value.__class__ === match.class.name) {
+                    if (match.name === name || match.matches(value)) {
                         return match;
                     }
                     return null;
@@ -32,8 +39,24 @@ export default class Reviver
             );
     }
 
+    findMatchForRevive(value) {
+        if (value instanceof Object && '__class__' in value && '__value__' in value) {
+            return this.findMatch(value.__class__, value.__data__);
+        } else {
+            return null;
+        }
+    }
+
+    findMatchForReplace(value) {
+        if (value && value.constructor) {
+            return this.findMatch(value.constructor.name, value);
+        } else {
+            return null;
+        }
+    }
+
     revive(key, value) {
-        const match = this.findMatch(value);
+        const match = this.findMatchForRevive(value);
         if (!match) {
             return value;
         } else {
@@ -42,12 +65,12 @@ export default class Reviver
     }
 
     replace(key, value) {
-        const match = this.findMatch(value);
+        const match = this.findMatchForReplace(value);
         if (!match) {
             return value;
         } else {
             return {
-                __class__: match.class.name,
+                __class__: match.name,
                 __data__: match.replace(key, value)
             };
         }

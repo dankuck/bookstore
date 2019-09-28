@@ -1,4 +1,5 @@
 import VersionUpgrader from '@libs/VersionUpgrader';
+import axiosRevive from '@libs/axiosRevive';
 
 const upgrader = new VersionUpgrader()
     .version(1, world => {
@@ -13,7 +14,9 @@ const upgrader = new VersionUpgrader()
         world.lobbyPlant = world.plant;
         delete world.plant;
     })
-    .version(3, world => world.location = 'lobby');
+    .version(3, world => world.location = 'lobby')
+    .version(4, world => world.axios = axios)
+    ;
 
 export default class World
 {
@@ -21,12 +24,13 @@ export default class World
         Object.assign(this, data);
         this.version = upgrader.upgrade(this.version || 0, this);
     }
-
-    replaceForJson() {
-        return {...this};
-    }
 };
 
-World.reviveFromJson = function (data) {
-    return new World(data);
+World.addToReviver = function (reviver) {
+    reviver.addClass(
+        World,
+        (key, data) => { return new World(data) },
+        (key, data) => { return {...World} }
+    );
+    axiosRevive.addToReviver(reviver);
 };
