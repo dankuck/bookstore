@@ -30,6 +30,21 @@
         shadow-image="images/bookcase2-shadow.gif"
         lobby-side="left"
     >
+        <template v-slot:behind-books="{queueMessage}">
+            <enzo-click-spot
+                name="Cheese-shaped hole"
+                x="59"
+                y="150"
+                r="16"
+                @click="queueMessage('Put cheese.', 59, 150)"
+            >
+            </enzo-click-spot>
+            <easel-bitmap :x="mouseX" :y="mouseY" :rotation="mouseR"
+                align="center-right"
+                image="images/mouse.gif"
+            >
+            </easel-bitmap>
+        </template>
     </stack-room>
 
 </template>
@@ -42,5 +57,12 @@ export default {
         StackRoom,
     },
     inject: ['app', 'window'],
+    data() {
+        return {
+            mouseX: 80,
+            mouseY: 148,
+            mouseR: -30,
+        };
+    },
 };
 </script>

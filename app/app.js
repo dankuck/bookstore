@@ -6,9 +6,9 @@
  |
  | It handles screen sizing, and providing globally useful tools and data.
  |
- | Provides itself as `app` to all descendants.
+ | It provides itself as `app` to all descendants.
  |
- | Data includes:
+ | Useful values under `app`:
  |  config: data from config.js
  |  isMobile: dynamic boolean is true if the screen size looks like mobile
  |  viewport.width: the width of the canvas internally

@@ -20,6 +20,9 @@
             >
             </easel-bitmap>
 
+            <slot name="behind-books" :queueMessage="queueMessage">
+            </slot>
+
             <stack
                 :collection="collection"
                 :shelves="shelves"

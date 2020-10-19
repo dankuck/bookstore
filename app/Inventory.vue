@@ -31,13 +31,11 @@
 <script>
 import InventoryItem from '@app/InventoryItem';
 import HasTextLayer from '@textLayer/HasTextLayer';
-import TextLayer from '@textLayer/TextLayer';
 
 export default {
     mixins: [HasTextLayer],
     components: {
         InventoryItem,
-        TextLayer,
     },
     inject: ['app'],
     provide() {
