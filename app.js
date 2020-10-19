@@ -14515,6 +14515,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+/* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
 //
 //
 //
@@ -14566,6 +14567,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
@@ -14578,6 +14580,7 @@ __webpack_require__.r(__webpack_exports__);
     inject: ['app', 'window'],
     data() {
         return {
+            InventoryCheese: _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_2__["default"],
             mouseX: 80,
             mouseY: 148,
             mouseR: -30
@@ -21913,10 +21916,26 @@ var render = function() {
           var queueMessage = ref.queueMessage
           return [
             _c("enzo-click-spot", {
-              attrs: { name: "Cheese-shaped hole", x: "59", y: "150", r: "16" },
+              attrs: {
+                name: _vm.app.selectedItem
+                  ? "Put " +
+                    _vm.app.selectedItem.name +
+                    " in cheese-shaped hole"
+                  : "Cheese-shaped hole",
+                x: "59",
+                y: "150",
+                r: "16"
+              },
               on: {
                 click: function($event) {
-                  return queueMessage("Put cheese.", 59, 150)
+                  _vm.app.selectedItem &&
+                  !(_vm.app.selectedItem instanceof _vm.InventoryCheese)
+                    ? queueMessage(
+                        "That does not go in the cheese-shaped hole.",
+                        59,
+                        150
+                      )
+                    : queueMessage("Put cheese.", 59, 150)
                 }
               }
             }),

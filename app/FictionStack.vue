@@ -32,11 +32,11 @@
     >
         <template v-slot:behind-books="{queueMessage}">
             <enzo-click-spot
-                name="Cheese-shaped hole"
+                :name="app.selectedItem ? 'Put ' + app.selectedItem.name + ' in cheese-shaped hole' : 'Cheese-shaped hole'"
                 x="59"
                 y="150"
                 r="16"
-                @click="queueMessage('Put cheese.', 59, 150)"
+                @click="app.selectedItem && ! (app.selectedItem instanceof InventoryCheese) ? queueMessage('That does not go in the cheese-shaped hole.', 59, 150) : queueMessage('Put cheese.', 59, 150)"
             >
             </enzo-click-spot>
             <easel-bitmap :x="mouseX" :y="mouseY" :rotation="mouseR"
@@ -52,6 +52,7 @@
 <script>
 import StackRoom from '@app/StackRoom';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
+import InventoryCheese from '@world/InventoryCheese';
 
 export default {
     mixins: [
@@ -63,6 +64,7 @@ export default {
     inject: ['app', 'window'],
     data() {
         return {
+            InventoryCheese,
             mouseX: 80,
             mouseY: 148,
             mouseR: -30,
