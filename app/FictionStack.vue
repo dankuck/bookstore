@@ -51,8 +51,12 @@
 
 <script>
 import StackRoom from '@app/StackRoom';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {
+    mixins: [
+        UsesTextLayer,
+    ],
     components: {
         StackRoom,
     },

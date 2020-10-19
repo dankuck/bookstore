@@ -75,10 +75,6 @@
                 </easel-shape>
             </enzo-click-spot>
 
-            <text-layer
-                v-if="!viewBook"
-            >
-            </text-layer>
         </sliding-window>
 
         <book-viewer
@@ -92,12 +88,12 @@
 
 <script>
 import Stack from '@app/Stack';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
 import SlidingWindow from '@app/SlidingWindow';
 
 export default {
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         Stack,
         BookViewer,

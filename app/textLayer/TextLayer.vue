@@ -64,7 +64,13 @@ export default {
             return this.textLayer.messager.message;
         },
         hovererMessage() {
-            return this.textLayer.hoverer.message;
+            if (! this.textLayer.hoverer.message) {
+                return null;
+            } else {
+                const {item, x, y} = this.textLayer.hoverer.message;
+                const text = item.hoverName || item.name || '';
+                return {text, x, y};
+            }
         },
         itsAHoverMessage() {
             return !this.messagerMessage;

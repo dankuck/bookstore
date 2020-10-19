@@ -21,6 +21,7 @@ module.exports = {
             '@libs': path.resolve(__dirname, './app/libs/'),
             '@textLayer': path.resolve(__dirname, './app/textLayer/'),
             '@world': path.resolve(__dirname, './app/world/'),
+            '@itemSelection': path.resolve(__dirname, './app/itemSelection/'),
             'vue$': 'vue/dist/vue.js',
         },
     },

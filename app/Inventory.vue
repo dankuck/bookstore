@@ -2,7 +2,6 @@
     <easel-container
         :x="x"
         :y="y"
-        @rollout="clearUseWith"
     >
         <easel-shape
             form="rect"
@@ -16,8 +15,8 @@
             :key="item.name"
             :x="index * itemSize"
             :y="0"
-            v-bind="item"
-            :hover-name="labelFor(item)"
+            :item="item"
+            :image="item.image"
             :size="itemSize"
             @click="click(item, index * itemSize, 0)"
         >
@@ -44,7 +43,6 @@ export default {
     data() {
         return {
             noMobileHoverRing: true,
-            useWith: null,
         };
     },
     computed: {
@@ -65,34 +63,19 @@ export default {
     },
     methods: {
         click(item, x, y) {
-            if (this.useWith) {
-                this.useWith.callback(item);
-                this.useWith = null;
+            if (!this.app.selectedItem && item.selectable) {
+                this.app.selectedItem = item;
             } else if (item.click) {
                 item.click({
+                    item: this.app.selectedItem, // maybe null
                     world: this.app.world,
                     print: this.showMessageAt(x, y),
-                    useWith: callback => {
-                        this.useWith = {
-                            item,
-                            callback,
-                        };
-                        this.showMessage(this.labelFor(item), x, y);
-                    }
                 });
+                this.app.selectedItem = null;
             } else {
-                this.showMessage(`Nothing happens.`, x, y);
+                this.showMessage('Nothing happens.', x, y);
+                this.app.selectedItem = null;
             }
-        },
-        labelFor(item) {
-            if (this.useWith) {
-                return `Use ${this.useWith.item.name} with ${this.useWith.item === item ? '...' : item.name}`;
-            } else {
-                return item.name;
-            }
-        },
-        clearUseWith() {
-            this.useWith = null;
         },
     },
 };

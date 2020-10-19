@@ -94,22 +94,17 @@
         >
         </book-viewer>
 
-        <text-layer
-            v-else
-        >
-        </text-layer>
-
     </easel-container>
 </template>
 
 <script>
 import BigPlant from '@app/BigPlant';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
 
 export default {
     inject: ['app'],
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         BigPlant,
         BookViewer,

@@ -33,7 +33,6 @@ export default {
             return this.textLayer.messager.queue({text, x, y, color}, speed);
         },
         queueMessageAt(x, y, color = null, speed = null) {
-            [x, y] = this.textLayerAdjustment(x, y);
             return msg => this.queueMessage(msg, x, y, color, speed);
         },
         showMessage(text, x, y, color = null, speed = null) {
@@ -41,13 +40,14 @@ export default {
             return this.textLayer.messager.clear().queue({text, x, y, color}, speed);
         },
         showMessageAt(x, y, color = null, speed = null) {
-            [x, y] = this.textLayerAdjustment(x, y);
             return msg => this.showMessage(msg, x, y, color, speed);
         },
         hover() {
-            const [x, y] = this.textLayerAdjustment(this.hoverX || this.x, this.hoverY || this.y);
-            const text = this.hoverName || this.name || '';
-            this.textLayer.hoverer.hover(this, {text, x, y});
+            const [x, y] = this.textLayerAdjustment(
+                this.hoverX || this.x,
+                this.hoverY || this.y
+            );
+            this.textLayer.hoverer.hover(this, {item: this, x, y});
         },
         unhover() {
             this.textLayer.hoverer.unhover(this);

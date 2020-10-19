@@ -3,6 +3,7 @@ export default class InventoryCheese {
 
     constructor(data) {
         this.image = 'images/cheese.gif';
+        this.selectable = true;
         Object.assign(this, data);
     }
 };

@@ -1709,6 +1709,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_analytics_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @app/analytics.js */ "./app/analytics.js");
 /* harmony import */ var _sentry_browser__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @sentry/browser */ "./node_modules/@sentry/browser/esm/index.js");
 /* harmony import */ var _sentry_integrations__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @sentry/integrations */ "./node_modules/@sentry/integrations/esm/index.js");
+/* harmony import */ var _itemSelection_ItemSelector__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @itemSelection/ItemSelector */ "./app/itemSelection/ItemSelector.js");
 /**
  |---------------------------------
  | app.js
@@ -1717,9 +1718,9 @@ __webpack_require__.r(__webpack_exports__);
  |
  | It handles screen sizing, and providing globally useful tools and data.
  |
- | Provides itself as `app` to all descendants.
+ | It provides itself as `app` to all descendants.
  |
- | Data includes:
+ | Useful values under `app`:
  |  config: data from config.js
  |  isMobile: dynamic boolean is true if the screen size looks like mobile
  |  viewport.width: the width of the canvas internally
@@ -1736,6 +1737,7 @@ __webpack_require__.r(__webpack_exports__);
  | This class does NOT handle rendering anything directly or choosing which
  | components are rendered. That's left to the EnzosEusedEbooks component.
  */
+
 
 
 
@@ -1788,6 +1790,7 @@ const app = new Vue({
     components: {
         EnzosEusedEbooks: _app_EnzosEusedEbooks_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
     },
+    mixins: [_itemSelection_ItemSelector__WEBPACK_IMPORTED_MODULE_14__["default"]],
     provide() {
         return {
             app: this
@@ -2328,6 +2331,25 @@ __webpack_require__.r(__webpack_exports__);
         const [chosen] = pool.splice(Math.floor(Math.random() * Math.random() * pool.length), 1);
         used.push(chosen);
         return chosen;
+    }
+});
+
+/***/ }),
+
+/***/ "./app/itemSelection/ItemSelector.js":
+/*!*******************************************!*\
+  !*** ./app/itemSelection/ItemSelector.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data() {
+        return {
+            selectedItem: null
+        };
     }
 });
 
@@ -3364,7 +3386,8 @@ __webpack_require__.r(__webpack_exports__);
     inject: ['app'],
     provide() {
         return {
-            textLayer: this.textLayer
+            textLayerRoot: this,
+            textLayerParent: this
         };
     },
     mounted() {
@@ -3485,6 +3508,17 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     methods: {
+        textLayerAdjustment(x, y) {
+            if (this.textLayerOrigin) {
+                x += this.textLayerOrigin[0];
+                y += this.textLayerOrigin[1];
+            }
+            if (this.textLayerParent) {
+                return this.textLayerParent.textLayerAdjustment(x, y);
+            } else {
+                return [x, y];
+            }
+        },
         addToHoverRing() {
             this.textLayer.mobileHoverRing.add(this.hoverCallback);
         },
@@ -3492,19 +3526,22 @@ __webpack_require__.r(__webpack_exports__);
             this.textLayer.mobileHoverRing.remove(this.hoverCallback);
         },
         queueMessage(text, x, y, color = null, speed = null) {
+            [x, y] = this.textLayerAdjustment(x, y);
             return this.textLayer.messager.queue({ text, x, y, color }, speed);
         },
         queueMessageAt(x, y, color = null, speed = null) {
             return msg => this.queueMessage(msg, x, y, color, speed);
         },
         showMessage(text, x, y, color = null, speed = null) {
+            [x, y] = this.textLayerAdjustment(x, y);
             return this.textLayer.messager.clear().queue({ text, x, y, color }, speed);
         },
         showMessageAt(x, y, color = null, speed = null) {
             return msg => this.showMessage(msg, x, y, color, speed);
         },
         hover() {
-            this.textLayer.hoverer.hover(this, this);
+            const [x, y] = this.textLayerAdjustment(this.hoverX || this.x, this.hoverY || this.y);
+            this.textLayer.hoverer.hover(this, { item: this, x, y });
         },
         unhover() {
             this.textLayer.hoverer.unhover(this);
@@ -3544,7 +3581,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    inject: ['textLayer'],
+    inject: ['textLayerRoot', 'textLayerParent'],
+    provide() {
+        return {
+            textLayerParent: this
+        };
+    },
     mixins: [_textLayer_TextLayerMethods__WEBPACK_IMPORTED_MODULE_0__["default"]],
     mounted() {
         this.hoverCallback = () => this.hover();
@@ -3553,6 +3595,11 @@ __webpack_require__.r(__webpack_exports__);
     destroyed() {
         this.unhover();
         this.removeFromHoverRing();
+    },
+    computed: {
+        textLayer() {
+            return this.textLayerRoot.textLayer;
+        }
     }
 });
 
@@ -3703,19 +3750,13 @@ class InventoryBattery {
 
     constructor(data) {
         this.image = 'images/battery.gif';
+        this.selectable = true;
         Object.assign(this, data);
     }
 
-    click({ print, useWith, world }) {
-        useWith(item => {
-            if (item.useBattery) {
-                item.useBattery(print);
-                world.removeInventory(this);
-                world.battery.location = 'used';
-            } else {
-                print("I don't know how to use the battery with that.");
-            }
-        });
+    useUp(world) {
+        world.removeInventory(this);
+        world.battery.location = 'used';
     }
 };
 
@@ -3743,6 +3784,7 @@ class InventoryCheese {
 
     constructor(data) {
         this.image = 'images/cheese.gif';
+        this.selectable = true;
         Object.assign(this, data);
     }
 };
@@ -3765,7 +3807,10 @@ InventoryCheese.registerReviver = function (reviver) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return InventoryDoorbell; });
+/* harmony import */ var _InventoryBattery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./InventoryBattery */ "./app/world/InventoryBattery.js");
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+
 
 class InventoryDoorbell {
 
@@ -3775,17 +3820,26 @@ class InventoryDoorbell {
         Object.assign(this, data);
     }
 
-    click({ print, world }) {
-        if (this.hasBattery) {
+    hoverName(selectedItem) {
+        if (selectedItem) {
+            return 'Use ' + selectedItem.name + ' with ' + this.name;
+        } else {
+            return this.name;
+        }
+    }
+
+    click({ item, print, world }) {
+        if (item instanceof _InventoryBattery__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+            print("The battery fits in the doorbell.");
+            this.hasBattery = true;
+            item.useUp(world);
+        } else if (item) {
+            print("It doesn't work with that.");
+        } else if (this.hasBattery) {
             world.cutscene = 'doorbell';
         } else {
             print("Nothing happened. It looks like it needs a battery.");
         }
-    }
-
-    useBattery(print) {
-        print("The battery fits in the doorbell!");
-        this.hasBattery = true;
     }
 };
 
@@ -13944,12 +13998,9 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_LobbyDesk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/LobbyDesk */ "./app/LobbyDesk.vue");
-/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
 /* harmony import */ var _app_doorAnswerPhrases__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/doorAnswerPhrases */ "./app/doorAnswerPhrases.js");
-//
-//
-//
 //
 //
 //
@@ -13970,7 +14021,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     inject: ['app'],
-    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
         LobbyDesk: _app_LobbyDesk__WEBPACK_IMPORTED_MODULE_0__["default"]
     },
@@ -14326,6 +14377,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_Inventory__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/Inventory */ "./app/Inventory.vue");
 /* harmony import */ var _app_Room__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/Room */ "./app/Room.vue");
 /* harmony import */ var _app_Cutscene__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @app/Cutscene */ "./app/Cutscene.vue");
+/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
 //
 //
 //
@@ -14394,6 +14446,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
 
 
 
@@ -14402,6 +14457,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_5__["default"]],
     components: {
         DevTools: _develop_Tools__WEBPACK_IMPORTED_MODULE_0__["default"],
         DevElements: _develop_Elements__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -14458,6 +14514,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 //
 //
 //
@@ -14494,14 +14551,38 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
         StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"]
     },
-    inject: ['app', 'window']
+    inject: ['app', 'window'],
+    data() {
+        return {
+            mouseX: 80,
+            mouseY: 148,
+            mouseR: -30
+        };
+    }
 });
 
 /***/ }),
@@ -14516,8 +14597,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_InventoryItem__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/InventoryItem */ "./app/InventoryItem.vue");
-/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
-/* harmony import */ var _textLayer_TextLayer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @textLayer/TextLayer */ "./app/textLayer/TextLayer.vue");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 //
 //
 //
@@ -14544,20 +14624,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
-        InventoryItem: _app_InventoryItem__WEBPACK_IMPORTED_MODULE_0__["default"],
-        TextLayer: _textLayer_TextLayer__WEBPACK_IMPORTED_MODULE_2__["default"]
+        InventoryItem: _app_InventoryItem__WEBPACK_IMPORTED_MODULE_0__["default"]
     },
     inject: ['app'],
     provide() {
@@ -14568,11 +14642,13 @@ __webpack_require__.r(__webpack_exports__);
     props: ['x', 'y', 'items'],
     data() {
         return {
-            noMobileHoverRing: true,
-            useWith: null
+            noMobileHoverRing: true
         };
     },
     computed: {
+        textLayerOrigin() {
+            return [this.x, this.y];
+        },
         itemSize() {
             return this.app.inventorySize.height;
         },
@@ -14587,34 +14663,19 @@ __webpack_require__.r(__webpack_exports__);
     },
     methods: {
         click(item, x, y) {
-            if (this.useWith) {
-                this.useWith.callback(item);
-                this.useWith = null;
+            if (!this.app.selectedItem && item.selectable) {
+                this.app.selectedItem = item;
             } else if (item.click) {
                 item.click({
+                    item: this.app.selectedItem, // maybe null
                     world: this.app.world,
-                    print: this.showMessageAt(x, y),
-                    useWith: callback => {
-                        this.useWith = {
-                            item,
-                            callback
-                        };
-                        this.showMessage(this.labelFor(item), x, y);
-                    }
+                    print: this.showMessageAt(x, y)
                 });
+                this.app.selectedItem = null;
             } else {
-                this.showMessage(`Nothing happens.`, x, y);
+                this.showMessage('Nothing happens.', x, y);
+                this.app.selectedItem = null;
             }
-        },
-        labelFor(item) {
-            if (this.useWith) {
-                return `Use ${this.useWith.item.name} with ${this.useWith.item === item ? '...' : item.name}`;
-            } else {
-                return item.name;
-            }
-        },
-        clearUseWith() {
-            this.useWith = null;
         }
     }
 });
@@ -14660,8 +14721,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    inject: ['app'],
     mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_0__["default"]],
-    props: ['x', 'y', 'size', 'name', 'image', 'hoverName']
+    props: ['x', 'y', 'size', 'image', 'item'],
+    computed: {
+        hoverName() {
+            if (this.item === this.app.selectedItem) {
+                return `Use ${this.item.name} with...`;
+            }
+            return this.item.hoverName ? this.item.hoverName(this.app.selectedItem) : this.item.name;
+        }
+    }
 });
 
 /***/ }),
@@ -14676,7 +14746,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_BigPlant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/BigPlant */ "./app/BigPlant.vue");
-/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/BookViewer */ "./app/BookViewer.vue");
 //
 //
@@ -14777,11 +14847,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
 
 
 
@@ -14789,7 +14854,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     inject: ['app'],
-    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
         BigPlant: _app_BigPlant__WEBPACK_IMPORTED_MODULE_0__["default"],
         BookViewer: _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__["default"]
@@ -15120,10 +15185,8 @@ const { after, always, everySession } = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_1
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _app_LobbyBot__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @app/LobbyBot */ "./app/LobbyBot.vue");
-//
-//
 //
 //
 //
@@ -15190,7 +15253,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     inject: ['app'],
-    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_0__["default"]],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_0__["default"]],
     components: {
         LobbyBot: _app_LobbyBot__WEBPACK_IMPORTED_MODULE_1__["default"]
     },
@@ -15649,10 +15712,9 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_Stack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/Stack */ "./app/Stack.vue");
-/* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/BookViewer */ "./app/BookViewer.vue");
 /* harmony import */ var _app_SlidingWindow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/SlidingWindow */ "./app/SlidingWindow.vue");
-//
 //
 //
 //
@@ -15748,7 +15810,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
         Stack: _app_Stack__WEBPACK_IMPORTED_MODULE_0__["default"],
         BookViewer: _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__["default"],
@@ -16109,11 +16171,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    inject: ['app', 'textLayer'],
+    inject: ['app', 'textLayerRoot'],
     computed: {
+        textLayer() {
+            return this.textLayerRoot.textLayer;
+        },
         message() {
             return this.messagerMessage || this.hovererMessage;
         },
@@ -16124,12 +16188,9 @@ __webpack_require__.r(__webpack_exports__);
             if (!this.textLayer.hoverer.message) {
                 return null;
             } else {
-                const component = this.textLayer.hoverer.message;
-                return {
-                    text: component.hoverName || component.name || '',
-                    x: component.hoverX || component.x,
-                    y: component.hoverY || component.y
-                };
+                const { item, x, y } = this.textLayer.hoverer.message;
+                const text = item.hoverName || item.name || '';
+                return { text, x, y };
             }
         },
         itsAHoverMessage() {
@@ -21500,9 +21561,7 @@ var render = function() {
       _c("lobby-desk", {
         attrs: { "no-dialog": true, "say-words": _vm.say.words },
         on: { "words-said": _vm.robotSaid }
-      }),
-      _vm._v(" "),
-      _c("text-layer")
+      })
     ],
     1
   )
@@ -21754,6 +21813,8 @@ var render = function() {
                 }
               }),
               _vm._v(" "),
+              _c("text-layer"),
+              _vm._v(" "),
               _vm.app.config.developmentMode ? _c("dev-elements") : _vm._e()
             ],
             1
@@ -21844,7 +21905,35 @@ var render = function() {
       "bookcase-image": "images/bookcase2-front.gif",
       "shadow-image": "images/bookcase2-shadow.gif",
       "lobby-side": "left"
-    }
+    },
+    scopedSlots: _vm._u([
+      {
+        key: "behind-books",
+        fn: function(ref) {
+          var queueMessage = ref.queueMessage
+          return [
+            _c("enzo-click-spot", {
+              attrs: { name: "Cheese-shaped hole", x: "59", y: "150", r: "16" },
+              on: {
+                click: function($event) {
+                  return queueMessage("Put cheese.", 59, 150)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c("easel-bitmap", {
+              attrs: {
+                x: _vm.mouseX,
+                y: _vm.mouseY,
+                rotation: _vm.mouseR,
+                align: "center-right",
+                image: "images/mouse.gif"
+              }
+            })
+          ]
+        }
+      }
+    ])
   })
 }
 var staticRenderFns = []
@@ -21871,7 +21960,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "easel-container",
-    { attrs: { x: _vm.x, y: _vm.y }, on: { rollout: _vm.clearUseWith } },
+    { attrs: { x: _vm.x, y: _vm.y } },
     [
       _c("easel-shape", {
         attrs: {
@@ -21885,31 +21974,22 @@ var render = function() {
       }),
       _vm._v(" "),
       _vm._l(_vm.items, function(item, index) {
-        return _c(
-          "inventory-item",
-          _vm._b(
-            {
-              key: item.name,
-              attrs: {
-                x: index * _vm.itemSize,
-                y: 0,
-                "hover-name": _vm.labelFor(item),
-                size: _vm.itemSize
-              },
-              on: {
-                click: function($event) {
-                  return _vm.click(item, index * _vm.itemSize, 0)
-                }
-              }
-            },
-            "inventory-item",
-            item,
-            false
-          )
-        )
-      }),
-      _vm._v(" "),
-      _c("text-layer")
+        return _c("inventory-item", {
+          key: item.name,
+          attrs: {
+            x: index * _vm.itemSize,
+            y: 0,
+            item: item,
+            image: item.image,
+            size: _vm.itemSize
+          },
+          on: {
+            click: function($event) {
+              return _vm.click(item, index * _vm.itemSize, 0)
+            }
+          }
+        })
+      })
     ],
     2
   )
@@ -22101,7 +22181,7 @@ var render = function() {
               }
             }
           })
-        : _c("text-layer")
+        : _vm._e()
     ],
     2
   )
@@ -22338,9 +22418,7 @@ var render = function() {
               }
             }
           })
-        : _vm._e(),
-      _vm._v(" "),
-      _c("text-layer")
+        : _vm._e()
     ],
     1
   )
@@ -22623,6 +22701,8 @@ var render = function() {
         [
           _c("easel-bitmap", { attrs: { image: _vm.backgroundImage } }),
           _vm._v(" "),
+          _vm._t("behind-books", null, { queueMessage: _vm.queueMessage }),
+          _vm._v(" "),
           _c("stack", {
             attrs: {
               collection: _vm.collection,
@@ -22690,11 +22770,9 @@ var render = function() {
               })
             ],
             1
-          ),
-          _vm._v(" "),
-          !_vm.viewBook ? _c("text-layer") : _vm._e()
+          )
         ],
-        1
+        2
       ),
       _vm._v(" "),
       _vm.viewBook

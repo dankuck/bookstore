@@ -27,7 +27,18 @@
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {
+    inject: ['app'],
     mixins: [UsesTextLayer],
-    props: ['x', 'y', 'size', 'name', 'image', 'hoverName'],
+    props: ['x', 'y', 'size', 'image', 'item'],
+    computed: {
+        hoverName() {
+            if (this.item === this.app.selectedItem) {
+                return `Use ${this.item.name} with...`;
+            }
+            return this.item.hoverName
+                ? this.item.hoverName(this.app.selectedItem)
+                : this.item.name;
+        },
+    },
 };
 </script>

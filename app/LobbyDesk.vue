@@ -55,18 +55,16 @@
         >
         </lobby-bot>
 
-        <text-layer>
-        </text-layer>
     </easel-container>
 </template>
 
 <script>
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import LobbyBot from '@app/LobbyBot';
 
 export default {
     inject: ['app'],
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         LobbyBot,
     },
