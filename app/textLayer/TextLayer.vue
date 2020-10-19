@@ -5,8 +5,7 @@
  |---------------------------------
  | Shows text, being careful not to clutter the display.
  |
- | This component is meant to be used by a parent that mixes in HasTextLayer,
- | which provides `textLayer`.
+ | To use this, mixin HasTextLayer and place <text-layer> on your page.
  |
  | In Mobile mode, it also shows a dot so users know where to tap.
  |
@@ -53,8 +52,11 @@
 
 <script>
 export default {
-    inject: ['app', 'textLayer'],
+    inject: ['app', 'textLayerRoot'],
     computed: {
+        textLayer() {
+            return this.textLayerRoot.textLayer;
+        },
         message() {
             return this.messagerMessage || this.hovererMessage;
         },
@@ -62,16 +64,7 @@ export default {
             return this.textLayer.messager.message;
         },
         hovererMessage() {
-            if (!this.textLayer.hoverer.message) {
-                return null;
-            } else {
-                const component = this.textLayer.hoverer.message;
-                return {
-                    text: component.hoverName || component.name || '',
-                    x: component.hoverX || component.x,
-                    y: component.hoverY || component.y,
-                };
-            }
+            return this.textLayer.hoverer.message;
         },
         itsAHoverMessage() {
             return !this.messagerMessage;

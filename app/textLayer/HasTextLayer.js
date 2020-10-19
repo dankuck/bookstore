@@ -34,7 +34,8 @@ export default {
     inject: ['app'],
     provide() {
         return {
-            textLayer: this.textLayer,
+            textLayerRoot: this,
+            textLayerParent: this,
         };
     },
     mounted() {

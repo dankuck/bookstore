@@ -22,18 +22,15 @@
             @click="click(item, index * itemSize, 0)"
         >
         </inventory-item>
-
-        <text-layer>
-        </text-layer>
     </easel-container>
 </template>
 
 <script>
 import InventoryItem from '@app/InventoryItem';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         InventoryItem,
     },
@@ -51,6 +48,9 @@ export default {
         };
     },
     computed: {
+        textLayerOrigin() {
+            return [this.x, this.y];
+        },
         itemSize() {
             return this.app.inventorySize.height;
         },

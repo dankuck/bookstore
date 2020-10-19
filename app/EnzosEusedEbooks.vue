@@ -43,6 +43,8 @@
             >
             </inventory>
 
+            <text-layer></text-layer>
+
             <dev-elements v-if="app.config.developmentMode"></dev-elements>
         </easel-canvas>
         <easel-canvas
@@ -72,8 +74,10 @@ import DevElements from '@develop/Elements';
 import Inventory from '@app/Inventory';
 import Room from '@app/Room';
 import Cutscene from '@app/Cutscene';
+import HasTextLayer from '@textLayer/HasTextLayer';
 
 export default {
+    mixins: [HasTextLayer],
     components: {
         DevTools,
         DevElements,
