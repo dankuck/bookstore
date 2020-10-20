@@ -1259,6 +1259,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./app/RatTrack.vue":
+/*!**************************!*\
+  !*** ./app/RatTrack.vue ***!
+  \**************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RatTrack.vue?vue&type=template&id=077cf102& */ "./app/RatTrack.vue?vue&type=template&id=077cf102&");
+/* harmony import */ var _RatTrack_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RatTrack.vue?vue&type=script&lang=js& */ "./app/RatTrack.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _RatTrack_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "app/RatTrack.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./app/RatTrack.vue?vue&type=script&lang=js&":
+/*!***************************************************!*\
+  !*** ./app/RatTrack.vue?vue&type=script&lang=js& ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_RatTrack_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/babel-loader/lib!../node_modules/vue-loader/lib??vue-loader-options!./RatTrack.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./app/RatTrack.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_RatTrack_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./app/RatTrack.vue?vue&type=template&id=077cf102&":
+/*!*********************************************************!*\
+  !*** ./app/RatTrack.vue?vue&type=template&id=077cf102& ***!
+  \*********************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../node_modules/vue-loader/lib??vue-loader-options!./RatTrack.vue?vue&type=template&id=077cf102& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./app/RatTrack.vue?vue&type=template&id=077cf102&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RatTrack_vue_vue_type_template_id_077cf102___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./app/Room.vue":
 /*!**********************!*\
   !*** ./app/Room.vue ***!
@@ -1839,7 +1908,7 @@ const app = new Vue({
         viewport() {
             return {
                 width: this.roomSize.width,
-                height: this.roomSize.height + (this.world.inventory.length === 0 ? 0 : this.inventorySize.height)
+                height: this.roomSize.height + (this.world.inventory.length === 0 || this.world.cutscene ? 0 : this.inventorySize.height)
             };
         }
     },
@@ -3510,8 +3579,8 @@ __webpack_require__.r(__webpack_exports__);
     methods: {
         textLayerAdjustment(x, y) {
             if (this.textLayerOrigin) {
-                x += this.textLayerOrigin[0];
-                y += this.textLayerOrigin[1];
+                x += parseFloat(this.textLayerOrigin[0]);
+                y += parseFloat(this.textLayerOrigin[1]);
             }
             if (this.textLayerParent) {
                 return this.textLayerParent.textLayerAdjustment(x, y);
@@ -3786,6 +3855,11 @@ class InventoryCheese {
         this.image = 'images/cheese.gif';
         this.selectable = true;
         Object.assign(this, data);
+    }
+
+    goto(world, location) {
+        world.theCheese.location = location;
+        world.removeInventory(this);
     }
 };
 
@@ -14514,8 +14588,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
-/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
-/* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
+/* harmony import */ var _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @app/RatTrack */ "./app/RatTrack.vue");
 //
 //
 //
@@ -14559,33 +14632,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
     components: {
-        StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"]
+        StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"],
+        RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__["default"]
     },
-    inject: ['app', 'window'],
-    data() {
-        return {
-            InventoryCheese: _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_2__["default"],
-            mouseX: 80,
-            mouseY: 148,
-            mouseR: -30
-        };
-    }
+    inject: ['app', 'window']
 });
 
 /***/ }),
@@ -14674,6 +14730,8 @@ __webpack_require__.r(__webpack_exports__);
                     world: this.app.world,
                     print: this.showMessageAt(x, y)
                 });
+                this.app.selectedItem = null;
+            } else if (this.app.selectedItem === item) {
                 this.app.selectedItem = null;
             } else {
                 this.showMessage('Nothing happens.', x, y);
@@ -15349,6 +15407,96 @@ __webpack_require__.r(__webpack_exports__);
         StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"]
     },
     inject: ['app', 'window']
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./app/RatTrack.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./app/RatTrack.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    inject: ['app'],
+    props: ['x', 'y'],
+    mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+    data() {
+        return {
+            InventoryCheese: _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"],
+            mouseX: 41,
+            mouseY: -15,
+            mouseR: 0
+        };
+    },
+    computed: {
+        textLayerOrigin() {
+            return [this.x, this.y];
+        },
+        holeName() {
+            if (this.hasCheese) {
+                return 'Cheese';
+            } else if (this.app.selectedItem) {
+                return 'Put ' + this.app.selectedItem.name + ' in cheese-sized hole';
+            } else {
+                return 'Cheese-sized hole';
+            }
+        },
+        hasCheese() {
+            return this.app.world.theCheese.location === 'rat-track';
+        }
+    },
+    methods: {
+        clickHole() {
+            if (this.hasCheese) {
+                this.queueMessage('Remember when you put the cheese there?', 0, 0);
+            } else if (!this.app.selectedItem) {
+                this.queueMessage('It sure is empty.', 0, 0);
+            } else if (this.app.selectedItem instanceof _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+                this.app.selectedItem.goto(this.app.world, 'rat-track');
+                this.app.selectedItem = null;
+            } else {
+                this.queueMessage('That does not go in the cheese-sized hole.', 0, 0);
+                this.app.selectedItem = null;
+            }
+        }
+    }
 });
 
 /***/ }),
@@ -16080,6 +16228,7 @@ __webpack_require__.r(__webpack_exports__);
     methods: {
         resetWorld() {
             this.app.world = new _world_World__WEBPACK_IMPORTED_MODULE_1__["default"]();
+            this.app.selectedItem = null;
             this.messager.queue(`Reset world`);
         },
         saveWorld() {
@@ -21912,45 +22061,10 @@ var render = function() {
     scopedSlots: _vm._u([
       {
         key: "behind-books",
-        fn: function(ref) {
-          var queueMessage = ref.queueMessage
-          return [
-            _c("enzo-click-spot", {
-              attrs: {
-                name: _vm.app.selectedItem
-                  ? "Put " +
-                    _vm.app.selectedItem.name +
-                    " in cheese-shaped hole"
-                  : "Cheese-shaped hole",
-                x: "59",
-                y: "150",
-                r: "16"
-              },
-              on: {
-                click: function($event) {
-                  _vm.app.selectedItem &&
-                  !(_vm.app.selectedItem instanceof _vm.InventoryCheese)
-                    ? queueMessage(
-                        "That does not go in the cheese-shaped hole.",
-                        59,
-                        150
-                      )
-                    : queueMessage("Put cheese.", 59, 150)
-                }
-              }
-            }),
-            _vm._v(" "),
-            _c("easel-bitmap", {
-              attrs: {
-                x: _vm.mouseX,
-                y: _vm.mouseY,
-                rotation: _vm.mouseR,
-                align: "center-right",
-                image: "images/mouse.gif"
-              }
-            })
-          ]
-        }
+        fn: function() {
+          return [_c("rat-track", { attrs: { x: "33", y: "169" } })]
+        },
+        proxy: true
       }
     ])
   })
@@ -22484,6 +22598,56 @@ var render = function() {
       "lobby-side": "left"
     }
   })
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./app/RatTrack.vue?vue&type=template&id=077cf102&":
+/*!***************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./app/RatTrack.vue?vue&type=template&id=077cf102& ***!
+  \***************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "easel-container",
+    { attrs: { x: _vm.x, y: _vm.y } },
+    [
+      _c("enzo-click-spot", {
+        attrs: { name: _vm.holeName, x: 16, y: -16, r: "16" },
+        on: { click: _vm.clickHole }
+      }),
+      _vm._v(" "),
+      _c("easel-bitmap", {
+        attrs: {
+          x: _vm.mouseX,
+          y: _vm.mouseY,
+          rotation: _vm.mouseR,
+          align: "center-right",
+          image: "images/mouse.gif"
+        }
+      }),
+      _vm._v(" "),
+      _vm.hasCheese
+        ? _c("easel-bitmap", {
+            attrs: { x: 9, y: -16, image: "images/cheese.gif" }
+          })
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true

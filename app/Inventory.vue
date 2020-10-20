@@ -72,6 +72,8 @@ export default {
                     print: this.showMessageAt(x, y),
                 });
                 this.app.selectedItem = null;
+            } else if (this.app.selectedItem === item) {
+                this.app.selectedItem = null;
             } else {
                 this.showMessage('Nothing happens.', x, y);
                 this.app.selectedItem = null;

@@ -6,6 +6,11 @@ export default class InventoryCheese {
         this.selectable = true;
         Object.assign(this, data);
     }
+
+    goto(world, location) {
+        world.theCheese.location = location;
+        world.removeInventory(this);
+    }
 };
 
 InventoryCheese.registerReviver = function (reviver) {

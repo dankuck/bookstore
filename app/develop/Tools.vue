@@ -65,6 +65,7 @@ export default {
     methods: {
         resetWorld() {
             this.app.world = new World();
+            this.app.selectedItem = null;
             this.messager.queue(`Reset world`);
         },
         saveWorld() {

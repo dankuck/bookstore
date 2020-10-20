@@ -30,20 +30,12 @@
         shadow-image="images/bookcase2-shadow.gif"
         lobby-side="left"
     >
-        <template v-slot:behind-books="{queueMessage}">
-            <enzo-click-spot
-                :name="app.selectedItem ? 'Put ' + app.selectedItem.name + ' in cheese-shaped hole' : 'Cheese-shaped hole'"
-                x="59"
-                y="150"
-                r="16"
-                @click="app.selectedItem && ! (app.selectedItem instanceof InventoryCheese) ? queueMessage('That does not go in the cheese-shaped hole.', 59, 150) : queueMessage('Put cheese.', 59, 150)"
+        <template v-slot:behind-books>
+            <rat-track
+                x="33"
+                y="169"
             >
-            </enzo-click-spot>
-            <easel-bitmap :x="mouseX" :y="mouseY" :rotation="mouseR"
-                align="center-right"
-                image="images/mouse.gif"
-            >
-            </easel-bitmap>
+            </rat-track>
         </template>
     </stack-room>
 
@@ -51,24 +43,13 @@
 
 <script>
 import StackRoom from '@app/StackRoom';
-import UsesTextLayer from '@textLayer/UsesTextLayer';
-import InventoryCheese from '@world/InventoryCheese';
+import RatTrack from '@app/RatTrack';
 
 export default {
-    mixins: [
-        UsesTextLayer,
-    ],
     components: {
         StackRoom,
+        RatTrack,
     },
     inject: ['app', 'window'],
-    data() {
-        return {
-            InventoryCheese,
-            mouseX: 80,
-            mouseY: 148,
-            mouseR: -30,
-        };
-    },
 };
 </script>

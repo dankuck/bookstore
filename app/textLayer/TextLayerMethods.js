@@ -13,8 +13,8 @@ export default {
     methods: {
         textLayerAdjustment(x, y) {
             if (this.textLayerOrigin) {
-                x += this.textLayerOrigin[0];
-                y += this.textLayerOrigin[1];
+                x += parseFloat(this.textLayerOrigin[0]);
+                y += parseFloat(this.textLayerOrigin[1]);
             }
             if (this.textLayerParent) {
                 return this.textLayerParent.textLayerAdjustment(x, y);
