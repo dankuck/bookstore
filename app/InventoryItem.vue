@@ -32,11 +32,11 @@ export default {
     props: ['x', 'y', 'size', 'image', 'item'],
     computed: {
         hoverName() {
-            if (this.item === this.app.selectedItem) {
+            if (this.item === this.app.world.selectedItem) {
                 return `Use ${this.item.name} with...`;
             }
             return this.item.hoverName
-                ? this.item.hoverName(this.app.selectedItem)
+                ? this.item.hoverName(this.app.world.selectedItem)
                 : this.item.name;
         },
     },

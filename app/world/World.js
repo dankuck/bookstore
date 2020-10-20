@@ -132,6 +132,7 @@ export default class World
         Object.assign(this, data);
         this.version = upgrader.upgrade(this.version || 0, this);
         this.scheduler.setTarget(this);
+        this.selectedItem = null;
     }
 
     /**
@@ -154,6 +155,9 @@ export default class World
         } else if (somethingFellOut) {
             print("You ruffled the plant. Something fell out.");
         } else {
+            // Lines like this would be unreachable unless you had gone through
+            // some earlier version of the game that did not set ruffled = true
+            // below
             print("You ruffled the plant. You feel superior.");
         };
 
@@ -321,21 +325,16 @@ export default class World
 };
 
 World.registerReviver = function (reviver) {
-    reviver.add(
-        'World',
+    const add = [
         World,
         (key, data) => { return new World(data) },
-        (key, data) => { return {...data} }
-    );
+        (key, data) => { return {...data, selectedItem: null} }
+    ];
+    reviver.add('World', ...add);
     // When we first launched Enzo's, we minimized all the code and World got
     // renamed. Now we are safe against that happening, but we need to be able
     // to handle names from that era.
-    reviver.add(
-        'ot',
-        World,
-        (key, data) => { return new World(data) },
-        (key, data) => { return {...data} }
-    );
+    reviver.add('ot', ...add);
     reviver.register(Collection);
     reviver.register(InventoryBattery);
     reviver.register(InventoryDoorbell);

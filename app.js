@@ -1778,7 +1778,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_analytics_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @app/analytics.js */ "./app/analytics.js");
 /* harmony import */ var _sentry_browser__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @sentry/browser */ "./node_modules/@sentry/browser/esm/index.js");
 /* harmony import */ var _sentry_integrations__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @sentry/integrations */ "./node_modules/@sentry/integrations/esm/index.js");
-/* harmony import */ var _itemSelection_ItemSelector__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @itemSelection/ItemSelector */ "./app/itemSelection/ItemSelector.js");
 /**
  |---------------------------------
  | app.js
@@ -1806,7 +1805,6 @@ __webpack_require__.r(__webpack_exports__);
  | This class does NOT handle rendering anything directly or choosing which
  | components are rendered. That's left to the EnzosEusedEbooks component.
  */
-
 
 
 
@@ -1859,7 +1857,6 @@ const app = new Vue({
     components: {
         EnzosEusedEbooks: _app_EnzosEusedEbooks_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
     },
-    mixins: [_itemSelection_ItemSelector__WEBPACK_IMPORTED_MODULE_14__["default"]],
     provide() {
         return {
             app: this
@@ -2400,25 +2397,6 @@ __webpack_require__.r(__webpack_exports__);
         const [chosen] = pool.splice(Math.floor(Math.random() * Math.random() * pool.length), 1);
         used.push(chosen);
         return chosen;
-    }
-});
-
-/***/ }),
-
-/***/ "./app/itemSelection/ItemSelector.js":
-/*!*******************************************!*\
-  !*** ./app/itemSelection/ItemSelector.js ***!
-  \*******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
-        return {
-            selectedItem: null
-        };
     }
 });
 
@@ -4044,6 +4022,7 @@ class World {
         Object.assign(this, data);
         this.version = upgrader.upgrade(this.version || 0, this);
         this.scheduler.setTarget(this);
+        this.selectedItem = null;
     }
 
     /**
@@ -4066,6 +4045,9 @@ class World {
         } else if (somethingFellOut) {
             print("You ruffled the plant. Something fell out.");
         } else {
+            // Lines like this would be unreachable unless you had gone through
+            // some earlier version of the game that did not set ruffled = true
+            // below
             print("You ruffled the plant. You feel superior.");
         };
 
@@ -4216,19 +4198,16 @@ class World {
 };
 
 World.registerReviver = function (reviver) {
-    reviver.add('World', World, (key, data) => {
+    const add = [World, (key, data) => {
         return new World(data);
     }, (key, data) => {
-        return _extends({}, data);
-    });
+        return _extends({}, data, { selectedItem: null });
+    }];
+    reviver.add('World', ...add);
     // When we first launched Enzo's, we minimized all the code and World got
     // renamed. Now we are safe against that happening, but we need to be able
     // to handle names from that era.
-    reviver.add('ot', World, (key, data) => {
-        return new World(data);
-    }, (key, data) => {
-        return _extends({}, data);
-    });
+    reviver.add('ot', ...add);
     reviver.register(_world_Collection__WEBPACK_IMPORTED_MODULE_1__["default"]);
     reviver.register(_world_InventoryBattery__WEBPACK_IMPORTED_MODULE_2__["default"]);
     reviver.register(_world_InventoryDoorbell__WEBPACK_IMPORTED_MODULE_3__["default"]);
@@ -14722,20 +14701,20 @@ __webpack_require__.r(__webpack_exports__);
     },
     methods: {
         click(item, x, y) {
-            if (!this.app.selectedItem && item.selectable) {
-                this.app.selectedItem = item;
+            if (!this.app.world.selectedItem && item.selectable) {
+                this.app.world.selectedItem = item;
             } else if (item.click) {
                 item.click({
-                    item: this.app.selectedItem, // maybe null
+                    item: this.app.world.selectedItem, // maybe null
                     world: this.app.world,
                     print: this.showMessageAt(x, y)
                 });
-                this.app.selectedItem = null;
-            } else if (this.app.selectedItem === item) {
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
+            } else if (this.app.world.selectedItem === item) {
+                this.app.world.selectedItem = null;
             } else {
                 this.showMessage('Nothing happens.', x, y);
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
             }
         }
     }
@@ -14787,10 +14766,10 @@ __webpack_require__.r(__webpack_exports__);
     props: ['x', 'y', 'size', 'image', 'item'],
     computed: {
         hoverName() {
-            if (this.item === this.app.selectedItem) {
+            if (this.item === this.app.world.selectedItem) {
                 return `Use ${this.item.name} with...`;
             }
-            return this.item.hoverName ? this.item.hoverName(this.app.selectedItem) : this.item.name;
+            return this.item.hoverName ? this.item.hoverName(this.app.world.selectedItem) : this.item.name;
         }
     }
 });
@@ -15472,8 +15451,8 @@ __webpack_require__.r(__webpack_exports__);
         holeName() {
             if (this.hasCheese) {
                 return 'Cheese';
-            } else if (this.app.selectedItem) {
-                return 'Put ' + this.app.selectedItem.name + ' in cheese-sized hole';
+            } else if (this.app.world.selectedItem) {
+                return 'Put ' + this.app.world.selectedItem.name + ' in cheese-sized hole';
             } else {
                 return 'Cheese-sized hole';
             }
@@ -15486,14 +15465,14 @@ __webpack_require__.r(__webpack_exports__);
         clickHole() {
             if (this.hasCheese) {
                 this.queueMessage('Remember when you put the cheese there?', 0, 0);
-            } else if (!this.app.selectedItem) {
+            } else if (!this.app.world.selectedItem) {
                 this.queueMessage('It sure is empty.', 0, 0);
-            } else if (this.app.selectedItem instanceof _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"]) {
-                this.app.selectedItem.goto(this.app.world, 'rat-track');
-                this.app.selectedItem = null;
+            } else if (this.app.world.selectedItem instanceof _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+                this.app.world.selectedItem.goto(this.app.world, 'rat-track');
+                this.app.world.selectedItem = null;
             } else {
                 this.queueMessage('That does not go in the cheese-sized hole.', 0, 0);
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
             }
         }
     }
@@ -16228,7 +16207,6 @@ __webpack_require__.r(__webpack_exports__);
     methods: {
         resetWorld() {
             this.app.world = new _world_World__WEBPACK_IMPORTED_MODULE_1__["default"]();
-            this.app.selectedItem = null;
             this.messager.queue(`Reset world`);
         },
         saveWorld() {

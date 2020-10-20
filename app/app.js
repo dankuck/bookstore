@@ -41,7 +41,6 @@ import ColorReducer from '@libs/ColorReducer';
 import analytics from '@app/analytics.js';
 import * as Sentry from '@sentry/browser';
 import * as Integrations from '@sentry/integrations';
-import ItemSelector from '@itemSelection/ItemSelector';
 
 // Expose these variables for devtools
 window.Vue = require('vue');
@@ -85,7 +84,6 @@ const app = new Vue({
     components: {
         EnzosEusedEbooks,
     },
-    mixins: [ItemSelector],
     provide() {
         return {
             app: this,

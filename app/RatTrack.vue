@@ -50,8 +50,8 @@ export default {
         holeName() {
             if (this.hasCheese) {
                 return 'Cheese';
-            } else if (this.app.selectedItem) {
-                return 'Put ' + this.app.selectedItem.name + ' in cheese-sized hole';
+            } else if (this.app.world.selectedItem) {
+                return 'Put ' + this.app.world.selectedItem.name + ' in cheese-sized hole';
             } else {
                 return 'Cheese-sized hole';
             }
@@ -64,14 +64,14 @@ export default {
         clickHole() {
             if (this.hasCheese) {
                 this.queueMessage('Remember when you put the cheese there?', 0, 0);
-            } else if (! this.app.selectedItem) {
+            } else if (! this.app.world.selectedItem) {
                 this.queueMessage('It sure is empty.', 0, 0);
-            } else if (this.app.selectedItem instanceof InventoryCheese) {
-                this.app.selectedItem.goto(this.app.world, 'rat-track');
-                this.app.selectedItem = null;
+            } else if (this.app.world.selectedItem instanceof InventoryCheese) {
+                this.app.world.selectedItem.goto(this.app.world, 'rat-track');
+                this.app.world.selectedItem = null;
             } else {
                 this.queueMessage('That does not go in the cheese-sized hole.', 0, 0);
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
             }
         },
     },

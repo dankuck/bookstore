@@ -63,20 +63,20 @@ export default {
     },
     methods: {
         click(item, x, y) {
-            if (!this.app.selectedItem && item.selectable) {
-                this.app.selectedItem = item;
+            if (!this.app.world.selectedItem && item.selectable) {
+                this.app.world.selectedItem = item;
             } else if (item.click) {
                 item.click({
-                    item: this.app.selectedItem, // maybe null
+                    item: this.app.world.selectedItem, // maybe null
                     world: this.app.world,
                     print: this.showMessageAt(x, y),
                 });
-                this.app.selectedItem = null;
-            } else if (this.app.selectedItem === item) {
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
+            } else if (this.app.world.selectedItem === item) {
+                this.app.world.selectedItem = null;
             } else {
                 this.showMessage('Nothing happens.', x, y);
-                this.app.selectedItem = null;
+                this.app.world.selectedItem = null;
             }
         },
     },
