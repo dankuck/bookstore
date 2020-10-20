@@ -3273,6 +3273,52 @@ class VersionUpgrader {
 
 /***/ }),
 
+/***/ "./app/libs/moveTo.js":
+/*!****************************!*\
+  !*** ./app/libs/moveTo.js ***!
+  \****************************/
+/*! exports provided: moveTo */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveTo", function() { return moveTo; });
+var _this = undefined;
+
+// This changes an object's values to the values given in `to`. It does this
+// one step at a time, and each step is followed by a delay of delaySpeed.
+// It returns a Promise that resolves when the movement is done.
+const moveTo = (delaySpeed, thing, to) => {
+    // This makes negative values -1 and positive values 1
+    const oneify = v => v < 0 ? -1 : v === 0 ? 0 : 1;
+
+    // This moves each field from `to` by one step if they need it
+    // in `thing`.
+    // It returns true when no more changes are necessary.
+    const applyTransformation = (thing, to) => {
+        const moreMovesNeeded = Object.keys(to).map(field => {
+            thing[field] += oneify(to[field] - thing[field]);
+            return thing[field] !== to[field];
+        }).some(Boolean);
+        return !moreMovesNeeded;
+    };
+
+    // This does a single move step for the thing.
+    // It returns a Promise to do the next step, if necessary
+    const move = () => {
+        const done = applyTransformation(_this, to);
+        if (done) {
+            return;
+        } else {
+            return delay(delaySpeed).then(() => move());
+        }
+    };
+
+    return move();
+};
+
+/***/ }),
+
 /***/ "./app/libs/sizeText.js":
 /*!******************************!*\
   !*** ./app/libs/sizeText.js ***!
@@ -14611,6 +14657,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -14620,7 +14676,10 @@ __webpack_require__.r(__webpack_exports__);
         StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"],
         RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__["default"]
     },
-    inject: ['app', 'window']
+    inject: ['app', 'window'],
+    methods: {
+        knockKey() {}
+    }
 });
 
 /***/ }),
@@ -15401,6 +15460,10 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+/* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
+/* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -15428,6 +15491,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
+
 
 
 
@@ -15439,10 +15506,29 @@ __webpack_require__.r(__webpack_exports__);
     data() {
         return {
             InventoryCheese: _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"],
-            mouseX: 41,
-            mouseY: -15,
-            mouseR: 0
+            cheese: {
+                visible: true,
+                x: 9,
+                y: -16,
+                r: 0
+            },
+            mouse: {
+                visible: false,
+                x: 81,
+                y: -15,
+                r: -15
+            }
         };
+    },
+    watch: {
+        'app.world.theCheese.location': {
+            handler(value) {
+                if (value === 'rat-track') {
+                    this.grabCheese();
+                }
+            },
+            immediate: true
+        }
     },
     computed: {
         textLayerOrigin() {
@@ -15465,6 +15551,7 @@ __webpack_require__.r(__webpack_exports__);
         clickHole() {
             if (this.hasCheese) {
                 this.queueMessage('Remember when you put the cheese there?', 0, 0);
+                this.queueMessage('That was fun', 0, 0);
             } else if (!this.app.world.selectedItem) {
                 this.queueMessage('It sure is empty.', 0, 0);
             } else if (this.app.world.selectedItem instanceof _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"]) {
@@ -15474,6 +15561,66 @@ __webpack_require__.r(__webpack_exports__);
                 this.queueMessage('That does not go in the cheese-sized hole.', 0, 0);
                 this.app.world.selectedItem = null;
             }
+        },
+        grabCheese() {
+            this.mouse.visible = true;
+
+            // This changes the mouse and/or the cheese's x, y, and r to the
+            // values given in mouseTo and cheeseTo. It does this one step at a
+            // time, and each step is followed by a delay of delaySpeed.
+            // Every time a move occurs, onMove is called.
+            // It does this using a promise chain, which it returns.
+            const moveTo = (delaySpeed, mouseTo = {}, cheeseTo = {}) => {
+                // Any values not specified become equal to current values
+                mouseTo = _extends({}, this.mouse, mouseTo);
+                cheeseTo = _extends({}, this.cheese, cheeseTo);
+
+                // This makes negative values -1 and positive values 1
+                const oneify = v => v < 0 ? -1 : v === 0 ? 0 : 1;
+
+                // This moves x, y, and r one step if they need it.
+                // It returns true when no more changes are necessary.
+                const applyTransformation = (thing, to) => {
+                    thing.x += oneify(to.x - thing.x);
+                    thing.y += oneify(to.y - thing.y);
+                    thing.r += oneify(to.r - thing.r);
+                    if (thing.x === to.x && thing.y === to.y && thing.r === to.r) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+
+                // This does a single move step for the mouse and the cheese.
+                // It returns a Promise to do the next step, if necessary
+                const move = () => {
+                    const mouseDone = applyTransformation(this.mouse, mouseTo);
+                    const cheeseDone = applyTransformation(this.cheese, cheeseTo);
+                    if (mouseDone && cheeseDone) {
+                        return;
+                    } else {
+                        return Object(_libs_wait__WEBPACK_IMPORTED_MODULE_2__["default"])(delaySpeed).then(() => move());
+                    }
+                };
+                return move();
+            };
+            // Wait a moment after the cheese is placed
+            Object(_libs_wait__WEBPACK_IMPORTED_MODULE_2__["default"])(100)
+            // The mouse peeks out
+            .then(() => moveTo(100, { x: 47 }))
+            // The mouse pauses
+            .then(() => Object(_libs_wait__WEBPACK_IMPORTED_MODULE_2__["default"])(500))
+            // The mouse reaches quickly to grab the cheese
+            .then(() => moveTo(10, { r: 0, x: 41 }))
+            // The mouse runs away with the cheese
+            .then(() => moveTo(10, { x: 141 }, { x: 141, y: -18 }))
+            // The mouse and cheese turn invisible to avoid anyone noticing
+            // that they are still behind the books
+            .then(() => {
+                this.$emit('knock-key');
+                this.mouse.visible = false;
+                this.cheese.visible = false;
+            });
         }
     }
 });
@@ -22017,35 +22164,48 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("stack-room", {
-    attrs: {
-      name: "fiction",
-      width: "400",
-      "start-x": 10,
-      "background-image": "images/bookcase2-back.gif",
-      collection: _vm.app.world.collections.fiction,
-      shelves: [
-        [10 + 25, 300 + 25, 66, 69],
-        [11 + 25, 349 + 25, 118, 118],
-        [40 + 25, 349 + 25, 169, 162],
-        [13 + 25, 349 + 25, 214, 209],
-        [14 + 25, 349 + 25, 260, 255]
-      ],
-      align: "left",
-      "bookcase-image": "images/bookcase2-front.gif",
-      "shadow-image": "images/bookcase2-shadow.gif",
-      "lobby-side": "left"
-    },
-    scopedSlots: _vm._u([
-      {
-        key: "behind-books",
-        fn: function() {
-          return [_c("rat-track", { attrs: { x: "33", y: "169" } })]
+  return _c(
+    "div",
+    [
+      _c("stack-room", {
+        attrs: {
+          name: "fiction",
+          width: "400",
+          "start-x": 10,
+          "background-image": "images/bookcase2-back.gif",
+          collection: _vm.app.world.collections.fiction,
+          shelves: [
+            [10 + 25, 300 + 25, 66, 69],
+            [11 + 25, 349 + 25, 118, 118],
+            [40 + 25, 349 + 25, 169, 162],
+            [13 + 25, 349 + 25, 214, 209],
+            [14 + 25, 349 + 25, 260, 255]
+          ],
+          align: "left",
+          "bookcase-image": "images/bookcase2-front.gif",
+          "shadow-image": "images/bookcase2-shadow.gif",
+          "lobby-side": "left"
         },
-        proxy: true
-      }
-    ])
-  })
+        scopedSlots: _vm._u([
+          {
+            key: "behind-books",
+            fn: function() {
+              return [
+                _c("rat-track", {
+                  attrs: { x: "33", y: "169" },
+                  on: { "knock-key": _vm.knockKey }
+                })
+              ]
+            },
+            proxy: true
+          }
+        ])
+      }),
+      _vm._v(" "),
+      _c("easel-text", { attrs: { text: "🔑", x: "50", y: "50" } })
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -22608,19 +22768,25 @@ var render = function() {
         on: { click: _vm.clickHole }
       }),
       _vm._v(" "),
-      _c("easel-bitmap", {
-        attrs: {
-          x: _vm.mouseX,
-          y: _vm.mouseY,
-          rotation: _vm.mouseR,
-          align: "center-right",
-          image: "images/mouse.gif"
-        }
-      }),
-      _vm._v(" "),
-      _vm.hasCheese
+      _vm.hasCheese && _vm.cheese.visible
         ? _c("easel-bitmap", {
-            attrs: { x: 9, y: -16, image: "images/cheese.gif" }
+            attrs: {
+              x: _vm.cheese.x,
+              y: _vm.cheese.y,
+              image: "images/cheese.gif"
+            }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mouse.visible
+        ? _c("easel-bitmap", {
+            attrs: {
+              x: _vm.mouse.x,
+              y: _vm.mouse.y,
+              rotation: _vm.mouse.r,
+              align: "center-right",
+              image: "images/mouse.gif"
+            }
           })
         : _vm._e()
     ],
