@@ -147,9 +147,7 @@ describe('Reviver', function () {
             (k, v) => v,
             (k, v) => v,
         );
-        reviver.beforeReplace();
-        const json = JSON.stringify(new X(), reviver.replace);
-        reviver.afterReplace();
+        const json = reviver.stringify(new X());
         assert(calledToJSON);
         equal({__class__: 'X', __data__: 'i am json'}, JSON.parse(json));
     });
@@ -202,9 +200,7 @@ describe('Reviver', function () {
             const date = new Date('Jan 16, 2020');
             const expect = '{"__class__":"Date","__data__":"2020-01-16T05:00:00.000Z"}';
 
-            reviver.beforeReplace();
-            equal(expect, JSON.stringify(date, reviver.replace));
-            reviver.afterReplace();
+            equal(expect, reviver.stringify(date));
         });
 
         it('should load a Date correctly', function () {
@@ -219,9 +215,7 @@ describe('Reviver', function () {
             map.set(['some', 'key', 'object'], "string value");
             const expect = '{"__class__":"Map","__data__":[[["some","key","object"],"string value"]]}';
 
-            reviver.beforeReplace();
-            equal(expect, JSON.stringify(map, reviver.replace));
-            reviver.afterReplace();
+            equal(expect, reviver.stringify(map));
         });
 
         it('should load a Map correctly', function () {
@@ -230,6 +224,29 @@ describe('Reviver', function () {
             expect.set(['some', 'key', 'object'], "string value");
             const unexpect = new Map();
             unexpect.set(['not the right array'], "even though this is a string");
+
+            const copy = JSON.parse(json, reviver.revive);
+
+            // We need to convert the maps to arrays before testing. It turns out
+            // equal doesn't work right on Maps.
+            equal(Array.from(expect), Array.from(copy));
+            notEqual(Array.from(unexpect), Array.from(copy));
+        });
+
+        it('should save a Set correctly', function () {
+            const set = new Set();
+            set.add(['some', 'object']);
+            const expect = '{"__class__":"Set","__data__":[["some","object"]]}';
+
+            equal(expect, reviver.stringify(set));
+        });
+
+        it('should load a Set correctly', function () {
+            const json = '{"__class__":"Set","__data__":[["some","object"]]}';
+            const expect = new Set();
+            expect.add(['some', 'object']);
+            const unexpect = new Set();
+            unexpect.add(['not the right array']);
 
             const copy = JSON.parse(json, reviver.revive);
 

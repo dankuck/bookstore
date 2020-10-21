@@ -2,28 +2,68 @@
  |------------------------
  | Reviver
  |------------------------
- | Use the reviver to save objects with their proper class data to a JSON
- | string, or load them from one.
+ | Use a Reviver to serialize an object to a JSON string and revive it again
+ | as an object of the same class. Oh and it works recursively, of course.
  |
  | Example:
  |  const reviver = new Reviver();
- |  reviver.add(
- |      'Date',
- |      Date,
- |      (key, value) => new Date(value),
- |      (key, value) => value
- |  );
  |  const data = {
  |      'title': 'Champagne Supernova',
  |      'created_at': new Date('1996-05-13'),
  |  };
- |  reviver.beforeReplace();
- |  const JSON.stringify(data, reviver.replace)
- |  reviver.afterReplace();
- |  const copy = JSON.parse(json, reviver.revive)
+ |  const json = reviver.stringify(data);
+ |  const copy = reviver.parse(json);
  |  console.log(data, copy);
  |  // Then you see the same thing twice.
- */
+ |
+ |  // JSON would have converted your Date object into a string
+ |  const badJson = JSON.stringify(data);
+ |  const badCopy = JSON.parse(badJson);
+ |  console.log(badCopy)
+ |  // Then you notice that it doesn't look like the ones above
+ |
+ | The Date, Map, and Set classes are built into Reviver. All other classes
+ | must be added to a reviver instance using register().
+ |
+ | Best practice:
+ |
+ | On your custom class, define a class-level method called registerReviver()
+ | that accepts a reviver object and calls the reviver.add() method. Then pass
+ | the class to reviver.register() when you create the reviver.
+ |
+ | Example:
+ | // app.js
+ | reviver.register(Mouse);
+ |
+ | // Mouse.js
+ | Mouse.registerReviver = function (reviver) {
+ |   reviver.add(
+ |     'Mouse',
+ |     Mouse,
+ |     (key, plain) => new Mouse(plain),
+ |     (key, mouse) => {...mouse}
+ |   );
+ |   reviver.register(Cheese);
+ | };
+ |
+ | This keeps your code clean, and it allows you to call reviver.register()
+ | *again* within registerReviver().
+ |
+ | In the above example, if the Mouse holds a Cheese object, it can trust that
+ | the reviver will know how to serialize and revive it. The Mouse won't have
+ | to do anything extra to ensure the cheese comes back intact. And if you know
+ | anything about mice, you know they appreciate peace of mind. 🐁
+ |
+ | Caveats:
+ |
+ | Some built-in types cannot be handled. For example a Promise or a Function
+ | object cannot be converted to JSON and back reliably, so we just give up on
+ | those. For those cases, expect to receive a null. This departs from the
+ | usual JSON API which gives a tricky {} object.
+ |
+ | If the same object is present in two places in an object tree, it will be
+ | written as two objects in JSON and will be revived as two objects.
+  */
 export default class Reviver
 {
     constructor() {
@@ -32,14 +72,23 @@ export default class Reviver
         this.registerBuiltIns();
         this.revive = this.revive.bind(this);
         this.replace = this.replace.bind(this);
-        this.beforeReplace = this.beforeReplace.bind(this);
-        this.afterReplace = this.afterReplace.bind(this);
+    }
+
+    stringify(object) {
+        this.beforeReplace();
+        const serial = JSON.stringify(object, this.replace);
+        this.afterReplace();
+        return serial;
+    }
+
+    parse(serial) {
+        return JSON.parse(serial, this.revive);
     }
 
     /**
      * Provide the callbacks to revive or replace a given class.
      *
-     * @param {string} name          What the class is called in string output
+     * @param {string} name          The class's name
      * @param {Class} classToRevive  The class itself
      * @param {Function} revive      A function to turn a plain object into a
      *                               class instance. Expect to receive the
@@ -85,15 +134,6 @@ export default class Reviver
             );
     }
 
-    /**
-     * Use this with JSON.parse() to load saved data.
-     *
-     * Example: JSON.parse(data, reviver.revive)
-     *
-     * @param  {string} key
-     * @param  {any} value
-     * @return {any}
-     */
     revive(key, value) {
         const match = this.findMatch(value);
         if (!match) {
@@ -107,22 +147,6 @@ export default class Reviver
         }
     }
 
-    /**
-     * Use this with JSON.stringify() to save data as JSON.
-     *
-     * You must use `beforeReplace` and `afterReplace` before and after the
-     * call to stringify to ensure that classes with toJSON methods are saved
-     * correctly.
-     *
-     * Example:
-     *     reviver.beforeReplace();
-     *     JSON.stringify(data, reviver.replace)
-     *     reviver.afterReplace();
-     *
-     * @param  {string} key
-     * @param  {any} value
-     * @return {any}
-     */
     replace(key, value) {
         const {original, asJSON} = value instanceof ReviverStandin
             ? value
@@ -153,7 +177,7 @@ export default class Reviver
 
     /**
      * toJSON gets in the way of what we need to do here. So we get rid of all
-     * the toJSONs before doing a save. Run afterReplace when you're done to
+     * the toJSONs before doing a save. Then we run afterReplace when done to
      * ensure they all get put back where they belong.
      * @return {void}
      */
@@ -167,7 +191,7 @@ export default class Reviver
     }
 
     /**
-     * After doing a save, be sure to run this so all the toJSON methods get
+     * After doing a save, we're sure to run this so all the toJSON methods get
      * put back on their classes.
      * @return {void}
      */
@@ -178,7 +202,7 @@ export default class Reviver
     }
 
     /**
-     * You should write classes with registryReviver() class methods and pass
+     * You should write classes with registerReviver() class methods and pass
      * those classes to this method.
      *
      * @param  {Class} classToRegister
@@ -188,6 +212,10 @@ export default class Reviver
         classToRegister.registerReviver(this);
     }
 
+    /**
+     * Just to ensure this instance is ready to go, we define how to handle
+     * some built-in data types here.
+     */
     registerBuiltIns() {
         this.add(
             'Date',
@@ -201,9 +229,37 @@ export default class Reviver
             (key, value) => value.reduce((map, entry) => map.set(...entry), new Map()),
             (key, value) => Array.from(value)
         );
+        this.add(
+            'Set',
+            Set,
+            (key, value) => new Set(value),
+            (key, value) => Array.from(value)
+        );
+        this.add(
+            'WeakMap',
+            WeakMap,
+            (key, value) => new WeakMap(),
+            (key, value) => null
+        );
+        this.add(
+            'WeakSet',
+            WeakSet,
+            (key, value) => new WeakSet(),
+            (key, value) => null
+        );
+        this.add(
+            'Promise',
+            Promise,
+            (key, value) => null,
+            (key, value) => null
+        );
     }
 }
 
+/**
+ * For any class which has its own toJSON method, we wrap the result of toJSON
+ * in this class so we can recognize it and then decide what to do with it
+ */
 class ReviverStandin {
 
     constructor(original, asJSON) {

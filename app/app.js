@@ -19,7 +19,6 @@
  |  roomSize.height: the height of the room area
  |  inventorySize.width: the width of the inventory area
  |  inventorySize.height: the height of the inventory area
- |  storage: a JsonStorage object that persists data to localStorage
  |  world: the World object
  |
  | This class does NOT handle rendering anything directly or choosing which
@@ -41,6 +40,7 @@ import ColorReducer from '@libs/ColorReducer';
 import analytics from '@app/analytics.js';
 import * as Sentry from '@sentry/browser';
 import * as Integrations from '@sentry/integrations';
+import Store from '@app/store/Store.js';
 
 // Expose these variables for devtools
 window.Vue = require('vue');
@@ -71,13 +71,12 @@ Vue.component('enzo-click-spot', EnzoClickSpot);
 Vue.component('enzo-hover-spot', EnzoHoverSpot);
 Vue.component('enzo-named-container', EnzoNamedContainer);
 
-const storage = new JsonStorage(
-    window.localStorage,
+const store = new Store(
+    World,
     'enzos-eused-ebooks',
-    reviver
+    reviver,
+    'world'
 );
-
-const world = storage.read('world') || new World();
 
 const app = new Vue({
     el: '#app',
@@ -100,11 +99,6 @@ const app = new Vue({
         };
         window.addEventListener('resize', this.resizer);
         this.resizer();
-        this.$watch(
-            'world',
-            () => this.storage.write('world', this.world),
-            {deep: true}
-        );
 
         analytics(this);
     },
@@ -127,8 +121,8 @@ const app = new Vue({
                 width: 350,
                 height: 50,
             },
-            storage,
-            world,
+            store,
+            world: store.data,
             socialLinks: {
                 flashStage: 0,
             },

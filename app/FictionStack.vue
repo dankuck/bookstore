@@ -39,31 +39,68 @@
                 >
                 </rat-track>
             </template>
-        </stack-room>
 
-        <easel-text
-            v-if=""
-            text="🔑"
-            x="50"
-            y="50"
-        >
-        </easel-text>
+            <template v-slot:front>
+                <enzo-click-spot
+                    name="Key"
+                    v-if="keyVisible"
+                    :x="key.x"
+                    :y="key.y"
+                    r="8"
+                    @click="queueMessage('Get key!', key.x, key.y)"
+                >
+                </enzo-click-spot>
+                <easel-text
+                    text="🔑"
+                    v-if="keyVisible"
+                    :x="key.x"
+                    :y="key.y"
+                >
+                </easel-text>
+            </template>
+        </stack-room>
     </div>
 </template>
 
 <script>
 import StackRoom from '@app/StackRoom';
 import RatTrack from '@app/RatTrack';
+import delay from '@libs/wait';
+import moveTo from '@libs/moveTo';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {
+    mixins: [UsesTextLayer],
     components: {
         StackRoom,
         RatTrack,
     },
     inject: ['app', 'window'],
+    data() {
+        return {
+            key: {
+                // The location after falling, in case it already fell
+                x: 171,
+                y: 206,
+                r: 0,
+            },
+        };
+    },
+    computed: {
+        keyVisible() {
+            return this.app.world.key.location === 'bookshelf';
+        },
+    },
     methods: {
         knockKey() {
-
+            this.app.world.key.location = 'bookshelf';
+            this.key = {
+                x: 171,
+                y: 160,
+                r: 0,
+            };
+            this.keyVisible = true;
+            moveTo(10, this.key, {y: 206}, 5);
         },
     },
 };

@@ -20,7 +20,7 @@
             >
             </easel-bitmap>
 
-            <slot name="behind-books" :queueMessage="queueMessage">
+            <slot name="behind-books">
             </slot>
 
             <stack
@@ -52,6 +52,9 @@
                 :image="bookcaseImage"
             >
             </easel-bitmap>
+
+            <slot name="front">
+            </slot>
 
             <easel-bitmap
                 :image="shadowImage"

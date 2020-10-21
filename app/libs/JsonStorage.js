@@ -18,91 +18,34 @@
  |   // {myKey: "{item:123}"}
  |
  | Not all data converts to JSON and back seamlessly. So you may want to
- | convert some parts of your structure to a special format. For that, supply
- | any of the optional functions:
- |  replace - a function that accepts a part of the structure you're
- |            serializing and returns a value you want back when unserializing.
- |            This is passed directly to `JSON.stringify`
- |  revive -  a function that accepts a value from `replace` and returns the
- |            recreated original value. Passed directly to `JSON.parse`
- |  beforeReplace - a function that does whatever prep work you may need before
- |            the replacements
- |  afterReplace  - a function that resets anything you may have changed in
- |            `beforeReplace`.
+ | provide a serializer that knows how to deal with your data.
  |
- | JSON will pass each part of the structures you store to `replace` and
- | `revive` as needed. The parameters will be (`key`, `value`). Return either
- | the same value or a suitable replacement.
+ | Your serializer should have a parse() method which takes a string and
+ | returns the data type you want as well as a stringify() method which
+ | takes your data and returns a string.
  |
- | Hint: The Revive class does a great job supplying those exact functions
- | when you want objects to keep their classes after reload.
- |
- | In this ridiculous example we add an egg emoji to the beginning of every
- | string, for storage, then remove it again on read, so no one is the wiser.
- | We make sure to return the original value for all non-strings:
- |
- |   // Put An Egg On It
- |   const store = {}
- |   const js = new JsonStorage(store, 'myKey', {
- |       revive(k, v) {
- |           return typeof v === 'string'
- |               ? v.replace(/^🥚/, '')
- |               : v
- |       },
- |       replace(k, v) {
- |           return typeof v === 'string'
- |               ? '🥚' + v
- |               : v
- |       },
- |   });
- |   js.write('title', 'The Hound of the Baskervilles');
- |   console.log(js.read('title'));
- |   // The Hound of the Baskervilles
- |   console.log(store)
- |   // {myKey: "{title:\"🥚The Hound of the Baskervilles\"}"}
+ | If no serializer is provided, the global JSON object is used.
  */
-
-const justReturnTheValue = (k, v) => v;
-const justReturn = () => void(0);
 
 export default class JsonStorage
 {
-    constructor(
-        storage,
-        rootKey,
-        {
-            revive,
-            replace,
-            beforeReplace,
-            afterReplace,
-            beforeRevive,
-            afterRevive,
-        } = {}
-    )
+    constructor(storage, rootKey, serializer)
     {
-        this.storage       = storage;
-        this.rootKey       = rootKey;
-        this.reviver       = revive        || justReturnTheValue;
-        this.replacer      = replace       || justReturnTheValue;
-        this.beforeReplace = beforeReplace || justReturn;
-        this.afterReplace  = afterReplace  || justReturn;
-        this.beforeRevive  = beforeRevive  || justReturn;
-        this.afterRevive   = afterRevive   || justReturn;
+        this.storage    = storage;
+        this.rootKey    = rootKey;
+        this.serializer = serializer || JSON;
     }
 
     getRoot()
     {
-        this.beforeRevive();
-        const root = this.storage[this.rootKey] ? JSON.parse(this.storage[this.rootKey], this.reviver) : {};
-        this.afterRevive();
-        return root;
+        return this.storage[this.rootKey]
+            ? this.serializer.parse(this.storage[this.rootKey])
+            : {};
     }
 
     setRoot(root)
     {
-        this.beforeReplace();
-        this.storage[this.rootKey] = JSON.stringify(root, this.replacer);
-        this.afterReplace();
+        this.storage[this.rootKey] = this.serializer.stringify(root);
     }
 
     deleteRoot()

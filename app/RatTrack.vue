@@ -101,70 +101,28 @@ export default {
         grabCheese() {
             this.mouse.visible = true;
 
-            // This changes the mouse and/or the cheese's x, y, and r to the
-            // values given in mouseTo and cheeseTo. It does this one step at a
-            // time, and each step is followed by a delay of delaySpeed.
-            // Every time a move occurs, onMove is called.
-            // It does this using a promise chain, which it returns.
-            const moveTo = (
-                delaySpeed,
-                mouseTo = {},
-                cheeseTo = {},
-
-            ) => {
-                // Any values not specified become equal to current values
-                mouseTo = {...this.mouse, ...mouseTo};
-                cheeseTo = {...this.cheese, ...cheeseTo};
-
-                // This makes negative values -1 and positive values 1
-                const oneify = v => v < 0 ? -1 : v === 0 ? 0 : 1;
-
-                // This moves x, y, and r one step if they need it.
-                // It returns true when no more changes are necessary.
-                const applyTransformation = (thing, to) => {
-                    thing.x += oneify(to.x - thing.x);
-                    thing.y += oneify(to.y - thing.y);
-                    thing.r += oneify(to.r - thing.r);
-                    if (thing.x === to.x && thing.y === to.y && thing.r === to.r) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                };
-
-                // This does a single move step for the mouse and the cheese.
-                // It returns a Promise to do the next step, if necessary
-                const move = () => {
-                    const mouseDone = applyTransformation(this.mouse, mouseTo);
-                    const cheeseDone = applyTransformation(this.cheese, cheeseTo);
-                    if (mouseDone && cheeseDone) {
-                        return;
-                    } else {
-                        return delay(delaySpeed).then(() => move());
-                    }
-                };
-                return move();
-            };
             // Wait a moment after the cheese is placed
             delay(100)
                 // The mouse peeks out
-                .then(() => moveTo(100, {x: 47}))
+                .then(() => moveTo(100, this.mouse, {x: 47}))
                 // The mouse pauses
                 .then(() => delay(500))
                 // The mouse reaches quickly to grab the cheese
-                .then(() => moveTo(10, {r: 0, x: 41}))
+                .then(() => moveTo(10, this.mouse, {r: 0, x: 41}))
                 // The mouse runs away with the cheese
-                .then(() => moveTo(
-                    10,
-                    {x: 141},
-                    {x: 141, y: -18},
-                ))
+                .then(() => Promise.all([
+                    moveTo(10, this.mouse, {x: 141}),
+                    moveTo(10, this.cheese, {x: 141, y: -18}),
+                ]))
                 // The mouse and cheese turn invisible to avoid anyone noticing
-                // that they are still behind the books
+                // that they are still behind the books.
+                // The cheese becomes eaten, so this won't repeat.
+                // The parent gets a chance to knock the key out.
                 .then(() => {
-                    this.$emit('knock-key');
+                    this.app.world.theCheese.location = 'eaten';
                     this.mouse.visible = false;
                     this.cheese.visible = false;
+                    this.$emit('knock-key');
                 })
         },
     },

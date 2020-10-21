@@ -124,6 +124,11 @@ const upgrader = new VersionUpgrader()
             location: 'book',
         };
     })
+    .version(20, world => {
+        world.key = {
+            location: 'book',
+        };
+    })
     ;
 
 export default class World
