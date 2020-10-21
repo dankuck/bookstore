@@ -63,6 +63,7 @@ export default {
     },
     methods: {
         click(item, x, y) {
+            this.clearMessage();
             if (!this.app.world.selectedItem && item.selectable) {
                 this.app.world.selectedItem = item;
             } else if (item.click) {

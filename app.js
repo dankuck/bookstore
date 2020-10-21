@@ -3680,6 +3680,9 @@ __webpack_require__.r(__webpack_exports__);
         showMessageAt(x, y, color = null, speed = null) {
             return msg => this.showMessage(msg, x, y, color, speed);
         },
+        clearMessage() {
+            return this.textLayer.messager.clear();
+        },
         hover() {
             const [x, y] = this.textLayerAdjustment(this.hoverX || this.x, this.hoverY || this.y);
             this.textLayer.hoverer.hover(this, { item: this, x, y });
@@ -14854,6 +14857,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     methods: {
         click(item, x, y) {
+            this.clearMessage();
             if (!this.app.world.selectedItem && item.selectable) {
                 this.app.world.selectedItem = item;
             } else if (item.click) {

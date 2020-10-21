@@ -42,6 +42,9 @@ export default {
         showMessageAt(x, y, color = null, speed = null) {
             return msg => this.showMessage(msg, x, y, color, speed);
         },
+        clearMessage() {
+            return this.textLayer.messager.clear();
+        },
         hover() {
             const [x, y] = this.textLayerAdjustment(
                 this.hoverX || this.x,
