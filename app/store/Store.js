@@ -1,15 +1,19 @@
 import JsonStorage from '@libs/JsonStorage';
 import Vue from 'vue';
+import Reviver from '@libs/Reviver';
 
 export default class Store
 {
-    constructor(RootClass, localStorageKey, reviver, subKey = 'data') {
+    constructor(RootClass, localStorageKey, subKey = 'data') {
         this.localStorageKey = localStorageKey;
-        this.reviver = reviver;
+
+        this.reviver = new Reviver();
+        this.reviver.register(RootClass);
+
         const storage = new JsonStorage(
             window.localStorage,
             localStorageKey,
-            reviver
+            this.reviver
         );
 
         this.data = storage.read(subKey) || new RootClass();

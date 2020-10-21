@@ -34,7 +34,6 @@ import EnzosEusedEbooks from '@app/EnzosEusedEbooks.vue';
 import config from '@/config';
 import JsonStorage from '@libs/JsonStorage';
 import World from '@world/World';
-import reviver from '@app/reviver';
 import axios from 'axios';
 import ColorReducer from '@libs/ColorReducer';
 import analytics from '@app/analytics.js';
@@ -47,7 +46,6 @@ window.Vue = require('vue');
 window.VueEaseljs = require('vue-easeljs');
 window.easeljs = window.VueEaseljs.easeljs;
 window.axios = axios;
-window.reviver = reviver;
 window.JsonStorage = JsonStorage;
 
 if (config.sentry && config.sentry.on) {
@@ -74,7 +72,6 @@ Vue.component('enzo-named-container', EnzoNamedContainer);
 const store = new Store(
     World,
     'enzos-eused-ebooks',
-    reviver,
     'world'
 );
 

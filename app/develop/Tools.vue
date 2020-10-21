@@ -39,7 +39,6 @@
 import DevSettings from '@develop/DevSettings.js';
 import World from '@world/World';
 import Messager from '@libs/Messager';
-import reviver from '@app/reviver';
 import JsonStorage from '@libs/JsonStorage';
 
 export default {
