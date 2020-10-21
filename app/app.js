@@ -39,7 +39,7 @@ import ColorReducer from '@libs/ColorReducer';
 import analytics from '@app/analytics.js';
 import * as Sentry from '@sentry/browser';
 import * as Integrations from '@sentry/integrations';
-import Store from '@app/store/Store.js';
+import StoreMixin from '@app/store/StoreMixin.js';
 
 // Expose these variables for devtools
 window.Vue = require('vue');
@@ -69,20 +69,19 @@ Vue.component('enzo-click-spot', EnzoClickSpot);
 Vue.component('enzo-hover-spot', EnzoHoverSpot);
 Vue.component('enzo-named-container', EnzoNamedContainer);
 
-const store = new Store(
-    World,
-    'enzos-eused-ebooks',
-    'world'
-);
-
 const app = new Vue({
     el: '#app',
+    mixins: [
+        StoreMixin(World, 'enzos-eused-ebooks', 'world'),
+    ],
     components: {
         EnzosEusedEbooks,
     },
     provide() {
         return {
             app: this,
+            // store comes from StoreMixin
+            // world comes from StoreMixin
         };
     },
     mounted() {
@@ -104,6 +103,8 @@ const app = new Vue({
     },
     data() {
         return {
+            // store comes from StoreMixin
+            // world comes from StoreMixin
             config,
             isMobile: false,
             canvas: {
@@ -118,8 +119,6 @@ const app = new Vue({
                 width: 350,
                 height: 50,
             },
-            store,
-            world: store.data,
             socialLinks: {
                 flashStage: 0,
             },

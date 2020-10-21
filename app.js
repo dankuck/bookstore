@@ -1777,7 +1777,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_analytics_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @app/analytics.js */ "./app/analytics.js");
 /* harmony import */ var _sentry_browser__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @sentry/browser */ "./node_modules/@sentry/browser/esm/index.js");
 /* harmony import */ var _sentry_integrations__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @sentry/integrations */ "./node_modules/@sentry/integrations/esm/index.js");
-/* harmony import */ var _app_store_Store_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @app/store/Store.js */ "./app/store/Store.js");
+/* harmony import */ var _app_store_StoreMixin_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @app/store/StoreMixin.js */ "./app/store/StoreMixin.js");
 /**
  |---------------------------------
  | app.js
@@ -1846,16 +1846,17 @@ Vue.component('enzo-click-spot', _app_EnzoClickSpot_vue__WEBPACK_IMPORTED_MODULE
 Vue.component('enzo-hover-spot', _app_EnzoHoverSpot_vue__WEBPACK_IMPORTED_MODULE_2__["default"]);
 Vue.component('enzo-named-container', _app_EnzoNamedContainer_vue__WEBPACK_IMPORTED_MODULE_3__["default"]);
 
-const store = new _app_store_Store_js__WEBPACK_IMPORTED_MODULE_13__["default"](_world_World__WEBPACK_IMPORTED_MODULE_7__["default"], 'enzos-eused-ebooks', 'world');
-
 const app = new Vue({
     el: '#app',
+    mixins: [Object(_app_store_StoreMixin_js__WEBPACK_IMPORTED_MODULE_13__["default"])(_world_World__WEBPACK_IMPORTED_MODULE_7__["default"], 'enzos-eused-ebooks', 'world')],
     components: {
         EnzosEusedEbooks: _app_EnzosEusedEbooks_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
     },
     provide() {
         return {
             app: this
+            // store comes from StoreMixin
+            // world comes from StoreMixin
         };
     },
     mounted() {
@@ -1875,6 +1876,8 @@ const app = new Vue({
     },
     data() {
         return {
+            // store comes from StoreMixin
+            // world comes from StoreMixin
             config: _config__WEBPACK_IMPORTED_MODULE_5__["default"],
             isMobile: false,
             canvas: {
@@ -1889,8 +1892,6 @@ const app = new Vue({
                 width: 350,
                 height: 50
             },
-            store,
-            world: store.data,
             socialLinks: {
                 flashStage: 0
             }
@@ -3438,6 +3439,40 @@ class Store {
         const storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_0__["default"](window.localStorage, localStorageKey, this.reviver);
         storage.delete();
     }
+};
+
+/***/ }),
+
+/***/ "./app/store/StoreMixin.js":
+/*!*********************************!*\
+  !*** ./app/store/StoreMixin.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return StoreMixin; });
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Store */ "./app/store/Store.js");
+
+
+function StoreMixin(...storeParams) {
+    const [RootClass, localStorageKey, storeKey] = storeParams;
+    const store = new _Store__WEBPACK_IMPORTED_MODULE_0__["default"](...storeParams);
+    const provide = {
+        store
+    };
+    if (storeKey) {
+        provide[storeKey] = store.data;
+    }
+    return {
+        provide() {
+            return provide;
+        },
+        data() {
+            return provide;
+        }
+    };
 };
 
 /***/ }),
