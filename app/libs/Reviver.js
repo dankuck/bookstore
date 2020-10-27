@@ -1,3 +1,4 @@
+import ReviverBuiltIns from './ReviverBuiltIns';
 /**
  |------------------------
  | Reviver
@@ -27,12 +28,14 @@
  |
  | Best practice:
  |
- | On your custom class, define a class-level method called registerReviver()
- | that accepts a reviver object and calls the reviver.add() method. Then pass
- | the class to reviver.register() when you create the reviver.
+ | When you create a reviver, immediately pass your custom data class(es) to
+ | reviver.register(). Define a class-level method on your custom class called
+ | registerReviver(reviver). Within registerReviver(), call the reviver.add()
+ | method and pass any other classes you'll need to reviver.register().
  |
  | Example:
  | // app.js
+ | const reviver = new Reviver();
  | reviver.register(Mouse);
  |
  | // Mouse.js
@@ -46,32 +49,57 @@
  |   reviver.register(Cheese);
  | };
  |
- | This keeps your code clean, and it allows you to call reviver.register()
- | *again* within registerReviver().
+ | This keeps your code clean, and it allows the custom class to call
+ | reviver.register() for any classes that it deems important.
  |
- | In the above example, if the Mouse holds a Cheese object, it can trust that
- | the reviver will know how to serialize and revive it. The Mouse won't have
- | to do anything extra to ensure the cheese comes back intact. And if you know
- | anything about mice, you know they appreciate peace of mind. 🐁
+ | In the above example, if the Mouse holds a Cheese object, it can now trust
+ | that the reviver will know how to serialize and revive it. The Mouse won't
+ | have to do anything extra to ensure the cheese comes back intact. And if you
+ | know anything about mice, you know they appreciate peace of mind. 🐁
+ |
+ | Good to know:
+ |
+ | The two callbacks to add() are a reviver and a replacer. The reviver accepts
+ | a plain object and should return an object of the given class. The replacer
+ | accepts an object of the given class and should return a plain object.
+ |
+ | When the reviver runs, any objects contained inside the plain object have
+ | already been through their revival process.
+ |
+ | When the replacer runs, nothing inside the class object has been changed
+ | yet.
  |
  | Caveats:
  |
- | Some built-in types cannot be handled. For example a Promise or a Function
- | object cannot be converted to JSON and back reliably, so we just give up on
- | those. For those cases, expect to receive a null. This departs from the
- | usual JSON API which gives a tricky {} object.
+ | Some built-in types cannot be handled. These are usally for reasonable
+ | reasons: a Promise or a Function hold code and cannot be expected to perform
+ | later. JSON can't do that. These two and several others will be saved as
+ | nulls or simply absent. For those cases, expect to receive a null. This
+ | departs from the usual JSON API which gives a tricky {} object.
  |
  | If the same object is present in two places in an object tree, it will be
  | written as two objects in JSON and will be revived as two objects.
+ |
+ | For this reason, and because of how JSON works, it's important not to use
+ | circular references. If you do use circular references, you'll need to null
+ | them out in the data returned from your replacer callback and fix them again
+ | during your reviver callback.
+ |
+ | At this time, the JSON uses '__class__' and '__data__' as special key
+ | strings, so you should not use those in your data. In the future, we expect
+ | to add a protection mechanism so you can use those keys.
   */
 export default class Reviver
 {
     constructor() {
         this.classes = [];
         this.toJSONs = new Map();
-        this.registerBuiltIns();
         this.revive = this.revive.bind(this);
         this.replace = this.replace.bind(this);
+
+        // JSON doesn't know how to handle all the built-in datatypes, but we
+        // know how!
+        this.register(ReviverBuiltIns);
     }
 
     stringify(object) {
@@ -211,49 +239,6 @@ export default class Reviver
     register(classToRegister) {
         classToRegister.registerReviver(this);
     }
-
-    /**
-     * Just to ensure this instance is ready to go, we define how to handle
-     * some built-in data types here.
-     */
-    registerBuiltIns() {
-        this.add(
-            'Date',
-            Date,
-            (key, value) => new Date(value),
-            (key, value) => value
-        );
-        this.add(
-            'Map',
-            Map,
-            (key, value) => value.reduce((map, entry) => map.set(...entry), new Map()),
-            (key, value) => Array.from(value)
-        );
-        this.add(
-            'Set',
-            Set,
-            (key, value) => new Set(value),
-            (key, value) => Array.from(value)
-        );
-        this.add(
-            'WeakMap',
-            WeakMap,
-            (key, value) => new WeakMap(),
-            (key, value) => null
-        );
-        this.add(
-            'WeakSet',
-            WeakSet,
-            (key, value) => new WeakSet(),
-            (key, value) => null
-        );
-        this.add(
-            'Promise',
-            Promise,
-            (key, value) => null,
-            (key, value) => null
-        );
-    }
 }
 
 /**
@@ -268,4 +253,4 @@ class ReviverStandin {
     }
 }
 
-const COPY_VALUE = {};
+const COPY_VALUE = Symbol();
