@@ -126,7 +126,7 @@ export default class Reviver
      *                               parameters `key`, `value`.
      */
     add(name, classToRevive, revive, replace) {
-        this.classes.push({
+        this.classes.unshift({
             name,
             'class': classToRevive,
             revive,

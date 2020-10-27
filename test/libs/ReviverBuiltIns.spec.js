@@ -7,7 +7,7 @@ const {
 
 class Test1 {}
 
-describe.only('ReviverBuiltIns', function () {
+describe('ReviverBuiltIns', function () {
     const reviver = new Reviver();
 
     const chomp = data => reviver.parse(reviver.stringify(data));
@@ -42,21 +42,187 @@ describe.only('ReviverBuiltIns', function () {
             notEqual(Array.from(unexpect), Array.from(copy));
         });
 
-        it('Error');
+        it('RegExp', function () {
+            const regex = new RegExp('^[ab]$', 'i');
+            const copy = chomp(regex);
 
-        it('EvalError');
+            equal(regex.source, copy.source);
+            equal(regex.flags, copy.flags);
+        });
 
-        it('RangeError');
+        it('Error', function () {
+            const error = new Error('my message');
+            const copy = chomp(error);
 
-        it('ReferenceError');
+            assert(error instanceof Error);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
 
-        it('SyntaxError');
+        it('EvalError', function () {
+            const error = new EvalError('my message');
+            const copy = chomp(error);
 
-        it('TypeError');
+            assert(copy instanceof EvalError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
 
-        it('URIError');
+        it('RangeError', function () {
+            const error = new RangeError('my message');
+            const copy = chomp(error);
 
-        it('RegExp');
+            assert(copy instanceof RangeError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('ReferenceError', function () {
+            const error = new ReferenceError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof ReferenceError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('SyntaxError', function () {
+            const error = new SyntaxError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof SyntaxError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('TypeError', function () {
+            const error = new TypeError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof TypeError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('URIError', function () {
+            const error = new URIError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof URIError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('WebAssembly.CompileError', function () {
+            const error = new WebAssembly.CompileError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof WebAssembly.CompileError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('WebAssembly.LinkError', function () {
+            const error = new WebAssembly.LinkError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof WebAssembly.LinkError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('WebAssembly.RuntimeError', function () {
+            const error = new WebAssembly.RuntimeError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof WebAssembly.RuntimeError);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
+
+        it('InternalError when it exists', function () {
+            // InternalError does not exist in Node.js, so we create one to
+            // test so we can support it in FireFox
+            class InternalError extends Error {};
+            globalThis.InternalError = InternalError;
+
+            // The new InternalError was not established in the reviver that
+            // most of these tests are using, so we need to create a new one
+            const reviver = new Reviver();
+            const chomp = data => reviver.parse(reviver.stringify(data));
+
+            const error = new InternalError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof InternalError, "Error type is " + copy.constructor.name);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+
+            // Do not clutter the namespace
+            delete globalThis.InternalError;
+        });
+
+        it('InternalError when it does not exist', function () {
+            // InternalError does not exist in Node.js where we're running this
+            // test. So we expect the normal reviver in here to convert it into
+            // an Error
+            class InternalError extends Error {};
+
+            const error = new InternalError('my message');
+            const copy = chomp(error);
+
+            assert(copy instanceof Error);
+            equal(error.message, copy.message);
+            equal(error.stack, copy.stack);
+            equal(error.name, copy.name);
+            equal(error.fileName, copy.fileName);
+            equal(error.lineNumber, copy.lineNumber);
+            equal(error.columnNumber, copy.columnNumber);
+        });
 
         it('Int8Array');
         it('Uint8Array');
@@ -69,6 +235,14 @@ describe.only('ReviverBuiltIns', function () {
         it('Float64Array');
         it('BigInt64Array');
         it('BigUint64Array');
+
+        it('Intl.Collator');
+        it('Intl.DateTimeFormat'); // (use resolvedOptions())
+        it('Intl.ListFormat');
+        it('Intl.NumberFormat');
+        it('Intl.PluralRules');
+        it('Intl.RelativeTimeFormat');
+        it('Intl.Locale');
     });
 
     describe.skip('should save & re-reference these special objects & values', function () {
@@ -79,6 +253,7 @@ describe.only('ReviverBuiltIns', function () {
             Math,
             JSON,
             Reflect,
+            //Intl,
         };
 
         Object.keys(objects)
@@ -140,23 +315,12 @@ describe.only('ReviverBuiltIns', function () {
     // SharedArrayBuffer
     // Atomics
     // DataView
-    // Intl
-    // Intl.Collator
-    // Intl.DateTimeFormat
-    // Intl.ListFormat
-    // Intl.NumberFormat
-    // Intl.PluralRules
-    // Intl.RelativeTimeFormat
-    // Intl.Locale
     // WebAssembly
     // WebAssembly
     // WebAssembly.Module
     // WebAssembly.Instance
     // WebAssembly.Memory
     // WebAssembly.Table
-    // WebAssembly.CompileError
-    // WebAssembly.LinkError
-    // WebAssembly.RuntimeError
 
     // Special behavior
     // Proxy - encodes as the object it wraps

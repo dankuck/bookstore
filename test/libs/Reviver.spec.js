@@ -50,10 +50,10 @@ describe('Reviver', function () {
         equal({__class__: 'TestX', __data__: 'replaced data'}, replaced);
     });
 
-    it('replaces according to first added class if two matches are added', function () {
+    it('replaces according to last added class if two matches are added', function () {
         const reviver = new Reviver();
         reviver.add(
-            'TestX',
+            'SOMETHING_ELSE',
             Test1,
             null,
             (key, data) => {
@@ -62,7 +62,7 @@ describe('Reviver', function () {
             }
         );
         reviver.add(
-            'SOMETHING_ELSE',
+            'TestX',
             Test1,
             null,
             (key, data) => {
@@ -153,8 +153,8 @@ describe('Reviver', function () {
     });
 
     it('works with classes that de-circularize themselves', function () {
-        class X {}
-        class Y {}
+        class X {};
+        class Y {};
         const x = new X();
         const y = new Y();
         x.y = y;
@@ -172,12 +172,12 @@ describe('Reviver', function () {
             (k, v) => new X(),
             (k, v) => ({...v, y: null})
         );
-        JSON.stringify(y, reviver.replace);
+        reviver.stringify(y);
         // no whammy
     });
 
     it('does not re-re-...-replace if a replacer returns the same value', function () {
-        class X {}
+        class X {};
         const reviver = new Reviver();
         reviver.add(
             'X',
@@ -185,8 +185,30 @@ describe('Reviver', function () {
             (k, v) => new X(),
             (k, v) => v
         );
-        JSON.stringify(new X(), reviver.replace);
+        reviver.stringify(new X());
         // no infinite recursion
+    });
+
+    it('matches a more-recently-defined subclass before its parent', function () {
+        class X {};
+        class Y extends X {};
+
+        const reviver = new Reviver();
+        reviver.add(
+            'X',
+            X,
+            (k, v) => new X(),
+            (k, v) => v,
+        );
+        reviver.add(
+            'Y',
+            Y,
+            (k, v) => new Y(),
+            (k, v) => v,
+        );
+
+        const copy = reviver.parse(reviver.stringify(new Y()));
+        assert(copy instanceof Y);
     });
 
 });
