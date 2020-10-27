@@ -71,7 +71,7 @@ Scheduler.registerReviver = function (reviver) {
     reviver.add(
         'Scheduler',
         Scheduler,
-        (key, value) => new Scheduler(value),
-        (key, value) => ({...value, target: null, timeouts: new Map()})
+        (value) => new Scheduler(value),
+        (value) => ({...value, target: null, timeouts: new Map()})
     );
 };

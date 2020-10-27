@@ -3,44 +3,50 @@ const builtIns = [
     [
         'Date',
         Date,
-        (key, value) => new Date(value),
-        (key, value) => value,
+        (value) => new Date(value),
+        (value) => value,
     ],
     [
         'Map',
         Map,
-        (key, value) => value.reduce((map, entry) => map.set(...entry), new Map()),
-        (key, value) => Array.from(value),
+        (value) => value.reduce((map, entry) => map.set(...entry), new Map()),
+        (value) => Array.from(value),
     ],
     [
         'Set',
         Set,
-        (key, value) => new Set(value),
-        (key, value) => Array.from(value),
+        (value) => new Set(value),
+        (value) => Array.from(value),
     ],
     [
         'WeakMap',
         WeakMap,
-        (key, value) => new WeakMap(),
-        (key, value) => null,
+        (value) => new WeakMap(),
+        (value) => null,
     ],
     [
         'WeakSet',
         WeakSet,
-        (key, value) => new WeakSet(),
-        (key, value) => null,
+        (value) => new WeakSet(),
+        (value) => null,
     ],
     [
         'Promise',
         Promise,
-        (key, value) => null,
-        (key, value) => null,
+        (value) => null,
+        (value) => null,
     ],
+    // [
+    //     'Symbol',
+    //     Symbol,
+    //     (value) => null,
+    //     (value) => null,
+    // ],
     [
         'RegExp',
         RegExp,
-        (key, value) => new RegExp(...value),
-        (key, value) => [value.source, value.flags],
+        (value) => new RegExp(...value),
+        (value) => [value.source, value.flags],
     ],
 ];
 
@@ -49,8 +55,8 @@ const buildErrorDefinition = params => {
     return [
         name,
         Class,
-        (key, value) => Object.assign(new Class(value.message), value),
-        (key, value) => ({
+        (value) => Object.assign(new Class(value.message), value),
+        (value) => ({
             message: value.message,
             stack: value.stack,
             name: value.name,

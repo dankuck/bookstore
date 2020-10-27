@@ -108,8 +108,8 @@ export default class Collection
 };
 
 Collection.registerReviver = function (reviver) {
-    const revive = (key, data) => { return new Collection(data) };
-    const replace = (key, data) => {
+    const revive = (data) => { return new Collection(data) };
+    const replace = (data) => {
         const collection = {...data};
         delete collection.axios;
         delete collection.loading;

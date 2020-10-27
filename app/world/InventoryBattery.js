@@ -17,7 +17,7 @@ InventoryBattery.registerReviver = function (reviver) {
     reviver.add(
         'InventoryBattery',
         InventoryBattery,
-        (key, value) => new InventoryBattery(value),
-        (key, value) => { return {...value} },
+        (value) => new InventoryBattery(value),
+        (value) => { return {...value} },
     );
 };

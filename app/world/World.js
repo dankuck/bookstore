@@ -332,8 +332,8 @@ export default class World
 World.registerReviver = function (reviver) {
     const add = [
         World,
-        (key, data) => { return new World(data) },
-        (key, data) => { return {...data, selectedItem: null} }
+        (data) => { return new World(data) },
+        (data) => { return {...data, selectedItem: null} }
     ];
     reviver.add('World', ...add);
     // When we first launched Enzo's, we minimized all the code and World got

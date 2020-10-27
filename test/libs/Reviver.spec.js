@@ -40,7 +40,7 @@ describe('Reviver', function () {
             'TestX',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
@@ -56,7 +56,7 @@ describe('Reviver', function () {
             'SOMETHING_ELSE',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
@@ -65,7 +65,7 @@ describe('Reviver', function () {
             'TestX',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
@@ -80,7 +80,7 @@ describe('Reviver', function () {
         reviver.add(
             'DateX',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
@@ -96,7 +96,7 @@ describe('Reviver', function () {
         reviver.add(
             'DateX',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
@@ -105,7 +105,7 @@ describe('Reviver', function () {
         reviver.add(
             'SOMETHING_ELSE',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
@@ -144,8 +144,8 @@ describe('Reviver', function () {
         reviver.add(
             'X',
             X,
-            (k, v) => v,
-            (k, v) => v,
+            (v) => v,
+            (v) => v,
         );
         const json = reviver.stringify(new X());
         assert(calledToJSON);
@@ -163,14 +163,14 @@ describe('Reviver', function () {
         reviver.add(
             'Y',
             Y,
-            (k, v) => new Y(),
-            (k, v) => ({...v})
+            (v) => new Y(),
+            (v) => ({...v})
         );
         reviver.add(
             'X',
             X,
-            (k, v) => new X(),
-            (k, v) => ({...v, y: null})
+            (v) => new X(),
+            (v) => ({...v, y: null})
         );
         reviver.stringify(y);
         // no whammy
@@ -182,8 +182,8 @@ describe('Reviver', function () {
         reviver.add(
             'X',
             X,
-            (k, v) => new X(),
-            (k, v) => v
+            (v) => new X(),
+            (v) => v
         );
         reviver.stringify(new X());
         // no infinite recursion
@@ -197,14 +197,14 @@ describe('Reviver', function () {
         reviver.add(
             'X',
             X,
-            (k, v) => new X(),
-            (k, v) => v,
+            (v) => new X(),
+            (v) => v,
         );
         reviver.add(
             'Y',
             Y,
-            (k, v) => new Y(),
-            (k, v) => v,
+            (v) => new Y(),
+            (v) => v,
         );
 
         const copy = reviver.parse(reviver.stringify(new Y()));

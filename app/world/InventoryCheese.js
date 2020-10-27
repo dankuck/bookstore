@@ -17,7 +17,7 @@ InventoryCheese.registerReviver = function (reviver) {
     reviver.add(
         'InventoryCheese',
         InventoryCheese,
-        (key, value) => new InventoryCheese(value),
-        (key, value) => { return {...value} },
+        (value) => new InventoryCheese(value),
+        (value) => { return {...value} },
     );
 };

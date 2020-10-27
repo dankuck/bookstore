@@ -35,7 +35,7 @@ InventoryDoorbell.registerReviver = function (reviver) {
     reviver.add(
         'InventoryDoorbell',
         InventoryDoorbell,
-        (key, value) => new InventoryDoorbell(value),
-        (key, value) => { return {...value} },
+        (value) => new InventoryDoorbell(value),
+        (value) => { return {...value} },
     );
 };

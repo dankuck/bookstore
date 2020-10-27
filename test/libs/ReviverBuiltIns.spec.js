@@ -283,6 +283,20 @@ describe('ReviverBuiltIns', function () {
         });
     });
 
+    describe('should save as null and reload as null', function () {
+        it('Promise', function () {
+            const obj = {key: Promise.resolve()};
+            const copy = chomp(obj);
+            assert(copy.key === null);
+        });
+
+        it.skip('Symbol', function () {
+            const obj = {key: Symbol()};
+            const copy = chomp(obj);
+            assert(copy.key === null);
+        });
+    });
+
     describe('should not save', function () {
         it('undefined', function () {
             const obj = {key: undefined};
@@ -296,13 +310,6 @@ describe('ReviverBuiltIns', function () {
             assert(! ('key' in copy));
         });
 
-        it('Symbol', function () {
-            const obj = {key: Symbol()};
-            const copy = chomp(obj);
-            assert(! ('key' in copy));
-        });
-
-        it('Promise');
         it('Generator');
         it('GeneratorFunction');
         it('AsyncFunction');

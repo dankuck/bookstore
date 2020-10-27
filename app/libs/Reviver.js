@@ -1,27 +1,27 @@
 import ReviverBuiltIns from './ReviverBuiltIns';
 /**
- |------------------------
+ | ------------------------
  | Reviver
- |------------------------
+ | ------------------------
  | Use a Reviver to serialize an object to a JSON string and revive it again
  | as an object of the same class. Oh and it works recursively, of course.
  |
  | Example:
- |  const reviver = new Reviver();
- |  const data = {
- |      'title': 'Champagne Supernova',
- |      'created_at': new Date('1996-05-13'),
- |  };
- |  const json = reviver.stringify(data);
- |  const copy = reviver.parse(json);
- |  console.log(data, copy);
- |  // Then you see the same thing twice.
+ | const reviver = new Reviver();
+ | const data = {
+ |     'title': 'Champagne Supernova',
+ |     'created_at': new Date('1996-05-13'),
+ | };
+ | const json = reviver.stringify(data);
+ | const copy = reviver.parse(json);
+ | console.log(data, copy);
+ | // Then you see the same thing twice.
  |
- |  // JSON would have converted your Date object into a string
- |  const badJson = JSON.stringify(data);
- |  const badCopy = JSON.parse(badJson);
- |  console.log(badCopy)
- |  // Then you notice that it doesn't look like the ones above
+ | // JSON would have converted your Date object into a string
+ | const badJson = JSON.stringify(data);
+ | const badCopy = JSON.parse(badJson);
+ | console.log(badCopy)
+ | // Then you notice that it doesn't look like the ones above
  |
  | The Date, Map, and Set classes are built into Reviver. All other classes
  | must be added to a reviver instance using register().
@@ -40,13 +40,13 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  |
  | // Mouse.js
  | Mouse.registerReviver = function (reviver) {
- |   reviver.add(
- |     'Mouse',
- |     Mouse,
- |     (key, plain) => new Mouse(plain),
- |     (key, mouse) => {...mouse}
- |   );
- |   reviver.register(Cheese);
+ |     reviver.add(
+ |         'Mouse',
+ |         Mouse,
+ |         plain => new Mouse(plain),
+ |         mouse => ({...mouse})
+ |     );
+ |     reviver.register(Cheese);
  | };
  |
  | This keeps your code clean, and it allows the custom class to call
@@ -55,7 +55,8 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | In the above example, if the Mouse holds a Cheese object, it can now trust
  | that the reviver will know how to serialize and revive it. The Mouse won't
  | have to do anything extra to ensure the cheese comes back intact. And if you
- | know anything about mice, you know they appreciate peace of mind. 🐁
+ | know anything about mice, you know they appreciate peace of mind, pieces of
+ | cheese, and puns. 🧀 🐁
  |
  | Good to know:
  |
@@ -64,30 +65,74 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | accepts an object of the given class and should return a plain object.
  |
  | When the reviver runs, any objects contained inside the plain object have
- | already been through their revival process.
+ | already been through their revival process. IE, it's plain objects all the
+ | way down.
  |
- | When the replacer runs, nothing inside the class object has been changed
- | yet.
+ | When the replacer runs, no objects contained inside the class instance have
+ | been through their replacement processes. IE, it's original objects all the
+ | way down.
  |
  | Caveats:
- |
- | Some built-in types cannot be handled. These are usally for reasonable
- | reasons: a Promise or a Function hold code and cannot be expected to perform
- | later. JSON can't do that. These two and several others will be saved as
- | nulls or simply absent. For those cases, expect to receive a null. This
- | departs from the usual JSON API which gives a tricky {} object.
  |
  | If the same object is present in two places in an object tree, it will be
  | written as two objects in JSON and will be revived as two objects.
  |
  | For this reason, and because of how JSON works, it's important not to use
- | circular references. If you do use circular references, you'll need to null
- | them out in the data returned from your replacer callback and fix them again
- | during your reviver callback.
+ | circular references. If you need circular references, you can work around
+ | the restriction by nulling out the circular part in the data returned from
+ | your replacer callback and fixing them again during your reviver callback.
  |
  | At this time, the JSON uses '__class__' and '__data__' as special key
  | strings, so you should not use those in your data. In the future, we expect
  | to add a protection mechanism so you can use those keys.
+ |
+ | Some built-in types cannot be revived. These are usally for good reasons: a
+ | Promise or a Function hold code and cannot be expected to perform later.
+ | JSON can't do that. Symbols cannot retain the uniqueness feature they are
+ | intended for, so they become null (in a very near future version).
+ |
+ | Reviver's behavior with some of these data types is different from the
+ | behavior you would expect if you're familiar with the JSON object.
+ |
+ | What follows is an exhaustive list of the ways the Reviver treats data. Any
+ | built-in type not represented below has undefined behavior that may change
+ | in the future.
+ |
+ | | In                           | Out                                     |
+ | | ---------------------------- | ----------------------------            |
+ | | Date                         | Identical Date                          |
+ | | Map                          | Identical Map                           |
+ | | Set                          | Identical Set                           |
+ | | RegExp                       | Identical RegExp                        |
+ | | Error (or built in subclass) | Identical Error (or built in subclass)  |
+ | | ---------------------------- | ----------------------------            |
+ | | Number object                | Number primitive                        |
+ | | String object                | String primitive                        |
+ | | ---------------------------- | ----------------------------            |
+ | | WeakMap                      | Empty WeakMap                           |
+ | | WeakSet                      | Empty WeakSet                           |
+ | | Promise                      | null                                    |
+ | | null                         | null                                    |
+ | | undefined                    | <absent>                                |
+ | | Function                     | <absent>                                |
+ | | ---------------------------- | ----------------------------            |
+ | | Proxy object                 | An instance of the class that it wraps, |
+ | |                              | having values given by the Proxy object |
+ |
+ | We plan to fully support:
+ | BigInt,
+ | Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array,
+ | Int32Array, Uint32Array, Float32Array, Float64Array, BigInt64Array,
+ | BigUint64Array, Intl.Collator, Intl.DateTimeFormat, Intl.ListFormat,
+ | Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat, Intl.Locale
+ |
+ | We plan to ensure these are always absent in results:
+ | Generator, GeneratorFunction, AsyncFunction, AsyncGenerator,
+ | AsyncGeneratorFunction
+ |
+ | We plan to ensure these convert to null:
+ | Symbol
+ |
   */
 export default class Reviver
 {
@@ -162,6 +207,7 @@ export default class Reviver
             );
     }
 
+    // Params designed to work with JSON.parse
     revive(key, value) {
         const match = this.findMatch(value);
         if (!match) {
@@ -171,10 +217,11 @@ export default class Reviver
                 return value;
             }
         } else {
-            return match.revive(key, value.__data__);
+            return match.revive(value.__data__);
         }
     }
 
+    // Params designed to work with JSON.stringify
     replace(key, value) {
         const {original, asJSON} = value instanceof ReviverStandin
             ? value
@@ -183,7 +230,7 @@ export default class Reviver
         if (!match) {
             return original;
         } else {
-            const replacement = match.replace(key, original);
+            const replacement = match.replace(original);
             return {
                 __class__: match.name,
                 // If match.replace returned `original` itself, we need to

@@ -37,7 +37,7 @@ Object.keys(classes).forEach(className => {
                     };
                 },
             });
-            const copy = reviver.revive('', reviver.replace('', instance));
+            const copy = reviver.revive(reviver.replace(instance));
             equal(instance, copy);
         });
     });
