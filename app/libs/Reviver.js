@@ -100,11 +100,21 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  |
  | | In                           | Out                                     |
  | | ---------------------------- | ----------------------------            |
- | | Date                         | Identical Date                          |
- | | Map                          | Identical Map                           |
- | | Set                          | Identical Set                           |
- | | RegExp                       | Identical RegExp                        |
- | | Error (or built in subclass) | Identical Error (or built in subclass)  |
+ | | primitives other than BigInt | Identical value                         |
+ | | Date                         | Identical value                         |
+ | | Map                          | Identical value                         |
+ | | Set                          | Identical value                         |
+ | | RegExp                       | Identical value                         |
+ | | Error (or built in subclass) | Identical value                         |
+ | | Int8Array                    | Identical value                         |
+ | | Uint8Array                   | Identical value                         |
+ | | Uint8ClampedArray            | Identical value                         |
+ | | Int16Array                   | Identical value                         |
+ | | Uint16Array                  | Identical value                         |
+ | | Int32Array                   | Identical value                         |
+ | | Uint32Array                  | Identical value                         |
+ | | Float32Array                 | Identical value                         |
+ | | Float64Array                 | Identical value                         |
  | | ---------------------------- | ----------------------------            |
  | | Number object                | Number primitive                        |
  | | String object                | String primitive                        |
@@ -120,9 +130,7 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | |                              | having values given by the Proxy object |
  |
  | We plan to fully support:
- | BigInt,
- | Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array,
- | Int32Array, Uint32Array, Float32Array, Float64Array, BigInt64Array,
+ | BigInt, BigInt64Array,
  | BigUint64Array, Intl.Collator, Intl.DateTimeFormat, Intl.ListFormat,
  | Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat, Intl.Locale
  |

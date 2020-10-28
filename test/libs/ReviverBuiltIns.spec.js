@@ -236,8 +236,6 @@ describe.only('ReviverBuiltIns', function () {
             [Uint32Array, 0, 0xFFFFFFFF],
             [Float32Array, -Math.pow(2, 32), Math.pow(2, 32)],
             [Float64Array, -Math.pow(2, 64), Math.pow(2, 64)],
-            // [BigInt64Array, 0, 0xFF
-            // [BigUint64Array, 0, 0xFF
         ].forEach(([Class, min, max]) => {
             it(Class.name, function () {
                 const array = new Class(10);
@@ -263,12 +261,16 @@ describe.only('ReviverBuiltIns', function () {
             });
         });
 
+        // use resolvedOptions() for these
         it('Intl.Collator');
-        it('Intl.DateTimeFormat'); // (use resolvedOptions())
+        it('Intl.DateTimeFormat');
         it('Intl.ListFormat');
         it('Intl.NumberFormat');
         it('Intl.PluralRules');
         it('Intl.RelativeTimeFormat');
+
+        // this does not have resolvedOptions(), but all of its options are
+        // available directly on it
         it('Intl.Locale');
 
         it('BigInt');
@@ -284,13 +286,14 @@ describe.only('ReviverBuiltIns', function () {
             Math,
             JSON,
             Reflect,
-            //Intl,
         };
 
         Object.keys(objects)
             .forEach(name => it(name, function () {
                 equal(objects[name], chomp(objects[name]));
             }));
+
+        it('Intl');
     });
 
     describe('should save null & reload blank', function () {
