@@ -111,10 +111,32 @@ const errors = [
     ]
     .map(buildErrorDefinition);
 
+const arrays = [
+        Int8Array,
+        Uint8Array,
+        Uint8ClampedArray,
+        Int16Array,
+        Uint16Array,
+        Int32Array,
+        Uint32Array,
+        Float32Array,
+        Float64Array,
+    ]
+    .map(Class => {
+        const name = Class.name;
+        return [
+            name,
+            Class,
+            value => Class.from(value),
+            value => Array.from(value),
+        ];
+    });
+
 export default {
     registerReviver(reviver) {
         builtIns
             .concat(errors)
+            .concat(arrays)
             .forEach(params => reviver.add(...params));
 
         if (globalThis.InternalError) {

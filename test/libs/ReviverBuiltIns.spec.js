@@ -7,7 +7,7 @@ const {
 
 class Test1 {}
 
-describe('ReviverBuiltIns', function () {
+describe.only('ReviverBuiltIns', function () {
     const reviver = new Reviver();
 
     const chomp = data => reviver.parse(reviver.stringify(data));
@@ -224,17 +224,44 @@ describe('ReviverBuiltIns', function () {
             equal(error.columnNumber, copy.columnNumber);
         });
 
-        it('Int8Array');
-        it('Uint8Array');
-        it('Uint8ClampedArray');
-        it('Int16Array');
-        it('Uint16Array');
-        it('Int32Array');
-        it('Uint32Array');
-        it('Float32Array');
-        it('Float64Array');
-        it('BigInt64Array');
-        it('BigUint64Array');
+        // All the built in arrays are treated the same way, so lets test them
+        // the same way
+        [
+            [Int8Array, 0, 0xFF],
+            [Uint8Array, 0, 0xFF],
+            [Uint8ClampedArray, 0, 0xFF],
+            [Int16Array, 0, 0xFFFF],
+            [Uint16Array, 0, 0xFFFF],
+            [Int32Array, 0, 0xFFFFFFFF],
+            [Uint32Array, 0, 0xFFFFFFFF],
+            [Float32Array, -Math.pow(2, 32), Math.pow(2, 32)],
+            [Float64Array, -Math.pow(2, 64), Math.pow(2, 64)],
+            // [BigInt64Array, 0, 0xFF
+            // [BigUint64Array, 0, 0xFF
+        ].forEach(([Class, min, max]) => {
+            it(Class.name, function () {
+                const array = new Class(10);
+                // Test min safe value, the max safe value, a value that
+                // should be too low for the array, a value that should be too
+                // high, and fractional values above, below, and between them.
+                //
+                // The array will decide how to constrain the values. We just
+                // need to know that they come out the same way they go in
+                array[0] = min;
+                array[1] = max;
+                array[2] = min - 1;
+                array[3] = max + 1;
+                array[4] = Math.random() * max;
+                array[5] = Math.random() * min;
+                array[6] = max + Math.random();
+                array[7] = max - Math.random();
+                array[8] = min - Math.random();
+                array[9] = min + Math.random();
+
+                const copy = chomp(array);
+                equal(array, copy);
+            });
+        });
 
         it('Intl.Collator');
         it('Intl.DateTimeFormat'); // (use resolvedOptions())
@@ -243,6 +270,10 @@ describe('ReviverBuiltIns', function () {
         it('Intl.PluralRules');
         it('Intl.RelativeTimeFormat');
         it('Intl.Locale');
+
+        it('BigInt');
+        it('BigInt64Array');
+        it('BigUint64Array');
     });
 
     describe.skip('should save & re-reference these special objects & values', function () {
