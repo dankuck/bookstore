@@ -335,11 +335,12 @@ World.registerReviver = function (reviver) {
         (data) => { return new World(data) },
         (data) => { return {...data, selectedItem: null} }
     ];
-    reviver.add('World', ...add);
     // When we first launched Enzo's, we minimized all the code and World got
     // renamed. Now we are safe against that happening, but we need to be able
     // to handle names from that era.
     reviver.add('ot', ...add);
+    // The last match is preferred by Reviver
+    reviver.add('World', ...add);
     reviver.register(Collection);
     reviver.register(InventoryBattery);
     reviver.register(InventoryDoorbell);
