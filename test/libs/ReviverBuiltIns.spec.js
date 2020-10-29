@@ -274,6 +274,11 @@ describe.only('ReviverBuiltIns', function () {
         it('Intl.Locale');
 
         it('BigInt');
+        // , function () {
+        //     const bigint = 9n;
+        //     equal(bigint, chomp(bigint));
+        // });
+
         it('BigInt64Array');
         it('BigUint64Array');
     });
@@ -324,7 +329,7 @@ describe.only('ReviverBuiltIns', function () {
             assert(copy.key === null);
         });
 
-        it.skip('Symbol', function () {
+        it('Symbol', function () {
             const obj = {key: Symbol()};
             const copy = chomp(obj);
             assert(copy.key === null);

@@ -191,20 +191,40 @@ export default class Reviver
     }
 
     /**
-     * Used internally to find the right reviver or replacer to use
+     * Used internally to find the right replacer to use
      *
      * @param  {any} value
      * @return {Object|null}
      */
-    findMatch(value) {
+    findInstanceOfMatch(value) {
+        const object = value && Object(value);
         return this.classes
             .reduce(
                 (found, match) => {
                     if (found) {
                         return found;
                     }
-                    if (value instanceof match.class) {
+                    if (object instanceof match.class) {
                         return match;
+                    }
+                    return null;
+                },
+                null
+            );
+    }
+
+    /**
+     * Used internally to find the right reviver to use
+     *
+     * @param  {any} value
+     * @return {Object|null}
+     */
+    findNameMatch(value) {
+        return this.classes
+            .reduce(
+                (found, match) => {
+                    if (found) {
+                        return found;
                     }
                     if (value && value.__class__ === match.name) {
                         return match;
@@ -217,7 +237,7 @@ export default class Reviver
 
     // Params designed to work with JSON.parse
     revive(key, value) {
-        const match = this.findMatch(value);
+        const match = this.findNameMatch(value);
         if (!match) {
             if (value && value.__class__) {
                 return null; // sorry, your data is dead
@@ -234,38 +254,45 @@ export default class Reviver
         const {original, asJSON} = value instanceof ReviverStandin
             ? value
             : {original: value, asJSON: COPY_VALUE};
-        const match = this.findMatch(original);
+        const match = this.findInstanceOfMatch(original);
         if (!match) {
             return original;
-        } else {
-            const replacement = match.replace(original);
-            return {
-                __class__: match.name,
-                // If match.replace returned `original` itself, we need to
-                // ensure we don't pass the same value into __data__ and
-                // end up in a loop. So...
-                // If the replacement is a true replacement, use it
-                // If the asJSON was gathered from a ReviverStandin, use it
-                // If the asJSON is the special COPY_VALUE value, copy the
-                // object on the fly.
-                // This is fairly speedy.
-                __data__: replacement !== original
-                    ? replacement
-                    : asJSON !== COPY_VALUE
-                    ? asJSON
-                    : {...value},
-            };
         }
+        const replacement = match.replace(original);
+        return {
+            __class__: match.name,
+            // If match.replace returned `original` itself, we need to
+            // ensure we don't pass the same value into __data__ and
+            // end up in a loop. So...
+            // If the replacement is a true replacement, use it
+            // If the asJSON was gathered from a ReviverStandin, use it
+            // If the asJSON is the special COPY_VALUE value, copy the
+            // object on the fly.
+            // This is fairly speedy.
+            __data__: replacement !== original
+                ? replacement
+                : asJSON !== COPY_VALUE
+                ? asJSON
+                : {...value},
+        };
     }
 
     /**
      * toJSON gets in the way of what we need to do here. So we get rid of all
      * the toJSONs before doing a save. Then we run afterReplace when done to
      * ensure they all get put back where they belong.
+     *
+     * BTW, if this seems whacky, remember that toJSON is actually meant to be
+     * replaceable.
+     *
      * @return {void}
      */
     beforeReplace() {
         this.toJSONs.forEach((toJSON, targetClass) => {
+            // Just in case someone changed the toJSON since last time, we need
+            // to re-grab it
+            toJSON = targetClass.prototype.toJSON;
+            this.toJSONs.set(targetClass, toJSON);
             targetClass.prototype.toJSON = function () {
                 const asJSON = toJSON.apply(this, arguments);
                 return new ReviverStandin(this, asJSON);

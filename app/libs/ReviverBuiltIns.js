@@ -36,12 +36,12 @@ const builtIns = [
         (value) => null,
         (value) => null,
     ],
-    // [
-    //     'Symbol',
-    //     Symbol,
-    //     (value) => null,
-    //     (value) => null,
-    // ],
+    [
+        'Symbol',
+        Symbol,
+        (value) => null,
+        (value) => null,
+    ],
     [
         'RegExp',
         RegExp,
