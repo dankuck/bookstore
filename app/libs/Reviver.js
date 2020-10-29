@@ -197,7 +197,9 @@ export default class Reviver
      * @return {Object|null}
      */
     findInstanceOfMatch(value) {
-        const object = value && Object(value);
+        const object = value === null || value === undefined
+            ? value
+            : Object(value);
         return this.classes
             .reduce(
                 (found, match) => {

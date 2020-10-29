@@ -224,8 +224,8 @@ describe.only('ReviverBuiltIns', function () {
             equal(error.columnNumber, copy.columnNumber);
         });
 
-        // All the built in arrays are treated the same way, so lets test them
-        // the same way
+        // All these built in arrays are treated the same way, so lets test
+        // them the same way.
         [
             [Int8Array, 0, 0xFF],
             [Uint8Array, 0, 0xFF],
@@ -234,8 +234,8 @@ describe.only('ReviverBuiltIns', function () {
             [Uint16Array, 0, 0xFFFF],
             [Int32Array, 0, 0xFFFFFFFF],
             [Uint32Array, 0, 0xFFFFFFFF],
-            [Float32Array, -Math.pow(2, 32), Math.pow(2, 32)],
-            [Float64Array, -Math.pow(2, 64), Math.pow(2, 64)],
+            [Float32Array, -(2**32), 2**32],
+            [Float64Array, -(2**64), 2**64],
         ].forEach(([Class, min, max]) => {
             it(Class.name, function () {
                 const array = new Class(10);
@@ -261,6 +261,30 @@ describe.only('ReviverBuiltIns', function () {
             });
         });
 
+        // The BigInt arrays can't use the same math as above, so they need
+        // a special one
+        //
+        // min and max in this case are just some very large numbers we know
+        // can work. There is not supposed to be a min or max, theoretically,
+        // but there are and they are implementation specific
+        [
+            [BigInt64Array, -0x7FFFFFFFFFFFFFFFn, 0x7FFFFFFFFFFFFFFFn],
+            [BigUint64Array, 0n, 0xFFFFFFFFFFFFFFFFn],
+        ].forEach(([Class, min, max]) => {
+            it(Class.name, function () {
+                const array = new Class(6);
+                array[0] = min;
+                array[1] = max;
+                array[2] = min - 1n;
+                array[3] = max + 1n;
+                array[4] = min + min;
+                array[5] = max + max;
+
+                const copy = chomp(array);
+                equal(array, copy);
+            });
+        });
+
         // use resolvedOptions() for these
         it('Intl.Collator');
         it('Intl.DateTimeFormat');
@@ -274,12 +298,10 @@ describe.only('ReviverBuiltIns', function () {
         it('Intl.Locale');
 
         it('BigInt', function () {
-            const bigint = 9n;
+            const bigint = 1n << 1024n;
             equal(bigint, chomp(bigint));
         });
 
-        it('BigInt64Array');
-        it('BigUint64Array');
     });
 
     describe.skip('should save & re-reference these special objects & values', function () {
@@ -336,6 +358,9 @@ describe.only('ReviverBuiltIns', function () {
     });
 
     describe('should not save', function () {
+
+        // This is the default behavior for all of these, but testing is good
+
         it('undefined', function () {
             const obj = {key: undefined};
             const copy = chomp(obj);
@@ -354,10 +379,76 @@ describe.only('ReviverBuiltIns', function () {
             assert(! ('key' in copy));
         });
 
-        it('GeneratorFunction');
-        it('AsyncFunction');
-        it('AsyncGenerator');
-        it('AsyncGeneratorFunction');
+        it('AsyncFunction', function () {
+            const obj = {key: async function () {} };
+            const copy = chomp(obj);
+            assert(! ('key' in copy));
+        });
+
+        it('AsyncGenerator', function () {
+            const obj = {key: async function* () {} };
+            const copy = chomp(obj);
+            assert(! ('key' in copy));
+        });
+    });
+
+    describe('should unwrap Proxy objects', function () {
+
+        it('copies as the wrapped object', function () {
+            // This special proxy will only set values to 🥚
+            const proxy = new Proxy({}, {
+                set(obj, prop, value) {
+                    return Reflect.set(obj, prop, '🥚');
+                }
+            });
+            proxy.address = '321b Baker St.';
+            // This copy should have the 🥚 value, but should allow it to be set
+            // to be set to something else
+            const copy = chomp(proxy);
+
+            equal('🥚', proxy.address);
+            equal('🥚', copy.address);
+
+            copy.address = '321b Baker St.';
+
+            equal('321b Baker St.', copy.address);
+        });
+
+        it('stringifies the same as a proxy or its wrapped object', function () {
+            const proxy = new Proxy({}, {
+                set(obj, prop, value) {
+                    return Reflect.set(obj, prop, '🥚');
+                }
+            });
+            proxy.address = '321b Baker St.';
+            const copy = chomp(proxy);
+
+            const proxyString = reviver.stringify(proxy);
+            const copyString = reviver.stringify(copy);
+            equal(proxyString, copyString);
+            assert(! /Proxy/.test(proxyString));
+        });
+
+        it('stringifies a custom wrapped object', function () {
+            class X {};
+            const reviver = new Reviver();
+            const chomp = data => reviver.parse(reviver.stringify(data));
+            reviver.add(
+                'X',
+                X,
+                value => Object.assign(new X(), value),
+                value => value
+            );
+            const proxy = new Proxy(new X(), {
+                set(obj, prop, value) {
+                    return Reflect.set(obj, prop, '🥚');
+                }
+            });
+            proxy.address = '321b Baker St.';
+            const copy = chomp(proxy);
+
+            assert(copy instanceof X);
+        });
     });
 
     // These have undefined behavior
@@ -370,8 +461,5 @@ describe.only('ReviverBuiltIns', function () {
     // WebAssembly.Module
     // WebAssembly.Instance
     // WebAssembly.Memory
-    // WebAssembly.Table
-
-    // Special behavior
-    // Proxy - encodes as the object it wraps
+    // WebAssembly.Tables
 });
