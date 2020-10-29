@@ -50,6 +50,11 @@ describe.only('ReviverBuiltIns', function () {
             equal(regex.flags, copy.flags);
         });
 
+        it('BigInt', function () {
+            const bigint = 1n << 1024n;
+            equal(bigint, chomp(bigint));
+        });
+
         it('Error', function () {
             const error = new Error('my message');
             const copy = chomp(error);
@@ -286,20 +291,69 @@ describe.only('ReviverBuiltIns', function () {
         });
 
         // use resolvedOptions() for these
-        it('Intl.Collator');
-        it('Intl.DateTimeFormat');
-        it('Intl.ListFormat');
-        it('Intl.NumberFormat');
-        it('Intl.PluralRules');
-        it('Intl.RelativeTimeFormat');
+        it('Intl.Collator', function () {
+            const collator = new Intl.Collator('es', {usage: 'search'});
+            const copy = chomp(collator);
 
-        // this does not have resolvedOptions(), but all of its options are
+            equal(collator, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('search', copy.resolvedOptions().usage);
+        });
+
+        it('Intl.DateTimeFormat', function () {
+            const format = new Intl.DateTimeFormat('es', {dateStyle: 'short'});
+            const copy = chomp(format);
+
+            equal(format, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('short', copy.resolvedOptions().dateStyle);
+        });
+
+        it('Intl.ListFormat', function () {
+            const format = new Intl.ListFormat('es', {style: 'short'});
+            const copy = chomp(format);
+
+            equal(format, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('short', copy.resolvedOptions().style);
+        });
+
+        it('Intl.NumberFormat', function () {
+            const format = new Intl.NumberFormat('es', {style: 'currency', currency: 'JPY'});
+            const copy = chomp(format);
+
+            equal(format, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('JPY', copy.resolvedOptions().currency);
+        });
+
+        it('Intl.PluralRules', function () {
+            const format = new Intl.PluralRules('es', {type: 'ordinal'});
+            const copy = chomp(format);
+
+            equal(format, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('ordinal', copy.resolvedOptions().type);
+        });
+
+        it('Intl.RelativeTimeFormat', function () {
+            const format = new Intl.RelativeTimeFormat('es', {numeric: 'auto'});
+            const copy = chomp(format);
+
+            equal(format, copy);
+            equal('es', copy.resolvedOptions().locale);
+            equal('auto', copy.resolvedOptions().numeric);
+        });
+
+        // This does not have resolvedOptions(), but all of its options are
         // available directly on it
-        it('Intl.Locale');
+        it('Intl.Locale', function () {
+            const format = new Intl.Locale('es', {hourCycle: 'h12'});
+            const copy = chomp(format);
 
-        it('BigInt', function () {
-            const bigint = 1n << 1024n;
-            equal(bigint, chomp(bigint));
+            equal(format, copy);
+            equal('es', copy.baseName);
+            equal('h12', copy.hourCycle);
         });
 
     });

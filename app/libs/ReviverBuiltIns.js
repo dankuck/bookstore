@@ -54,66 +54,44 @@ const builtIns = [
         (value) => BigInt(value),
         (value) => value.toString(),
     ],
+    [
+        'Intl.Locale',
+        Intl.Locale,
+        (value) => new Intl.Locale(value.baseName, value),
+        ({
+            baseName, calendar, caseFirst, collation, hourCycle,
+            language, numberingSystem, numeric, region, script,
+        }) => ({
+            baseName, calendar, caseFirst, collation, hourCycle,
+            language, numberingSystem, numeric, region, script,
+        }),
+    ]
 ];
 
-const buildErrorDefinition = params => {
-    const [name, Class] = params;
+const buildErrorDefinition = Class => {
     return [
-        name,
+        Class.name,
         Class,
         (value) => Object.assign(new Class(value.message), value),
-        (value) => ({
-            message: value.message,
-            stack: value.stack,
-            name: value.name,
-            fileName: value.fileName,
-            lineNumber: value.lineNumber,
-            columnNumber: value.columnNumber,
+        ({
+            message, stack, name, fileName, lineNumber, columnNumber,
+        }) => ({
+            message, stack, name, fileName, lineNumber, columnNumber,
         }),
     ];
 };
 
 const errors = [
-        [
-            'Error',
-            Error,
-        ],
-        [
-            'EvalError',
-            EvalError,
-        ],
-        [
-            'RangeError',
-            RangeError,
-        ],
-        [
-            'ReferenceError',
-            ReferenceError,
-        ],
-        [
-            'SyntaxError',
-            SyntaxError,
-        ],
-        [
-            'TypeError',
-            TypeError,
-        ],
-        [
-            'URIError',
-            URIError,
-        ],
-        [
-            'WebAssembly.CompileError',
-            WebAssembly.CompileError,
-        ],
-        [
-            'WebAssembly.LinkError',
-            WebAssembly.LinkError,
-        ],
-        [
-            'WebAssembly.RuntimeError',
-            WebAssembly.RuntimeError,
-        ],
+        Error,
+        EvalError,
+        RangeError,
+        ReferenceError,
+        SyntaxError,
+        TypeError,
+        URIError,
+        WebAssembly.CompileError,
+        WebAssembly.LinkError,
+        WebAssembly.RuntimeError,
     ]
     .map(buildErrorDefinition);
 
@@ -140,18 +118,34 @@ const arrays = [
         ];
     });
 
+// Almost all of the Intl classes use the same mechanism to replace and revive.
+// The only one missing from this list is Intl.Locale, which is handled above.
+const intls = [
+        Intl.Collator,
+        Intl.DateTimeFormat,
+        Intl.ListFormat,
+        Intl.NumberFormat,
+        Intl.PluralRules,
+        Intl.RelativeTimeFormat,
+    ].map(Class => {
+        return [
+            'Intl.' + Class.name,
+            Class,
+            (value) => new Class(value.locale, value),
+            (value) => value.resolvedOptions(),
+        ];
+    });
+
 export default {
     registerReviver(reviver) {
         builtIns
             .concat(errors)
             .concat(arrays)
+            .concat(intls)
             .forEach(params => reviver.add(...params));
 
         if (globalThis.InternalError) {
-            reviver.add(...buildErrorDefinition([
-                'InternalError',
-                globalThis.InternalError,
-            ]));
+            reviver.add(...buildErrorDefinition(globalThis.InternalError));
         }
     },
 };

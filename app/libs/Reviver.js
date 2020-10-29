@@ -87,25 +87,26 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | to add a protection mechanism so you can use those keys.
  |
  | Some built-in types cannot be revived. These are usally for good reasons: a
- | Promise or a Function hold code and cannot be expected to perform later.
- | JSON can't do that. Symbols cannot retain the uniqueness feature they are
- | intended for, so they become null (in a very near future version).
+ | Promise or a Function hold code and getting that right in JSON is often
+ | impossible. Symbols cannot retain the uniqueness feature they are intended
+ | for, so they become null.
  |
  | Reviver's behavior with some of these data types is different from the
  | behavior you would expect if you're familiar with the JSON object.
  |
  | What follows is an exhaustive list of the ways the Reviver treats data. Any
  | built-in type not represented below has undefined behavior that may change
- | in the future.
+ | in the future. All of these can be overwritten by a call to add().
  |
  | | In                           | Out                                     |
  | | ---------------------------- | ----------------------------            |
- | | primitives other than BigInt | Identical value                         |
+ | | primitives                   | Identical value                         |
+ | | BitInt                       | Identical value                         |
  | | Date                         | Identical value                         |
  | | Map                          | Identical value                         |
  | | Set                          | Identical value                         |
  | | RegExp                       | Identical value                         |
- | | Error (or built in subclass) | Identical value                         |
+ | | Error (or built-in subclass) | Identical value                         |
  | | Int8Array                    | Identical value                         |
  | | Uint8Array                   | Identical value                         |
  | | Uint8ClampedArray            | Identical value                         |
@@ -115,6 +116,15 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | | Uint32Array                  | Identical value                         |
  | | Float32Array                 | Identical value                         |
  | | Float64Array                 | Identical value                         |
+ | | BigInt64Array                | Identical value                         |
+ | | BigUint64Array               | Identical value                         |
+ | | Intl.Collator                | Identical value                         |
+ | | Intl.DateTimeFormat          | Identical value                         |
+ | | Intl.ListFormat              | Identical value                         |
+ | | Intl.NumberFormat            | Identical value                         |
+ | | Intl.PluralRules             | Identical value                         |
+ | | Intl.RelativeTimeFormat      | Identical value                         |
+ | | Intl.Locale                  | Identical value                         |
  | | ---------------------------- | ----------------------------            |
  | | Number object                | Number primitive                        |
  | | String object                | String primitive                        |
@@ -123,23 +133,21 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | | WeakSet                      | Empty WeakSet                           |
  | | Promise                      | null                                    |
  | | null                         | null                                    |
+ | | Symbol                       | null                                    |
  | | undefined                    | <absent>                                |
- | | Function                     | <absent>                                |
+ | | Function (and subclasses)    | <absent>                                |
  | | ---------------------------- | ----------------------------            |
  | | Proxy object                 | An instance of the class that it wraps, |
  | |                              | having values given by the Proxy object |
  |
- | We plan to fully support:
- | BigInt, BigInt64Array,
- | BigUint64Array, Intl.Collator, Intl.DateTimeFormat, Intl.ListFormat,
- | Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat, Intl.Locale
+ | We plan to support references to built-in objects such as Math in a future
+ | version.
  |
- | We plan to ensure these are always absent in results:
- | Generator, GeneratorFunction, AsyncFunction, AsyncGenerator,
- | AsyncGeneratorFunction
- |
- | We plan to ensure these convert to null:
- | Symbol
+ | These built-in classes have undefined behavior and may be subject to
+ | changing behavior in the future:
+ | ArrayBuffer, SharedArrayBuffer, Atomics, DataView, WebAssembly, WebAssembly,
+ | WebAssembly.Module, WebAssembly.Instance, WebAssembly.Memory,
+ | WebAssembly.Tables
  |
   */
 export default class Reviver
@@ -151,7 +159,7 @@ export default class Reviver
         this.replace = this.replace.bind(this);
 
         // JSON doesn't know how to handle all the built-in datatypes, but we
-        // know how!
+        // know some!
         this.register(ReviverBuiltIns);
     }
 
