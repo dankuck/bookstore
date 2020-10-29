@@ -48,6 +48,12 @@ const builtIns = [
         (value) => new RegExp(...value),
         (value) => [value.source, value.flags],
     ],
+    [
+        'BigInt',
+        BigInt,
+        (value) => BigInt(value),
+        (value) => value.toString(),
+    ],
 ];
 
 const buildErrorDefinition = params => {

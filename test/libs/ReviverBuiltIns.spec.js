@@ -273,11 +273,10 @@ describe.only('ReviverBuiltIns', function () {
         // available directly on it
         it('Intl.Locale');
 
-        it('BigInt');
-        // , function () {
-        //     const bigint = 9n;
-        //     equal(bigint, chomp(bigint));
-        // });
+        it('BigInt', function () {
+            const bigint = 9n;
+            equal(bigint, chomp(bigint));
+        });
 
         it('BigInt64Array');
         it('BigUint64Array');
@@ -349,7 +348,12 @@ describe.only('ReviverBuiltIns', function () {
             assert(! ('key' in copy));
         });
 
-        it('Generator');
+        it('Generator', function () {
+            const obj = {key: function* () {} };
+            const copy = chomp(obj);
+            assert(! ('key' in copy));
+        });
+
         it('GeneratorFunction');
         it('AsyncFunction');
         it('AsyncGenerator');
