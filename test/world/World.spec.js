@@ -18,23 +18,14 @@ const reviver = new Reviver();
 reviver.register(World);
 const buildWorldBuilder = function (plain_object) {
     const json = JSON.stringify(plain_object);
-    return () => loadJSON(json).world;
-};
-const loadJSON = function (json) {
-    return JSON.parse(json, reviver.revive);
-};
-const saveJSON = function (world) {
-    reviver.beforeReplace();
-    const json = JSON.stringify(world, reviver.replace);
-    reviver.afterReplace();
-    return json;
+    return () => reviver.parse(json).world;
 };
 
 const build_version_3_world = buildWorldBuilder(version_3_save);
 const build_version_4_world = buildWorldBuilder(version_4_save);
 const build_version_8_minimized_world = buildWorldBuilder(version_8_minimized_save);
 
-describe('World', function () {
+describe.only('World', function () {
 
     it('should instantiate', function () {
         new World({});
@@ -271,7 +262,7 @@ describe('World', function () {
             world.lobbyBotAnswerDoorbell(5, 5);
             equal('door', world.lobbyBot.location);
 
-            world = loadJSON(saveJSON(world));
+            world = reviver.parse(reviver.stringify(world));
             assert(world);
 
             wait(10)
@@ -279,6 +270,13 @@ describe('World', function () {
                     equal('lobby-desk', world.lobbyBot.location);
                 })
                 .then(done, done);
+        });
+
+        it('should save as World, not ot', function () {
+            let world = builder();
+
+            const json = reviver.stringify(world);
+            assert(/"__class__":"World"/.test(json));
         });
 
         it('should take the cheese', function () {
