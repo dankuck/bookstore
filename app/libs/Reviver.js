@@ -174,7 +174,7 @@ export default class Reviver
 {
     constructor() {
         this.classes = [];
-        this.toJSONs = new Map();
+        this.toJSONs = null;
         this.revive = this.revive.bind(this);
         this.replace = this.replace.bind(this);
         this.objects = new Map();
@@ -270,7 +270,14 @@ export default class Reviver
             );
     }
 
-    findObjectByObject(value) {
+    /**
+     * If this is a special object, we will just store its name in the
+     * stringification
+     *
+     * @param  {any} value
+     * @return {string|null}
+     */
+    findObjectNameByObject(value) {
         return this.objectNames.get(value);
     }
 
@@ -296,6 +303,13 @@ export default class Reviver
             );
     }
 
+    /**
+     * A special name was stored in the stringification, let's find the object
+     * that goes with it.
+     *
+     * @param  {string} name
+     * @return {any}
+     */
     findObjectByName(name) {
         return this.objects.get(name);
     }
@@ -318,10 +332,9 @@ export default class Reviver
 
     // Params designed to work with JSON.stringify
     replace(key, value) {
-        const {original, asJSON} = value instanceof ReviverStandin
-            ? value
-            : {original: value, asJSON: COPY_VALUE};
-        const objectName = this.findObjectByObject(original);
+        const standin = value instanceof ReviverStandin && value;
+        const original = standin ? standin.original : value;
+        const objectName = this.findObjectNameByObject(original);
         if (objectName) {
             return {
                 __object__: objectName,
@@ -334,29 +347,51 @@ export default class Reviver
                 __class__: match.name,
                 // If match.replace returned `original` itself, we need to
                 // ensure we don't pass the same value into __data__ and
-                // end up in a loop. So...
-                // If the replacement is a true replacement, use it
-                // If the asJSON was gathered from a ReviverStandin, use it
-                // If the asJSON is the special COPY_VALUE value, copy the
-                // object on the fly.
+                // end up in a loop, since the object we're returning will be
+                // taken apart and run through replace() again. So...
+                //
+                // If the replacement is truly different, use it
+                // If there's a ReviverStandin, use its asJSON
+                // In all other cases, make a spread-operator copy of the
+                // object on the fly
+                //
                 // This is fairly speedy.
                 __data__: replacement !== original
                     ? replacement
-                    : asJSON !== COPY_VALUE
-                    ? asJSON
+                    : standin
+                    ? standin.asJSON()
                     : {...value},
             };
         }
+        // There was no match. Return the object and let JSON.stringify iterate
+        // over its values.
+        //
+        // BTW, since there was no match this means that we didn't change the
+        // toJSON method on whatever this is. So it's possible this object has
+        // already gone through its toJSON method and this is the JSON-ready
+        // version. If so returning this original value is still the right
+        // move.
         return original;
     }
 
     /**
-     * toJSON gets in the way of what we need to do here. So we get rid of all
-     * the toJSONs before doing a save. Then we run afterReplace when done to
-     * ensure they all get put back where they belong.
+     * When stringifying an object, JSON calls toJSON() first, then only passes
+     * the results of that into the replacer function we give it.
      *
-     * BTW, if this seems whacky, remember that toJSON is actually meant to be
-     * replaceable.
+     * But we really need the original object. So we get rid of all the toJSONs
+     * before doing a stringify. When the stringify is done we run afterReplace
+     * to ensure the toJSONs all get put back where they belong.
+     *
+     * Here we change all the toJSONs to a new function that returns a
+     * ReviverStandin, a private internal class that holds the original object
+     * and the results of its JSON function too. In replace(), if a
+     * ReviverStandin is passed in, we know that it's because of a toJSON call
+     * we intercepted. Then we make a smart decision about how to use it.
+     *
+     * BTW, if this seems too hackish, remember that toJSON is actually meant
+     * to be replaceable. We're careful to return all the toJSONs to their
+     * original spots so that other actions can use toJSON in its usual way
+     * (for instance, axios may need it to send data to a web server).
      *
      * @return {void}
      */
@@ -367,8 +402,7 @@ export default class Reviver
                 const toJSON = targetClass.prototype.toJSON;
                 this.toJSONs.set(targetClass, toJSON);
                 targetClass.prototype.toJSON = function () {
-                    const asJSON = toJSON.apply(this, arguments);
-                    return new ReviverStandin(this, asJSON);
+                    return new ReviverStandin(this, toJSON);
                 };
             }
         });
@@ -398,15 +432,19 @@ export default class Reviver
 }
 
 /**
- * For any class which has its own toJSON method, we wrap the result of toJSON
- * in this class so we can recognize it and then decide what to do with it
+ * For any class which has its own toJSON method, we wrap the the original
+ * object and its toJSON in this class so replace() can decide what to do
+ * with it
  */
 class ReviverStandin {
 
-    constructor(original, asJSON) {
+    constructor(original, jsonFunc) {
         this.original = original;
-        this.asJSON = asJSON;
+        this.jsonFunc = jsonFunc;
+    }
+
+    asJSON() {
+        return this.jsonFunc.call(this.original);
     }
 }
 
-const COPY_VALUE = Symbol();

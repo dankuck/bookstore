@@ -234,4 +234,23 @@ describe('Reviver', function () {
         const copy = reviver.parse(reviver.stringify({theClass: X}));
         assert(copy.theClass === X);
     });
+
+    it('uses toJSON if the class is not defined', function () {
+        class X {
+            constructor() {
+                this.value = 123;
+            }
+
+            toJSON() {
+                return 'some x';
+            }
+        }
+        const reviver = new Reviver();
+        const copy = reviver.parse(reviver.stringify(new X()));
+        notEqual(123, copy.value);
+        assert(! (copy instanceof X));
+        equal('some x', copy);
+    });
+
+    it('puts the toJSONs back if stringify throws an error');
 });
