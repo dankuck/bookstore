@@ -360,21 +360,10 @@ describe('ReviverBuiltIns', function () {
 
     describe('should save & re-reference these special objects & values', function () {
 
-        const objects = {
-            globalThis,
-            Infinity,
-            Intl,
-            JSON,
-            Math,
-            Reflect,
-        };
+        it('Infinity', function () {
+            assert(Infinity === chomp(Infinity));
+        });
 
-        Object.keys(objects)
-            .forEach(name => it(name, function () {
-                assert(objects[name] === chomp(objects[name]));
-            }));
-
-        // NaN doesn't equal itself, so we have to test it separately
         it('NaN', function () {
             assert(Number.isNaN(chomp(NaN)));
         });

@@ -221,4 +221,17 @@ describe('Reviver', function () {
         assert(copy.X === X);
     });
 
+    it('a class added with addClass can also be stringified as with addObject', function () {
+        class X {};
+        const reviver = new Reviver();
+        reviver.addClass(
+            'X',
+            X,
+            value => Object.assign(new X(), value),
+            value => value
+        );
+
+        const copy = reviver.parse(reviver.stringify({theClass: X}));
+        assert(copy.theClass === X);
+    });
 });

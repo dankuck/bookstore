@@ -5,6 +5,7 @@ import assert from 'assert';
 import version_3_save from '../fixtures/version_3_save.json';
 import version_4_save from '../fixtures/version_4_save.json';
 import version_8_minimized_save from '../fixtures/version_8_minimized_save.json';
+import version_20_save from '../fixtures/version_20_save.json';
 import wait from '@libs/wait';
 import shuffle from 'lodash.shuffle';
 import find from 'lodash.find';
@@ -24,8 +25,9 @@ const buildWorldBuilder = function (plain_object) {
 const build_version_3_world = buildWorldBuilder(version_3_save);
 const build_version_4_world = buildWorldBuilder(version_4_save);
 const build_version_8_minimized_world = buildWorldBuilder(version_8_minimized_save);
+const build_version_20_world = buildWorldBuilder(version_20_save);
 
-describe.only('World', function () {
+describe('World', function () {
 
     it('should instantiate', function () {
         new World({});
@@ -307,6 +309,10 @@ describe.only('World', function () {
 
     describe('Version 8 - minimized, ruffled plant, loaded books', function () {
         all_version_tests(build_version_8_minimized_world);
+    });
+
+    describe('Version 20 - fresh', function () {
+        all_version_tests(build_version_20_world);
     });
 
     describe('knows when all steps are completed', function () {

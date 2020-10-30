@@ -103,6 +103,6 @@ describe('ColorReducer', function () {
         const ops = estimateOperations(() => result = reducer.adjustImageData(imageData));
         assert(result);
         // 11.8 million is the largest measured value, so we compare to something a bit larger
-        assert(ops < 14e6, `Process completed in ${ops} operations >= 14 million`);
+        assert(ops < 27e6, `Process completed in ~${ops} operations >= 27 million`);
     });
 });

@@ -126,6 +126,9 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | | Intl.RelativeTimeFormat      | Identical value                         |
  | | Intl.Locale                  | Identical value                         |
  | | ---------------------------- | ----------------------------            |
+ | | Infinity                     | Infinity                                |
+ | | NaN                          | NaN                                     |
+ | | ---------------------------- | ----------------------------            |
  | | Number object                | Number primitive                        |
  | | String object                | String primitive                        |
  | | ---------------------------- | ----------------------------            |
@@ -140,15 +143,32 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | | Proxy object                 | An instance of the class that it wraps, |
  | |                              | having values given by the Proxy object |
  |
- | We plan to support references to built-in objects such as Math in a future
- | version.
- |
  | These built-in classes have undefined behavior and may be subject to
  | changing behavior in the future:
  | ArrayBuffer, SharedArrayBuffer, Atomics, DataView, WebAssembly, WebAssembly,
  | WebAssembly.Module, WebAssembly.Instance, WebAssembly.Memory,
  | WebAssembly.Tables
  |
+ | Advanced:
+ |
+ | Non-class objects can be "saved" as well, by adding them via the
+ | addObject() method. These objects will not be converted to JSON at any time.
+ | They will simply be referenced as-is. This even works on built-in objects
+ | like Math or window.
+ |
+ | Example:
+ |
+ |    reviver.addObject('Math', Math);
+ |    const json = reviver.stringify({m: Math});
+ |    const copy = reviver.parse(json);
+ |    console.log(copy.m.pow(2, 3));
+ |    // 8
+ |
+ | This is not the preferred way to store objects, because the objects' state
+ | is not saved. Imagine you added an object A and then assigned A.x = 404. The
+ | property x will not be stored. If the web page is reloaded, a new A will be
+ | added, with its own value for x. In some circumstances, this is desirable
+ | behavior. In other cases, it creates confusion for developers.
   */
 export default class Reviver
 {
@@ -195,9 +215,11 @@ export default class Reviver
             revive,
             replace,
         });
-        if (classToRevive.prototype.toJSON) {
-            this.toJSONs.set(classToRevive, classToRevive.prototype.toJSON);
-        }
+
+        // addClass() is meant to define how to stringify objects of the given
+        // class, but while we're at it, we also pass it to addObject() in case
+        // you ever want to stringify the class itself.
+        this.addObject(name, classToRevive);
     }
 
     /**
@@ -339,15 +361,16 @@ export default class Reviver
      * @return {void}
      */
     beforeReplace() {
-        this.toJSONs.forEach((toJSON, targetClass) => {
-            // Just in case someone changed the toJSON since last time, we need
-            // to re-grab it
-            toJSON = targetClass.prototype.toJSON;
-            this.toJSONs.set(targetClass, toJSON);
-            targetClass.prototype.toJSON = function () {
-                const asJSON = toJSON.apply(this, arguments);
-                return new ReviverStandin(this, asJSON);
-            };
+        this.toJSONs = new Map();
+        this.classes.forEach(({class: targetClass}) => {
+            if (targetClass.prototype.toJSON) {
+                const toJSON = targetClass.prototype.toJSON;
+                this.toJSONs.set(targetClass, toJSON);
+                targetClass.prototype.toJSON = function () {
+                    const asJSON = toJSON.apply(this, arguments);
+                    return new ReviverStandin(this, asJSON);
+                };
+            }
         });
     }
 

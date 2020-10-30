@@ -1,5 +1,5 @@
 
-const builtIns = [
+const backwardCompatible = [
     [
         'Date',
         Date,
@@ -12,6 +12,9 @@ const builtIns = [
         (value) => value.reduce((map, entry) => map.set(...entry), new Map()),
         (value) => Array.from(value),
     ],
+];
+
+const builtIns = [
     [
         'Set',
         Set,
@@ -136,29 +139,45 @@ const intls = [
         ];
     });
 
+// Development choice:
+//
+// Some objects we could include would be Math or window or hundreds of others.
+// To keep things light, we just add these two by default.
+//
+// These two values are sometimes produced from operations which are intended
+// to give a number. Since a number would stringify just fine, we need these to
+// stringify too. Otherwise a developer would wind up with a null values and
+// the bugs caused by that would be hard to find.
+//
+// Note, all the classes added via addClass are also added as objects.
 const objects = {
-    globalThis,
     Infinity,
-    Intl,
-    JSON,
-    Math,
     NaN,
-    Reflect,
 };
 
 export default {
     registerReviver(reviver) {
+        // We prefix all the names with js: or firefox:. But for backwards
+        // compatibility, we need to also add a few without prefixes. The
+        // prefixed ones will be preferred when stringifying because they'll
+        // be added later than these.
+        backwardCompatible
+            .forEach(params => reviver.addClass(...params));
+
         builtIns
+            .concat(backwardCompatible)
             .concat(errors)
             .concat(arrays)
             .concat(intls)
+            .map(([name, ...rest]) => (['js:' + name, ...rest]))
             .forEach(params => reviver.addClass(...params));
 
         if (globalThis.InternalError) {
-            reviver.addClass(...buildErrorDefinition(globalThis.InternalError));
+            const internalError = buildErrorDefinition(globalThis.InternalError);
+            reviver.addClass('firefox:' + internalError[0], ...internalError.slice(1));
         }
 
         Object.keys(objects)
-            .forEach(name => reviver.addObject(name, objects[name]));
+            .forEach(name => reviver.addObject('js:' + name, objects[name]));
     },
 };
