@@ -157,6 +157,8 @@ export default class Reviver
         this.toJSONs = new Map();
         this.revive = this.revive.bind(this);
         this.replace = this.replace.bind(this);
+        this.objects = new Map();
+        this.objectNames = new Map();
 
         // JSON doesn't know how to handle all the built-in datatypes, but we
         // know some!
@@ -199,12 +201,35 @@ export default class Reviver
     }
 
     /**
+     * Add an object here and it will not be saved and rebuilt like a class.
+     * Instead it will be used in place of any references. The effect is that
+     * any parse() operations that rely on it will give the same object every
+     * time.
+     *
+     * Example:
+     *     reviver.addObject('Math', Math);
+     *     const obj = {myMath: Math};
+     *     const copy = reviver.parse(
+     *         reviver.stringify(obj)
+     *     );
+     *     assert(copy !== obj);
+     *     assert(copy.myMath === Math);
+     *
+     * @param {string} name
+     * @param {any} object
+     */
+    addObject(name, object) {
+        this.objects.set(name, object);
+        this.objectNames.set(object, name);
+    }
+
+    /**
      * Used internally to find the right replacer to use
      *
      * @param  {any} value
      * @return {Object|null}
      */
-    findInstanceOfMatch(value) {
+    findInstanceMatch(value) {
         const object = value === null || value === undefined
             ? value
             : Object(value);
@@ -223,20 +248,24 @@ export default class Reviver
             );
     }
 
+    findObjectByObject(value) {
+        return this.objectNames.get(value);
+    }
+
     /**
      * Used internally to find the right reviver to use
      *
-     * @param  {any} value
+     * @param  {any} name
      * @return {Object|null}
      */
-    findNameMatch(value) {
+    findNameMatch(name) {
         return this.classes
             .reduce(
                 (found, match) => {
                     if (found) {
                         return found;
                     }
-                    if (value && value.__class__ === match.name) {
+                    if (name === match.name) {
                         return match;
                     }
                     return null;
@@ -245,17 +274,23 @@ export default class Reviver
             );
     }
 
+    findObjectByName(name) {
+        return this.objects.get(name);
+    }
+
     // Params designed to work with JSON.parse
     revive(key, value) {
-        const match = this.findNameMatch(value);
-        if (!match) {
-            if (value && value.__class__) {
+        if (value && value.__class__) {
+            const match = this.findNameMatch(value.__class__);
+            if (! match) {
                 return null; // sorry, your data is dead
             } else {
-                return value;
+                return match.revive(value.__data__);
             }
+        } else if (value && value.__object__) {
+            return this.findObjectByName(value.__object__);
         } else {
-            return match.revive(value.__data__);
+            return value;
         }
     }
 
@@ -264,27 +299,33 @@ export default class Reviver
         const {original, asJSON} = value instanceof ReviverStandin
             ? value
             : {original: value, asJSON: COPY_VALUE};
-        const match = this.findInstanceOfMatch(original);
-        if (!match) {
-            return original;
+        const objectName = this.findObjectByObject(original);
+        if (objectName) {
+            return {
+                __object__: objectName,
+            };
         }
-        const replacement = match.replace(original);
-        return {
-            __class__: match.name,
-            // If match.replace returned `original` itself, we need to
-            // ensure we don't pass the same value into __data__ and
-            // end up in a loop. So...
-            // If the replacement is a true replacement, use it
-            // If the asJSON was gathered from a ReviverStandin, use it
-            // If the asJSON is the special COPY_VALUE value, copy the
-            // object on the fly.
-            // This is fairly speedy.
-            __data__: replacement !== original
-                ? replacement
-                : asJSON !== COPY_VALUE
-                ? asJSON
-                : {...value},
-        };
+        const match = this.findInstanceMatch(original);
+        if (match) {
+            const replacement = match.replace(original);
+            return {
+                __class__: match.name,
+                // If match.replace returned `original` itself, we need to
+                // ensure we don't pass the same value into __data__ and
+                // end up in a loop. So...
+                // If the replacement is a true replacement, use it
+                // If the asJSON was gathered from a ReviverStandin, use it
+                // If the asJSON is the special COPY_VALUE value, copy the
+                // object on the fly.
+                // This is fairly speedy.
+                __data__: replacement !== original
+                    ? replacement
+                    : asJSON !== COPY_VALUE
+                    ? asJSON
+                    : {...value},
+            };
+        }
+        return original;
     }
 
     /**

@@ -7,7 +7,7 @@ const {
 
 class Test1 {}
 
-describe.only('ReviverBuiltIns', function () {
+describe('ReviverBuiltIns', function () {
     const reviver = new Reviver();
 
     const chomp = data => reviver.parse(reviver.stringify(data));

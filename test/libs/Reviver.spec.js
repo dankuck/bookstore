@@ -211,4 +211,14 @@ describe('Reviver', function () {
         assert(copy instanceof Y);
     });
 
+    it('lets us add an object and revive with the same one', function () {
+        const reviver = new Reviver();
+        const X = {};
+
+        reviver.addObject('X', X);
+
+        const copy = reviver.parse(reviver.stringify({X}));
+        assert(copy.X === X);
+    });
+
 });
