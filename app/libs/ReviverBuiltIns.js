@@ -4,7 +4,7 @@ const backwardCompatible = [
         'Date',
         Date,
         (value) => new Date(value),
-        (value) => value,
+        (value) => value.toISOString(),
     ],
     [
         'Map',
