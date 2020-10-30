@@ -32,7 +32,7 @@ export default class InventoryDoorbell {
 };
 
 InventoryDoorbell.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'InventoryDoorbell',
         InventoryDoorbell,
         (value) => new InventoryDoorbell(value),

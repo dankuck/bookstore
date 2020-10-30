@@ -14,7 +14,7 @@ export default class InventoryCheese {
 };
 
 InventoryCheese.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'InventoryCheese',
         InventoryCheese,
         (value) => new InventoryCheese(value),

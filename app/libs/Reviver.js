@@ -30,7 +30,7 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  |
  | When you create a reviver, immediately pass your custom data class(es) to
  | reviver.register(). Define a class-level method on your custom class called
- | registerReviver(reviver). Within registerReviver(), call the reviver.add()
+ | registerReviver(reviver). Within registerReviver(), call the reviver.addClass()
  | method and pass any other classes you'll need to reviver.register().
  |
  | Example:
@@ -40,7 +40,7 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  |
  | // Mouse.js
  | Mouse.registerReviver = function (reviver) {
- |     reviver.add(
+ |     reviver.addClass(
  |         'Mouse',
  |         Mouse,
  |         plain => new Mouse(plain),
@@ -188,7 +188,7 @@ export default class Reviver
      *                               a plain object. Expect to receive the
      *                               parameters `key`, `value`.
      */
-    add(name, classToRevive, revive, replace) {
+    addClass(name, classToRevive, revive, replace) {
         this.classes.unshift({
             name,
             'class': classToRevive,

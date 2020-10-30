@@ -68,7 +68,7 @@ export default class Scheduler {
 };
 
 Scheduler.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'Scheduler',
         Scheduler,
         (value) => new Scheduler(value),

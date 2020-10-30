@@ -152,10 +152,10 @@ export default {
             .concat(errors)
             .concat(arrays)
             .concat(intls)
-            .forEach(params => reviver.add(...params));
+            .forEach(params => reviver.addClass(...params));
 
         if (globalThis.InternalError) {
-            reviver.add(...buildErrorDefinition(globalThis.InternalError));
+            reviver.addClass(...buildErrorDefinition(globalThis.InternalError));
         }
 
         Object.keys(objects)

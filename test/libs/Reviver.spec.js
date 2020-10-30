@@ -36,7 +36,7 @@ describe('Reviver', function () {
 
     it('replaces according to added class', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'TestX',
             Test1,
             null,
@@ -52,7 +52,7 @@ describe('Reviver', function () {
 
     it('replaces according to last added class if two matches are added', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'SOMETHING_ELSE',
             Test1,
             null,
@@ -61,7 +61,7 @@ describe('Reviver', function () {
                 return 'replaced data';
             }
         );
-        reviver.add(
+        reviver.addClass(
             'TestX',
             Test1,
             null,
@@ -77,7 +77,7 @@ describe('Reviver', function () {
 
     it('revives according to added class', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'DateX',
             Date,
             (data) => {
@@ -93,7 +93,7 @@ describe('Reviver', function () {
 
     it('revives according to first added name when there are two names', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'DateX',
             Date,
             (data) => {
@@ -102,7 +102,7 @@ describe('Reviver', function () {
             },
             null
         );
-        reviver.add(
+        reviver.addClass(
             'SOMETHING_ELSE',
             Date,
             (data) => {
@@ -141,7 +141,7 @@ describe('Reviver', function () {
             }
         };
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
             (v) => v,
@@ -160,13 +160,13 @@ describe('Reviver', function () {
         x.y = y;
         y.x = x;
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'Y',
             Y,
             (v) => new Y(),
             (v) => ({...v})
         );
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
             (v) => new X(),
@@ -179,7 +179,7 @@ describe('Reviver', function () {
     it('does not re-re-...-replace if a replacer returns the same value', function () {
         class X {};
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
             (v) => new X(),
@@ -194,13 +194,13 @@ describe('Reviver', function () {
         class Y extends X {};
 
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
             (v) => new X(),
             (v) => v,
         );
-        reviver.add(
+        reviver.addClass(
             'Y',
             Y,
             (v) => new Y(),

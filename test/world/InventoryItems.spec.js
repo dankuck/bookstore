@@ -28,7 +28,7 @@ Object.keys(classes).forEach(className => {
             const {name, image} = instance;
             let reviver;
             instance.constructor.registerReviver({
-                add(name, Class, revive, replace) {
+                addClass(name, Class, revive, replace) {
                     reviver = {
                         name,
                         Class,

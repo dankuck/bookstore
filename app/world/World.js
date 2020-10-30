@@ -338,9 +338,9 @@ World.registerReviver = function (reviver) {
     // When we first launched Enzo's, we minimized all the code and World got
     // renamed. Now we are safe against that happening, but we need to be able
     // to handle names from that era.
-    reviver.add('ot', ...add);
+    reviver.addClass('ot', ...add);
     // The last match is preferred by Reviver
-    reviver.add('World', ...add);
+    reviver.addClass('World', ...add);
     reviver.register(Collection);
     reviver.register(InventoryBattery);
     reviver.register(InventoryDoorbell);

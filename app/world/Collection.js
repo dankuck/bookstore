@@ -115,17 +115,18 @@ Collection.registerReviver = function (reviver) {
         delete collection.loading;
         return collection;
     };
-    reviver.add(
-        'Collection',
+    // When we first launched Enzo's, we minimized all the code and Collection
+    // got renamed. Now we are safe against that happening, but we need to be
+    // able to handle names from that era.
+    reviver.addClass(
+        'it',
         Collection,
         revive,
         replace,
     );
-    // When we first launched Enzo's, we minimized all the code and Collection
-    // got renamed. Now we are safe against that happening, but we need to be
-    // able to handle names from that era.
-    reviver.add(
-        'it',
+    // The later one is preferred
+    reviver.addClass(
+        'Collection',
         Collection,
         revive,
         replace,

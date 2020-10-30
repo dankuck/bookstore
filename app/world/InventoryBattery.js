@@ -14,7 +14,7 @@ export default class InventoryBattery {
 };
 
 InventoryBattery.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'InventoryBattery',
         InventoryBattery,
         (value) => new InventoryBattery(value),

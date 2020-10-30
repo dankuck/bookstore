@@ -491,7 +491,7 @@ describe('ReviverBuiltIns', function () {
             class X {};
             const reviver = new Reviver();
             const chomp = data => reviver.parse(reviver.stringify(data));
-            reviver.add(
+            reviver.addClass(
                 'X',
                 X,
                 value => Object.assign(new X(), value),
