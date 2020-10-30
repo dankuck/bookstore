@@ -364,6 +364,10 @@ describe('ReviverBuiltIns', function () {
             assert(Infinity === chomp(Infinity));
         });
 
+        it('Infinity', function () {
+            assert(-Infinity === chomp(-Infinity));
+        });
+
         it('NaN', function () {
             assert(Number.isNaN(chomp(NaN)));
         });

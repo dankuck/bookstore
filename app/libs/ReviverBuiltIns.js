@@ -142,16 +142,17 @@ const intls = [
 // Development choice:
 //
 // Some objects we could include would be Math or window or hundreds of others.
-// To keep things light, we just add these two by default.
+// To keep things light, we just add these three by default.
 //
-// These two values are sometimes produced from operations which are intended
+// These three values are sometimes produced from operations which are intended
 // to give a number. Since a number would stringify just fine, we need these to
-// stringify too. Otherwise a developer would wind up with a null values and
+// stringify too. Otherwise a developer would wind up with null values and
 // the bugs caused by that would be hard to find.
 //
 // Note, all the classes added via addClass are also added as objects.
 const objects = {
     Infinity,
+    '-Infinity': -Infinity,
     NaN,
 };
 
