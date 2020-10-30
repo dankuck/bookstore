@@ -136,6 +136,16 @@ const intls = [
         ];
     });
 
+const objects = {
+    globalThis,
+    Infinity,
+    Intl,
+    JSON,
+    Math,
+    NaN,
+    Reflect,
+};
+
 export default {
     registerReviver(reviver) {
         builtIns
@@ -147,5 +157,8 @@ export default {
         if (globalThis.InternalError) {
             reviver.add(...buildErrorDefinition(globalThis.InternalError));
         }
+
+        Object.keys(objects)
+            .forEach(name => reviver.addObject(name, objects[name]));
     },
 };
