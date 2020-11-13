@@ -13,7 +13,8 @@ class MutationWatcherHandler {
         this.path = path;
         // We feed mutation information into the callback
         this.cb = cb;
-        // We use thisArg to know whether we are dealing
+        // We use thisArg to know whether a function we're wrapping was called
+        // with the path we have recorded or a `this` from some other place
         this.thisArg = thisArg;
         // We keep all of our proxies in the observers map, so we can get at
         // the original object at any time. This helps us ensure the proxies
