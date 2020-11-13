@@ -243,4 +243,29 @@ describe('MutationWatcher', function () {
         assert(proxyObject);
         assert(proxyObject !== object);
     });
+
+    it('calls a returned callback after assignment', function () {
+        let before = false, after = false;
+        const proxy = observe({}, () => { before = true; return () => after = true });
+        proxy.x = 2;
+        assert(before);
+        assert(after);
+    });
+
+    it('calls a returned callback after apply', function () {
+        let before = false, after = false;
+        const proxy = observe({x(){}}, () => { before = true; return () => after = true });
+        proxy.x();
+        assert(before);
+        assert(after);
+    });
+
+    it('calls a returned callback after delete', function () {
+        let before = false, after = false;
+        const proxy = observe({x: 3}, () => { before = true; return () => after = true });
+        delete proxy.x;
+        assert(before);
+        assert(after);
+    });
+
 });

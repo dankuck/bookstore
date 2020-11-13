@@ -1,6 +1,13 @@
 const nativeCode = /native code\]\s*\}$/i;
 const isNativeCode = (func) => nativeCode.test(Function.prototype.toString.apply(func));
 
+function callAndIgnoreExceptions(cb, param) {
+    try {
+        return cb(param);
+    } catch (e) {} // callback should have caught its own error
+    return null;
+};
+
 class MutationWatcherHandler {
 
     constructor(
@@ -23,7 +30,7 @@ class MutationWatcherHandler {
     }
 
     get(target, propertyKey, receiver) {
-        return buildWatcher(
+        return buildObserver(
             Reflect.get(target, propertyKey, receiver),
             this.cb,
             this.path.concat(propertyKey),
@@ -39,17 +46,25 @@ class MutationWatcherHandler {
         if (this.observers.has(value)) {
             value = this.observers.get(value);
         }
-        try {
-            this.cb({path: this.path.concat(propertyKey), type: 'assign', value});
-        } catch (e) {} // callback should have caught its own error
-        return Reflect.set(target, propertyKey, value, receiver);
+        const onDone = callAndIgnoreExceptions(
+            this.cb,
+            {path: this.path.concat(propertyKey), type: 'assign', value}
+        );
+        const result = Reflect.set(target, propertyKey, value, receiver);
+        onDone && callAndIgnoreExceptions(onDone, result);
+        // boolean return value doesn't need to be passed through buildObserver
+        return result;
     }
 
     deleteProperty(target, propertyKey) {
-        try {
-            this.cb({path: this.path.concat(propertyKey), type: 'delete'});
-        } catch (e) {} // callback should have caught its own error
-        return Reflect.deleteProperty(target, propertyKey);
+        const onDone = callAndIgnoreExceptions(
+            this.cb,
+            {path: this.path.concat(propertyKey), type: 'delete'}
+        );
+        const result = Reflect.deleteProperty(target, propertyKey);
+        onDone && callAndIgnoreExceptions(onDone, result);
+        // boolean return value doesn't need to be passed through buildObserver
+        return result;
     }
 
     apply(target, thisArg, params) {
@@ -65,20 +80,23 @@ class MutationWatcherHandler {
         const [path, cbParams] = this.thisArg === unwrappedThisArg
             ? [this.path.concat('(...)'), params]
             : [this.path.concat(['apply', '(...)']), [unwrappedThisArg, params]];
-        try {
-            this.cb({path, type: 'apply', params: cbParams});
-        } catch (e) {} // callback should have caught its own error
-        return buildWatcher(
-            Reflect.apply(
-                target,
-                // Built-in functions often don't like Proxy as `this`.
-                // But pure JS functions don't mind, and if they do any
-                // further calls or assignments, we want to know
-                isNativeCode(target)
-                    ? unwrappedThisArg
-                    : thisArg,
-                params
-            ),
+        const onDone = callAndIgnoreExceptions(
+            this.cb,
+            {path, type: 'apply', params: cbParams}
+        );
+        const result = Reflect.apply(
+            target,
+            // Built-in functions often don't like Proxy as `this`.
+            // But pure JS functions don't mind, and if they do any
+            // further calls or assignments, we want to know
+            isNativeCode(target)
+                ? unwrappedThisArg
+                : thisArg,
+            params
+        );
+        onDone && callAndIgnoreExceptions(onDone, result);
+        return buildObserver(
+            result,
             this.cb,
             path,
             undefined,
@@ -89,7 +107,7 @@ class MutationWatcherHandler {
 
 const observableTypes = ['object', 'function'];
 
-function buildWatcher(object, cb, path, thisArg, observers) {
+function buildObserver(object, cb, path, thisArg, observers) {
     if (! object || ! observableTypes.includes(typeof object)) {
         return object;
     }
@@ -109,8 +127,8 @@ function buildWatcher(object, cb, path, thisArg, observers) {
 
 /**
  * Create a proxy object that wraps `object`. Any changes to the proxy will be
- * reflected on `object` and vice versa. Changes applied to the proxy will also
- * be reported to the callback `cb`.
+ * reflected on `object` and vice versa. Changes applied to the proxy will
+ * first be sent to the callback `cb`.
  *
  * The callback receives one parameter, an object with
  * {path, type, value, params}.
@@ -132,5 +150,5 @@ function buildWatcher(object, cb, path, thisArg, observers) {
  *                             this root object.
  */
 export function observe(object, cb = () => {}, path = ['root']) {
-    return buildWatcher(object, cb, path, undefined, new WeakMap());
+    return buildObserver(object, cb, path, undefined, new WeakMap());
 }
