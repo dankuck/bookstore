@@ -135,8 +135,9 @@ function buildObserver(object, cb, path, thisArg, observers) {
  *
  * - path   An ordered array of strings, which can be clunkily joined to
  *          describe how to reach the data being mutated
- * - type   A string, either 'assign' if the mutation was an assignment or
- *          'apply' if the mutation was a method call
+ * - type   A string, one of 'assign' if the mutation was an assignment,
+ *          'apply' if the mutation was a method call, or 'delete' if the
+ *          mutation was a deletion
  * - value  The value that was assigned. Only present if the mutation was an
  *          'assign'
  * - params An ordered array of the parameters given to a method call. Only
