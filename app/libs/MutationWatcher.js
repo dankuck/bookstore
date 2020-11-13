@@ -1,3 +1,5 @@
+// Does the string end with "native code] }" or something close? That's not
+// valid JS syntax and proves the function is actually native
 const nativeCode = /native code\]\s*\}$/i;
 const isNativeCode = (func) => nativeCode.test(Function.prototype.toString.apply(func));
 
@@ -10,19 +12,17 @@ function callAndIgnoreExceptions(cb, param) {
 
 class MutationWatcherHandler {
 
-    constructor(
-        path,
-        cb,
-        thisArg,
-        observers
-    ) {
+    constructor(path, cb, thisArg, observers) {
         // We use path to tell the callback how we got to the target object
         this.path = path;
+
         // We feed mutation information into the callback
         this.cb = cb;
+
         // We use thisArg to know whether a function we're wrapping was called
         // with the path we have recorded or a `this` from some other place
         this.thisArg = thisArg;
+
         // We keep all of our proxies in the observers map, so we can get at
         // the original object at any time. This helps us ensure the proxies
         // don't get assigned within any of the original data we're wrapping
