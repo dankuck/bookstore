@@ -26,14 +26,110 @@ describe('MutationWatcher', function () {
         const mutations = [];
         const proxy = observe({}, (mutation) => mutations.push(mutation));
         proxy.x = 45;
-        equal([{path: ['this', 'x'], type: 'assign', value: 45}], mutations);
+        equal([{path: ['root', 'x'], type: 'assign', value: 45}], mutations);
+        equal(proxy.x, 45);
+    });
+
+    it('observes an array assignment', function () {
+        const mutations = [];
+        const proxy = observe([], (mutation) => mutations.push(mutation));
+        proxy[0] = 90;
+        equal([{path: ['root', '0'], type: 'assign', value: 90}], mutations);
+        equal(proxy[0], 90);
+        equal(proxy.length, 1);
+    });
+
+    it('observes an array assignment that skips an index', function () {
+        const mutations = [];
+        const proxy = observe([], (mutation) => mutations.push(mutation));
+        proxy[1] = 98;
+        equal([{path: ['root', '1'], type: 'assign', value: 98}], mutations);
+        equal(proxy[1], 98);
+        equal(proxy.length, 2);
+    });
+
+    it('observes an array resize via length assignment', function () {
+        const mutations = [];
+        const proxy = observe([1, 2, 3], (mutation) => mutations.push(mutation));
+        proxy.length = 1;
+        equal([{path: ['root', 'length'], type: 'assign', value: 1}], mutations);
+        equal(proxy.length, 1);
+        equal(proxy, [1]);
     });
 
     it('observes a method call', function () {
         const mutations = [];
-        const proxy = observe({y(){}}, (mutation) => mutations.push(mutation));
+        let called = false;
+        const proxy = observe({y(){ called = true }}, (mutation) => mutations.push(mutation));
         proxy.y(56, 67);
-        equal([{path: ['this', 'y', '(...)'], type: 'apply', params: [56, 67]}], mutations);
+        equal([{path: ['root', 'y', '(...)'], type: 'apply', params: [56, 67]}], mutations);
+        assert(called);
+    });
+
+    it('observes a method call using apply', function () {
+        const mutations = [];
+        let called = false;
+        const proxy = observe({y(){ called = true }}, (mutation) => mutations.push(mutation));
+        Reflect.apply(proxy.y, null, [56, 67]);
+        equal(
+            [{path: ['root', 'y', 'apply', '(...)'], type: 'apply', params: [null, [56, 67]]}],
+            mutations
+        );
+        assert(called);
+    });
+
+    it('observes a method call using bind', function () {
+        // This also serves as a test that built-in functions work just fine
+        const mutations = [];
+        let called = false;
+        const proxy = observe({y(){ called = true }}, (mutation) => mutations.push(mutation));
+        const thisArg = {};
+        proxy.y.bind(thisArg)(56, 67);
+        equal(
+            [
+                {path: ['root', 'y', 'bind', '(...)'], type: 'apply', params: [thisArg]},
+                {path: ['root', 'y', 'bind', '(...)', '(...)'], type: 'apply', params: [56, 67]}
+            ],
+            mutations
+        );
+        assert(called);
+    });
+
+    it('observes a method call using re-attachment to a non-observer object', function () {
+        const mutations = [];
+        let called = false;
+        const proxy = observe({y(){ called = true }}, (mutation) => mutations.push(mutation));
+        const thisArg = {};
+        thisArg.y = proxy.y;
+        thisArg.y(56, 67);
+        equal(
+            [{path: ['root', 'y', 'apply', '(...)'], type: 'apply', params: [thisArg, [56, 67]]}],
+            mutations
+        );
+        assert(called);
+    });
+
+    it('observes an anonymous method call', function () {
+        let called = false;
+        const mutations = [];
+        const proxy = observe(
+            () => { called = true },
+            (mutation) => mutations.push(mutation),
+        );
+        proxy(89);
+        equal(
+            [{path: ['root', '(...)'], type: 'apply', params: [89]}],
+            mutations
+        );
+        assert(called);
+    });
+
+    it('observes a deletion', function () {
+        const mutations = [];
+        const proxy = observe({x: 45}, (mutation) => mutations.push(mutation));
+        delete proxy.x;
+        equal([{path: ['root', 'x'], type: 'delete'}], mutations);
+        assert(! Reflect.has(proxy, 'x'));
     });
 
     it('does not observe a property access', function () {
@@ -49,7 +145,7 @@ describe('MutationWatcher', function () {
         const a = proxy.a;
         const b = a.b;
         b.c = 2;
-        equal([{path: ['this', 'a', 'b', 'c'], type: 'assign', value: 2}], mutations);
+        equal([{path: ['root', 'a', 'b', 'c'], type: 'assign', value: 2}], mutations);
     });
 
     it('observes reconnected children just once', function () {
@@ -61,11 +157,11 @@ describe('MutationWatcher', function () {
         // If the code is not working correctly, the next assignment will be
         // reported twice. Once as this.x.b and once as this.a.b.
         proxy.x.b = 3;
-        equal([{path: ['this', 'x', 'b'], type: 'assign', value: 3}], mutations);
+        equal([{path: ['root', 'x', 'b'], type: 'assign', value: 3}], mutations);
         equal(1, mutations.length);
     });
 
-    it('does not store observers inside observers', function () {
+    it('does not store observers inside observered objects', function () {
         const mutations = [];
         const object = {x: {}};
         const proxy = observe(object, (mutation) => mutations.push(mutation));
@@ -123,5 +219,28 @@ describe('MutationWatcher', function () {
             },
         });
         assert(proxy.isProxy());
+    });
+
+    it('should wrap the results of a function defined without a `this`', function () {
+        const object = {};
+        const proxy = observe(function () {
+            return object;
+        });
+        const proxyObject = proxy();
+        assert(proxyObject);
+        assert(proxyObject !== object);
+    });
+
+    it('should wrap the results of a detached function called without a `this`', function () {
+        const object = {};
+        const proxy = observe({
+            func: function () {
+                return object;
+            },
+        });
+        const func = proxy.func;
+        const proxyObject = func();
+        assert(proxyObject);
+        assert(proxyObject !== object);
     });
 });
