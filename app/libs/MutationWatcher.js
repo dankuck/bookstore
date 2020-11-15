@@ -73,10 +73,9 @@ class MutationWatcherHandler {
             : thisArg;
         // If the function is being called on the original `this`, then we can
         // send normal path and params to the callback.
-        // But if it's not, we need to pretend that apply() was used, with
+        // But if it's some other thing, we guess that apply() was used, with
         // the proper `this` in the params and the original params array as a
-        // second parameter. (This might actually be what happened or it may
-        // have been attached to a non-observer object.)
+        // second parameter.
         const [path, cbParams] = this.thisArg === unwrappedThisArg
             ? [this.path.concat('(...)'), params]
             : [this.path.concat(['apply', '(...)']), [unwrappedThisArg, params]];
