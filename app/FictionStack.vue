@@ -41,22 +41,23 @@
             </template>
 
             <template v-slot:front>
-                <enzo-click-spot
-                    name="Key"
+                <easel-bitmap
                     v-if="keyVisible"
+                    image="images/lobby-key.gif"
+                    align="center-center"
                     :x="key.x"
                     :y="key.y"
+                >
+                </easel-bitmap>
+                <enzo-click-spot
+                    v-if="keyVisible"
                     r="8"
+                    name="Key"
+                    :x="key.x"
+                    :y="key.y"
                     @click="queueMessage('Get key!', key.x, key.y)"
                 >
                 </enzo-click-spot>
-                <easel-text
-                    text="🔑"
-                    v-if="keyVisible"
-                    :x="key.x"
-                    :y="key.y"
-                >
-                </easel-text>
             </template>
         </stack-room>
     </div>

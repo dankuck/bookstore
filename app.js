@@ -3260,7 +3260,7 @@ var Reviver = /*#__PURE__*/function () {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, Reviver);
 
     this.classes = [];
-    this.toJSONs = new Map();
+    this.toJSONs = null;
     this.revive = this.revive.bind(this);
     this.replace = this.replace.bind(this);
     this.objects = new Map();
@@ -3358,9 +3358,17 @@ var Reviver = /*#__PURE__*/function () {
         return null;
       }, null);
     }
+    /**
+     * If this is a special object, we will just store its name in the
+     * stringification
+     *
+     * @param  {any} value
+     * @return {string|null}
+     */
+
   }, {
-    key: "findObjectByObject",
-    value: function findObjectByObject(value) {
+    key: "findObjectNameByObject",
+    value: function findObjectNameByObject(value) {
       return this.objectNames.get(value);
     }
     /**
@@ -3385,6 +3393,14 @@ var Reviver = /*#__PURE__*/function () {
         return null;
       }, null);
     }
+    /**
+     * A special name was stored in the stringification, let's find the object
+     * that goes with it.
+     *
+     * @param  {string} name
+     * @return {any}
+     */
+
   }, {
     key: "findObjectByName",
     value: function findObjectByName(name) {
@@ -3412,14 +3428,9 @@ var Reviver = /*#__PURE__*/function () {
   }, {
     key: "replace",
     value: function replace(key, value) {
-      var _ref = value instanceof ReviverStandin ? value : {
-        original: value,
-        asJSON: COPY_VALUE
-      },
-          original = _ref.original,
-          asJSON = _ref.asJSON;
-
-      var objectName = this.findObjectByObject(original);
+      var standin = value instanceof ReviverStandin && value;
+      var original = standin ? standin.original : value;
+      var objectName = this.findObjectNameByObject(original);
 
       if (objectName) {
         return {
@@ -3435,25 +3446,47 @@ var Reviver = /*#__PURE__*/function () {
           __class__: match.name,
           // If match.replace returned `original` itself, we need to
           // ensure we don't pass the same value into __data__ and
-          // end up in a loop. So...
-          // If the replacement is a true replacement, use it
-          // If the asJSON was gathered from a ReviverStandin, use it
-          // If the asJSON is the special COPY_VALUE value, copy the
-          // object on the fly.
+          // end up in a loop, since the object we're returning will be
+          // taken apart and run through replace() again. So...
+          //
+          // If the replacement is truly different, use it
+          // If there's a ReviverStandin, use its asJSON
+          // In all other cases, make a spread-operator copy of the
+          // object on the fly
+          //
           // This is fairly speedy.
-          __data__: replacement !== original ? replacement : asJSON !== COPY_VALUE ? asJSON : _objectSpread({}, value)
+          __data__: replacement !== original ? replacement : standin ? standin.asJSON() : _objectSpread({}, value)
         };
-      }
+      } // There was no match. Return the object and let JSON.stringify iterate
+      // over its values.
+      //
+      // BTW, since there was no match this means that we didn't change the
+      // toJSON method on whatever this is. So it's possible this object has
+      // already gone through its toJSON method and this is the JSON-ready
+      // version. If so returning this original value is still the right
+      // move.
+
 
       return original;
     }
     /**
-     * toJSON gets in the way of what we need to do here. So we get rid of all
-     * the toJSONs before doing a save. Then we run afterReplace when done to
-     * ensure they all get put back where they belong.
+     * When stringifying an object, JSON calls toJSON() first, then only passes
+     * the results of that into the replacer function we give it.
      *
-     * BTW, if this seems whacky, remember that toJSON is actually meant to be
-     * replaceable.
+     * But we really need the original object. So we get rid of all the toJSONs
+     * before doing a stringify. When the stringify is done we run afterReplace
+     * to ensure the toJSONs all get put back where they belong.
+     *
+     * Here we change all the toJSONs to a new function that returns a
+     * ReviverStandin, a private internal class that holds the original object
+     * and the results of its JSON function too. In replace(), if a
+     * ReviverStandin is passed in, we know that it's because of a toJSON call
+     * we intercepted. Then we make a smart decision about how to use it.
+     *
+     * BTW, if this seems too hackish, remember that toJSON is actually meant
+     * to be replaceable. We're careful to return all the toJSONs to their
+     * original spots so that other actions can use toJSON in its usual way
+     * (for instance, axios may need it to send data to a web server).
      *
      * @return {void}
      */
@@ -3464,8 +3497,8 @@ var Reviver = /*#__PURE__*/function () {
       var _this = this;
 
       this.toJSONs = new Map();
-      this.classes.forEach(function (_ref2) {
-        var targetClass = _ref2["class"];
+      this.classes.forEach(function (_ref) {
+        var targetClass = _ref["class"];
 
         if (targetClass.prototype.toJSON) {
           var toJSON = targetClass.prototype.toJSON;
@@ -3473,8 +3506,7 @@ var Reviver = /*#__PURE__*/function () {
           _this.toJSONs.set(targetClass, toJSON);
 
           targetClass.prototype.toJSON = function () {
-            var asJSON = toJSON.apply(this, arguments);
-            return new ReviverStandin(this, asJSON);
+            return new ReviverStandin(this, toJSON);
           };
         }
       });
@@ -3510,21 +3542,31 @@ var Reviver = /*#__PURE__*/function () {
   return Reviver;
 }();
 /**
- * For any class which has its own toJSON method, we wrap the result of toJSON
- * in this class so we can recognize it and then decide what to do with it
+ * For any class which has its own toJSON method, we wrap the the original
+ * object and its toJSON in this class so replace() can decide what to do
+ * with it
  */
 
 
 
 
-var ReviverStandin = function ReviverStandin(original, asJSON) {
-  _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, ReviverStandin);
+var ReviverStandin = /*#__PURE__*/function () {
+  function ReviverStandin(original, jsonFunc) {
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, ReviverStandin);
 
-  this.original = original;
-  this.asJSON = asJSON;
-};
+    this.original = original;
+    this.jsonFunc = jsonFunc;
+  }
 
-var COPY_VALUE = Symbol();
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default()(ReviverStandin, [{
+    key: "asJSON",
+    value: function asJSON() {
+      return this.jsonFunc.call(this.original);
+    }
+  }]);
+
+  return ReviverStandin;
+}();
 
 /***/ }),
 
@@ -19965,6 +20007,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -33331,12 +33374,23 @@ var render = function() {
             fn: function() {
               return [
                 _vm.keyVisible
+                  ? _c("easel-bitmap", {
+                      attrs: {
+                        image: "images/lobby-key.gif",
+                        align: "center-center",
+                        x: _vm.key.x,
+                        y: _vm.key.y
+                      }
+                    })
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.keyVisible
                   ? _c("enzo-click-spot", {
                       attrs: {
+                        r: "8",
                         name: "Key",
                         x: _vm.key.x,
-                        y: _vm.key.y,
-                        r: "8"
+                        y: _vm.key.y
                       },
                       on: {
                         click: function($event) {
@@ -33347,12 +33401,6 @@ var render = function() {
                           )
                         }
                       }
-                    })
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.keyVisible
-                  ? _c("easel-text", {
-                      attrs: { text: "🔑", x: _vm.key.x, y: _vm.key.y }
                     })
                   : _vm._e()
               ]
