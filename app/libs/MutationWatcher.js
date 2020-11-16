@@ -5,7 +5,7 @@ const isNativeCode = (func) => nativeCode.test(Function.prototype.toString.apply
 
 function callAndIgnoreExceptions(cb, param) {
     try {
-        return cb(param);
+        return (cb || null) && cb(param);
     } catch (e) {} // callback should have caught its own error
     return null;
 };
@@ -38,13 +38,15 @@ class MutationWatcherHandler {
             this.cb,
             {path, type: 'construct', params}
         );
-        return buildObserver(
+        const result = buildObserver(
             Reflect.construct(target, params, newTarget),
             this.cb,
             path,
             null,
             this.observers
         );
+        callAndIgnoreExceptions(onDone, result);
+        return result;
     }
 
     get(target, propertyKey, receiver) {
@@ -74,7 +76,7 @@ class MutationWatcherHandler {
             {path: this.path.concat(propertyKey), type: 'assign', value}
         );
         const result = Reflect.set(target, propertyKey, value, receiver);
-        onDone && callAndIgnoreExceptions(onDone, result);
+        callAndIgnoreExceptions(onDone, result);
         // boolean return value doesn't need to be passed through buildObserver
         return result;
     }
@@ -85,7 +87,7 @@ class MutationWatcherHandler {
             {path: this.path.concat(propertyKey), type: 'delete'}
         );
         const result = Reflect.deleteProperty(target, propertyKey);
-        onDone && callAndIgnoreExceptions(onDone, result);
+        callAndIgnoreExceptions(onDone, result);
         // boolean return value doesn't need to be passed through buildObserver
         return result;
     }
@@ -141,7 +143,7 @@ class MutationWatcherHandler {
                 : thisArg,
             safeParams
         );
-        onDone && callAndIgnoreExceptions(onDone, result);
+        callAndIgnoreExceptions(onDone, result);
         return buildObserver(
             result,
             this.cb,

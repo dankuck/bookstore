@@ -561,6 +561,14 @@ describe('MutationWatcher', function () {
             assert(before);
             assert(after);
         });
+
+        it('calls a returned callback after construct', function () {
+            let before = false, after = false;
+            const proxy = observe(function X() {}, () => { before = true; return () => after = true });
+            new proxy();
+            assert(before);
+            assert(after);
+        });
     });
 
 });
