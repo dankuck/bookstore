@@ -153,6 +153,20 @@ describe('MutationWatcher', function () {
             assert(called);
         });
 
+        it('observes a method call using re-attachment to an observer object', function () {
+            const mutations = [];
+            let called = false;
+            const proxy = observe({y(){ called = true }}, (mutation) => mutations.push(mutation));
+            proxy.x = proxy.y;
+            mutations.length = 0;
+            proxy.x(33, 44);
+            equal(
+                [{path: ['root', 'x', '(...)'], type: 'apply', params: [33, 44]}],
+                mutations
+            );
+            assert(called);
+        });
+
         it('observes an anonymous method call', function () {
             let called = false;
             const mutations = [];
@@ -205,6 +219,7 @@ describe('MutationWatcher', function () {
             equal(1, mutations.length);
         });
 
+
         it('observes construction of pure-JS proxy function', function () {
             const mutations = [];
             function X() {};
@@ -230,9 +245,15 @@ describe('MutationWatcher', function () {
     });
 
     describe('equality', function () {
-        it.skip('gives the same object on multiple gets', function () {
+        it('gives the same object on multiple gets', function () {
             const proxy = observe({x: {}});
             assert(proxy.x === proxy.x);
+        });
+
+        it('gives the same object on multiple gets after assignment', function () {
+            const proxy = observe({x: {}});
+            proxy.y = proxy.x;
+            assert(proxy.y === proxy.x);
         });
     });
 
@@ -349,10 +370,53 @@ describe('MutationWatcher', function () {
             equal(0, mutations.length);
         });
 
-        // should work because of the rules for native methods
-        it('does not copy observers in an array sort');
+        it('does not copy observers in an array reverse', function () {
+            const a = {name: 'a'};
+            const b = {name: 'b'};
+            const array = [a, b];
+            const proxy = observe(array);
+            proxy.reverse();
+            // The values in array should be the original values, not the
+            // observer proxies
+            assert(array[0] === b);
+            assert(array[1] === a);
+        });
 
-        it('does not copy observers in an array copyWithin');
+        it('does not copy observers in an array sort', function () {
+            const a = {name: 'a'};
+            const b = {name: 'b'};
+            const array = [b, a];
+            const proxy = observe(array);
+            proxy.sort((a, b) => a.name.localeCompare(b.name));
+            // The values in array should be the original values, not the
+            // observer proxies
+            assert(array[0] === a);
+            assert(array[1] === b);
+        });
+
+        it('does not copy observers in an array copyWithin', function () {
+            const a = {name: 'a'};
+            const b = {name: 'b'};
+            const array = [b, a];
+            const proxy = observe(array);
+            proxy.copyWithin(0, 1, 2);
+            // The values in array should be the original values, not the
+            // observer proxies
+            assert(array[0] === a);
+            assert(array[1] === a);
+        });
+
+        it('does not copy observers in an array destructuring assignment', function () {
+            const a = {name: 'a'};
+            const b = {name: 'b'};
+            const array = [b, a];
+            const proxy = observe(array);
+            [proxy[0], proxy[1]] = [proxy[1], proxy[0]];
+            // The values in array should be the original values, not the
+            // observer proxies
+            assert(array[0] === a);
+            assert(array[1] === b);
+        });
 
         it('allows obervers inside observers, if they are not from the same origin', function () {
             const mutations = [];

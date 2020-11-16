@@ -13,6 +13,38 @@ function callAndIgnoreExceptions(cb, param) {
 // Gonna compare these a lot so, keep them handy
 const {splice, unshift, push} = Array.prototype;
 
+class Wrapper {
+    constructor() {
+        this.byObserver = new WeakMap();
+        this.byObject = new WeakMap();
+    }
+
+    set(observer, object, handler) {
+        this.byObserver.set(observer, {object, handler});
+        this.byObject.set(object, observer);
+    }
+
+    hasObserver(observer) {
+        return this.byObserver.has(observer);
+    }
+
+    hasObject(object) {
+        return this.byObject.has(object);
+    }
+
+    getObserversObject(observer) {
+        return this.byObserver.get(observer).object;
+    }
+
+    getObserversHandler(observer) {
+        return this.byObserver.get(observer).handler;
+    }
+
+    getObjectsObserver(object) {
+        return this.byObject.get(object);
+    }
+}
+
 class MutationWatcherHandler {
 
     constructor(path, cb, thisArg, observers) {
@@ -38,7 +70,7 @@ class MutationWatcherHandler {
             this.cb,
             {path, type: 'construct', params}
         );
-        const result = buildObserver(
+        const result = findOrBuildObserver(
             Reflect.construct(target, params, newTarget),
             this.cb,
             path,
@@ -55,7 +87,7 @@ class MutationWatcherHandler {
             // class instantiation somehow
             return Reflect.get(target, propertyKey, receiver);
         }
-        return buildObserver(
+        return findOrBuildObserver(
             Reflect.get(target, propertyKey, receiver),
             this.cb,
             this.path.concat(propertyKey),
@@ -68,8 +100,8 @@ class MutationWatcherHandler {
         // We want to protect the original object. We should not put observer
         // proxies into it. So if this value is an observer proxy, unwrap it
         // first.
-        if (this.observers.has(value)) {
-            value = this.observers.get(value);
+        if (this.observers.hasObserver(value)) {
+            value = this.observers.getObserversObject(value);
         }
         const onDone = callAndIgnoreExceptions(
             this.cb,
@@ -77,7 +109,7 @@ class MutationWatcherHandler {
         );
         const result = Reflect.set(target, propertyKey, value, receiver);
         callAndIgnoreExceptions(onDone, result);
-        // boolean return value doesn't need to be passed through buildObserver
+        // boolean return value doesn't need to be passed through findOrBuildObserver
         return result;
     }
 
@@ -88,7 +120,7 @@ class MutationWatcherHandler {
         );
         const result = Reflect.deleteProperty(target, propertyKey);
         callAndIgnoreExceptions(onDone, result);
-        // boolean return value doesn't need to be passed through buildObserver
+        // boolean return value doesn't need to be passed through findOrBuildObserver
         return result;
     }
 
@@ -107,8 +139,8 @@ class MutationWatcherHandler {
     safeParams(target, params) {
         if (target === splice || target === unshift || target === push) {
             return params.map((param, i) => {
-                return this.observers.has(param)
-                    ? this.observers.get(param)
+                return this.observers.hasObserver(param)
+                    ? this.observers.getObserversObject(param)
                     : param;
             });
         } else {
@@ -117,8 +149,8 @@ class MutationWatcherHandler {
     }
 
     apply(target, thisArg, params) {
-        const unwrappedThisArg = this.observers.has(thisArg)
-            ? this.observers.get(thisArg)
+        const unwrappedThisArg = this.observers.hasObserver(thisArg)
+            ? this.observers.getObserversObject(thisArg)
             : thisArg;
         // If the function is being called on the original `this`, then we can
         // send normal path and params to the callback.
@@ -144,7 +176,7 @@ class MutationWatcherHandler {
             safeParams
         );
         callAndIgnoreExceptions(onDone, result);
-        return buildObserver(
+        return findOrBuildObserver(
             result,
             this.cb,
             path,
@@ -156,22 +188,37 @@ class MutationWatcherHandler {
 
 const observableTypes = ['object', 'function'];
 
-function buildObserver(object, cb, path, thisArg, observers) {
+function findObserver(object, observers) {
+    if (observers.hasObserver(object)) {
+        return object;
+    } else if (observers.hasObject(object)) {
+        return observers.getObjectsObserver(object);
+    } else {
+        return null;
+    }
+}
+
+function findOrBuildObserver(object, cb, path, thisArg, observers) {
     if (! object || ! observableTypes.includes(typeof object)) {
         return object;
     }
-    if (observers.has(object)) {
-        object = observers.get(object);
+    const existing = findObserver(object, observers);
+    if (existing) {
+        const handler = observers.getObserversHandler(existing);
+        handler.path = path;
+        handler.thisArg = thisArg;
+        return existing;
+    } else {
+        const handler = new MutationWatcherHandler(
+            path,
+            cb,
+            thisArg,
+            observers
+        );
+        const observer = new Proxy(object, handler);
+        observers.set(observer, object, handler);
+        return observer;
     }
-    const handler = new MutationWatcherHandler(
-        path,
-        cb,
-        thisArg,
-        observers
-    );
-    const observer = new Proxy(object, handler);
-    observers.set(observer, object);
-    return observer;
 }
 
 /**
@@ -184,13 +231,16 @@ function buildObserver(object, cb, path, thisArg, observers) {
  *
  * - path   An ordered array of strings, which can be clunkily joined to
  *          describe how to reach the data being mutated
- * - type   A string, one of 'assign' if the mutation was an assignment,
- *          'apply' if the mutation was a method call, or 'delete' if the
- *          mutation was a deletion
+ * - type   A string, one of
+ *          'assign' if the mutation was an assignment,
+ *          'apply' if the mutation was a method call,
+ *          'delete' if the mutation was a deletion, or
+ *          'construct' if the mutation was a construction on a class or
+ *          function being observed
  * - value  The value that was assigned. Only present if the mutation was an
  *          'assign'
  * - params An ordered array of the parameters given to a method call. Only
- *          present if the mutation was an 'apply'
+ *          present if the mutation was an 'apply' or 'construct'
  *
  * @param  {any}   object      If this is not an object or function, the value
  *                             will be returned unchanged.
@@ -200,5 +250,5 @@ function buildObserver(object, cb, path, thisArg, observers) {
  *                             this root object.
  */
 export function observe(object, cb = () => {}, path = ['root']) {
-    return buildObserver(object, cb, path, undefined, new WeakMap());
+    return findOrBuildObserver(object, cb, path, undefined, new Wrapper());
 }
