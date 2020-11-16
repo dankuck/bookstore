@@ -10,6 +10,9 @@ function callAndIgnoreExceptions(cb, param) {
     return null;
 };
 
+// Gonna compare these a lot so, keep them handy
+const {splice, unshift, push} = Array.prototype;
+
 class MutationWatcherHandler {
 
     constructor(path, cb, thisArg, observers) {
@@ -29,7 +32,27 @@ class MutationWatcherHandler {
         this.observers = observers;
     }
 
+    construct(target, params, newTarget) {
+        const path = ['new'].concat(this.path).concat('(...)');
+        const onDone = callAndIgnoreExceptions(
+            this.cb,
+            {path, type: 'construct', params}
+        );
+        return buildObserver(
+            Reflect.construct(target, params, newTarget),
+            this.cb,
+            path,
+            null,
+            this.observers
+        );
+    }
+
     get(target, propertyKey, receiver) {
+        if (propertyKey === 'prototype' && typeof receiver === 'function') {
+            // Function prototypes are not observed. Mostly because it breaks
+            // class instantiation somehow
+            return Reflect.get(target, propertyKey, receiver);
+        }
         return buildObserver(
             Reflect.get(target, propertyKey, receiver),
             this.cb,
@@ -67,6 +90,30 @@ class MutationWatcherHandler {
         return result;
     }
 
+    /**
+     * We don't want to waste time unwrapping params. Also that can lead to
+     * greater difficulty with ===. So we only unwrap params for the three
+     * tricky methods that JS has which technically do assignment to whatever
+     * object they are on. Those are the three Array mutation functions:
+     * splice, unshift, push. They all perform assignment, but none is caught
+     * by the set() method on this handler
+     * @param  {any} target
+     * @param  {array} params
+     * @return {array}        usually same as params, but sometimes an
+     *                        altered copy
+     */
+    safeParams(target, params) {
+        if (target === splice || target === unshift || target === push) {
+            return params.map((param, i) => {
+                return this.observers.has(param)
+                    ? this.observers.get(param)
+                    : param;
+            });
+        } else {
+            return params;
+        }
+    }
+
     apply(target, thisArg, params) {
         const unwrappedThisArg = this.observers.has(thisArg)
             ? this.observers.get(thisArg)
@@ -83,6 +130,7 @@ class MutationWatcherHandler {
             this.cb,
             {path, type: 'apply', params: cbParams}
         );
+        const safeParams = this.safeParams(target, params);
         const result = Reflect.apply(
             target,
             // Built-in functions often don't like Proxy as `this`.
@@ -91,7 +139,7 @@ class MutationWatcherHandler {
             isNativeCode(target)
                 ? unwrappedThisArg
                 : thisArg,
-            params
+            safeParams
         );
         onDone && callAndIgnoreExceptions(onDone, result);
         return buildObserver(

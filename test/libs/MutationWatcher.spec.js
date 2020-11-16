@@ -204,6 +204,36 @@ describe('MutationWatcher', function () {
             equal([{path: ['root', 'x', 'b'], type: 'assign', value: 3}], mutations);
             equal(1, mutations.length);
         });
+
+        it('observes construction of pure-JS proxy function', function () {
+            const mutations = [];
+            function X() {};
+            const proxy = observe(X, mutation => mutations.push(mutation));
+            const myX = new proxy(2, 8);
+            equal([{path:['new', 'root', '(...)'], type: 'construct', params: [2, 8]}], mutations);
+        });
+
+        it('observes construction of pure-JS proxy class', function () {
+            const mutations = [];
+            class X {};
+            const proxy = observe(X, mutation => mutations.push(mutation));
+            const myX = new proxy(2, 8);
+            equal([{path:['new', 'root', '(...)'], type: 'construct', params: [2, 8]}], mutations);
+        });
+
+        it('observes construction of proxy of built-in class', function () {
+            const mutations = [];
+            const proxy = observe(Date, mutation => mutations.push(mutation));
+            const myX = new proxy();
+            equal([{path:['new', 'root', '(...)'], type: 'construct', params: []}], mutations);
+        });
+    });
+
+    describe('equality', function () {
+        it.skip('gives the same object on multiple gets', function () {
+            const proxy = observe({x: {}});
+            assert(proxy.x === proxy.x);
+        });
     });
 
     describe('unwraps on assignment', function () {
@@ -221,7 +251,110 @@ describe('MutationWatcher', function () {
             equal(0, mutations.length);
         });
 
-        it('allows obervers inside observers, if they are not from the origin', function () {
+        it('does not assign observers directly inside observer arrays', function () {
+            const mutations = [];
+            const object = [{}];
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy[1] = proxy[0];
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not splice observers directly into observer arrays', function () {
+            const mutations = [];
+            const object = [{}];
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.splice(1, 0, proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not splice observers directly into observer objects of any type', function () {
+            const mutations = [];
+            const object = {0: {}, splice: Array.prototype.splice, length: 1};
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.splice(1, 0, proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not unshift observers directly into observer arrays', function () {
+            const mutations = [];
+            const object = [{}];
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.unshift(proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not unshift observers directly into observer objects of any type', function () {
+            const mutations = [];
+            const object = {0: {}, unshift: Array.prototype.unshift, length: 1};
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.unshift(proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not push observers directly into observer arrays', function () {
+            const mutations = [];
+            const object = [{}];
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.push(proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        it('does not push observers directly into observer objects of any type', function () {
+            const mutations = [];
+            const object = {0: {}, push: Array.prototype.push, length: 1};
+            const proxy = observe(object, (mutation) => mutations.push(mutation));
+            // This assignment should cause object.y to equal object.x, without any
+            // observers wrapping either of them
+            proxy.push(proxy[0]);
+            assert(object[0] === object[1]);
+            mutations.splice(0);
+            // This assignment on the original object should not be observed
+            object[0].x = 1;
+            equal(0, mutations.length);
+        });
+
+        // should work because of the rules for native methods
+        it('does not copy observers in an array sort');
+
+        it('does not copy observers in an array copyWithin');
+
+        it('allows obervers inside observers, if they are not from the same origin', function () {
             const mutations = [];
             const object = {};
             const proxy = observe(object, (mutation) => mutations.push(mutation), ['proxy']);
@@ -328,6 +461,41 @@ describe('MutationWatcher', function () {
             const proxyObject = func();
             assert(proxyObject);
             assert(proxyObject !== object);
+        });
+    });
+
+    describe('this in constructors', function () {
+
+        it('should have original `this` when newing up a pure-JS proxy function', function () {
+            let caught = null;
+            function X() {
+                this.x = 1;
+                caught = this;
+            }
+            const proxy = observe(X);
+            const myX = new proxy();
+            equal(caught, myX);
+            assert(caught !== myX);
+        });
+
+        it('should have original `this` when newing up a pure-JS proxy class', function () {
+            let caught = null;
+            class X {
+                constructor() {
+                    this.x = 1;
+                    caught = this;
+                }
+            };
+            const proxy = observe(X);
+            const myX = new proxy();
+            equal(caught, myX);
+            assert(caught !== myX);
+        });
+
+        it('should new up proxy of a built-in class', function () {
+            const proxy = observe(Date);
+            const myX = new proxy('2020-01-02');
+            equal(2020, myX.getFullYear());
         });
     });
 
