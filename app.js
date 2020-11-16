@@ -4192,6 +4192,7 @@ var Store = /*#__PURE__*/function () {
     _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Store);
 
     this.localStorageKey = localStorageKey;
+    this.RootClass = RootClass;
     this.reviver = new _libs_Reviver__WEBPACK_IMPORTED_MODULE_4__["default"]();
     this.reviver.register(RootClass);
     var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
@@ -4212,6 +4213,11 @@ var Store = /*#__PURE__*/function () {
   }
 
   _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Store, [{
+    key: "reset",
+    value: function reset() {
+      Object.assign(this.data, new this.RootClass());
+    }
+  }, {
     key: "save",
     value: function save(localStorageKey) {
       var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
@@ -4222,6 +4228,7 @@ var Store = /*#__PURE__*/function () {
     value: function load(localStorageKey) {
       var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
       Object.assign(this.data, storage.read() || {});
+      console.log(this.data);
     }
   }, {
     key: "delete",
@@ -4268,9 +4275,12 @@ function StoreMixin() {
   var _provide = {
     store: store
   };
+  var computed = {};
 
   if (storeKey) {
-    _provide[storeKey] = store.data;
+    computed[storeKey] = function () {
+      return this.store.data;
+    };
   }
 
   return {
@@ -4279,7 +4289,8 @@ function StoreMixin() {
     },
     data: function data() {
       return _provide;
-    }
+    },
+    computed: computed
   };
 }
 ;
@@ -20043,7 +20054,6 @@ __webpack_require__.r(__webpack_exports__);
         y: 160,
         r: 0
       };
-      this.keyVisible = true;
       Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_3__["default"])(10, this.key, {
         y: 206
       }, 5);
@@ -21818,7 +21828,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     resetWorld: function resetWorld() {
-      this.app.world = new _world_World__WEBPACK_IMPORTED_MODULE_1__["default"]();
+      this.app.store.reset();
       this.messager.queue("Reset world");
     },
     saveWorld: function saveWorld() {

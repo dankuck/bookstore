@@ -6,6 +6,7 @@ export default class Store
 {
     constructor(RootClass, localStorageKey, subKey = 'data') {
         this.localStorageKey = localStorageKey;
+        this.RootClass = RootClass;
 
         this.reviver = new Reviver();
         this.reviver.register(RootClass);
@@ -27,6 +28,10 @@ export default class Store
             () => storage.write(subKey, this.data),
             {deep: true}
         );
+    }
+
+    reset() {
+        Object.assign(this.data, new this.RootClass());
     }
 
     save(localStorageKey) {

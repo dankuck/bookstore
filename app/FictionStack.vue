@@ -100,7 +100,6 @@ export default {
                 y: 160,
                 r: 0,
             };
-            this.keyVisible = true;
             moveTo(10, this.key, {y: 206}, 5);
         },
     },
