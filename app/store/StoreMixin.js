@@ -6,8 +6,11 @@ export default function StoreMixin(...storeParams) {
     const provide = {
         store,
     };
+    const computed = {};
     if (storeKey) {
-        provide[storeKey] = store.data;
+        computed[storeKey] = function () {
+            return this.store.data;
+        };
     }
     return {
         provide() {
@@ -16,5 +19,6 @@ export default function StoreMixin(...storeParams) {
         data() {
             return provide;
         },
+        computed,
     };
 };
