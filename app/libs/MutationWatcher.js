@@ -444,36 +444,19 @@ class MutationWatcherHandler {
                 ? this.unwrap(params)
                 : params
         );
-        callAndIgnoreExceptions(onDone, result);
-        return findOrBuildObserver(
+        const observer = findOrBuildObserver(
             result,
             this.cb,
             path,
             undefined,
             this.observers
         );
+        callAndIgnoreExceptions(onDone, observer);
+        return observer;
     }
 }
 
 const observableTypes = ['object', 'function'];
-
-/**
- * If the object is an observer, or there's an observer associated with it,
- * return the observer
- *
- * @param  {object} object
- * @param  {ObserverObjectMap} observers
- * @return {observer|null}
- */
-function findObserver(object, observers) {
-    if (observers.hasObserver(object)) {
-        return object;
-    } else if (observers.hasObject(object)) {
-        return observers.getObjectObserver(object);
-    } else {
-        return null;
-    }
-}
 
 /**
  * Convert a value to an observer if possible. If the object already has an
@@ -492,17 +475,18 @@ function findOrBuildObserver(object, cb, path, thisArg, observers) {
         observers.clearPath(path);
         return object;
     }
-    const existing = findObserver(object, observers);
-    if (existing) {
-        const handler = observers.getObserverHandler(existing);
+    if (observers.hasObject(object)) {
+        const observer = observers.getObjectObserver(object);
+        const handler = observers.getObserverHandler(observer);
         handler.setThisArg(thisArg);
         // We want to tell the handler its new path
-        // ...but not if the new path is just a long circular reference
+        // ...but not if the new path is just a long circular reference to the
+        // old path
         if (! handler.pathIsBetterThan(path)) {
             handler.setPath(path);
             observers.setPathHandler(path, handler);
         }
-        return existing;
+        return observer;
     } else {
         const handler = new MutationWatcherHandler(
             path,
@@ -545,5 +529,11 @@ function findOrBuildObserver(object, cb, path, thisArg, observers) {
  *                             this root object.
  */
 export function observe(object, cb = () => {}, path = ['root']) {
-    return findOrBuildObserver(object, cb, path, undefined, new ObserverObjectMap());
+    return findOrBuildObserver(
+        object,
+        cb,
+        path,
+        undefined,
+        new ObserverObjectMap()
+    );
 }
