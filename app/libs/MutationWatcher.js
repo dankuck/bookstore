@@ -144,33 +144,47 @@ function callAndIgnoreExceptions(cb, param) {
  */
 class ObserverObjectMap {
     constructor() {
-        this.byObserver = new WeakMap();
-        this.byObject = new WeakMap();
+        this.observerToObject = new WeakMap();
+        this.objectToObserver = new WeakMap();
+        this.pathToHandler = {};
     }
 
-    set(observer, object, handler) {
-        this.byObserver.set(observer, {object, handler});
-        this.byObject.set(object, observer);
+    set(observer, object, handler, path) {
+        this.observerToObject.set(observer, {object, handler});
+        this.objectToObserver.set(object, observer);
+        this.setPathHandler(path, handler);
+    }
+
+    setPathHandler(path, handler) {
+        this.pathToHandler[path.join('.')] = handler;
+    }
+
+    clearPath(path) {
+        delete this.pathToHandler[path.join('.')];
     }
 
     hasObserver(observer) {
-        return this.byObserver.has(observer);
+        return this.observerToObject.has(observer);
     }
 
     hasObject(object) {
-        return this.byObject.has(object);
+        return this.objectToObserver.has(object);
     }
 
     getObserverObject(observer) {
-        return this.byObserver.get(observer).object;
+        return this.observerToObject.get(observer).object;
     }
 
     getObserverHandler(observer) {
-        return this.byObserver.get(observer).handler;
+        return this.observerToObject.get(observer).handler;
     }
 
     getObjectObserver(object) {
-        return this.byObject.get(object);
+        return this.objectToObserver.get(object);
+    }
+
+    getPathHandler(path) {
+        return this.pathToHandler[path.join('.')];
     }
 }
 
@@ -194,21 +208,72 @@ class MutationWatcherHandler {
         this.observers = observers;
     }
 
+    update(path, thisArg) {
+        this.path = path;
+        this.thisArg = thisArg;
+    }
+
     /**
      * If you get an observer via one path, assign it to another path, and get
      * it again from the new path, you will want callbacks to receive the most
-     * recent path information. In the same vein, you'll want the thisArg to
-     * reflect the most recent object
+     * recent path information
      *
      * findOrBuildObserver uses this method to enable that behavior
      *
      * @param  {array} path
+     * @return {void}
+     */
+    setPath(path) {
+        this.path = path;
+    }
+
+    /**
+     * If you get an observer via one path, assign it to another path, and get
+     * it again from the new path, you will want callbacks to reflect the new parent
+     *
+     * findOrBuildObserver uses this method to enable that behavior
+     *
      * @param  {any} thisArg
      * @return {void}
      */
-    update(path, thisArg) {
-        this.path = path;
+    setThisArg(thisArg) {
         this.thisArg = thisArg;
+    }
+
+    /**
+     * Is the current path better than this new proposed one?
+     *
+     * If the new one starts with the old one, then it looks like a circular
+     * reference. If so the old one is better. But we can only be sure if we
+     * check that the old one still refers to the same handler (this).
+     *
+     * @param  {array} path
+     * @return {bool}
+     */
+    pathIsBetterThan(path) {
+        return this.pathIsBeginningOf(path)
+            && this.pathIsFresh();
+    }
+
+    /**
+     * Does the new path start with our current path?
+     *
+     * @param  {array} path
+     * @return {bool}
+     */
+    pathIsBeginningOf(path) {
+        return this.path.length <= path.length
+            && path.slice(0, this.path.length)
+                .every((part, i) => part === this.path[i]);
+    }
+
+    /**
+     * Is the current path still a reference to this handler?
+     *
+     * @return {bool}
+     */
+    pathIsFresh() {
+        return this.observers.getPathHandler(this.path) === this;
     }
 
     /**
@@ -287,12 +352,16 @@ class MutationWatcherHandler {
         if (this.observers.hasObserver(value)) {
             value = this.observers.getObserverObject(value);
         }
+        const path = this.path.concat(propertyKey);
         const onDone = callAndIgnoreExceptions(
             this.cb,
-            {path: this.path.concat(propertyKey), type: 'assign', value}
+            {path, type: 'assign', value}
         );
         const result = Reflect.set(target, propertyKey, value, receiver);
         callAndIgnoreExceptions(onDone, result);
+        if (result) {
+            this.observers.clearPath(path);
+        }
         // boolean return value doesn't need to be passed through findOrBuildObserver
         return result;
     }
@@ -309,12 +378,16 @@ class MutationWatcherHandler {
      * @return {boolean}
      */
     deleteProperty(target, propertyKey) {
+        const path = this.path.concat(propertyKey);
         const onDone = callAndIgnoreExceptions(
             this.cb,
-            {path: this.path.concat(propertyKey), type: 'delete'}
+            {path, type: 'delete'}
         );
         const result = Reflect.deleteProperty(target, propertyKey);
         callAndIgnoreExceptions(onDone, result);
+        if (result) {
+            this.observers.clearPath(path);
+        }
         // boolean return value doesn't need to be passed through findOrBuildObserver
         return result;
     }
@@ -418,7 +491,13 @@ function findOrBuildObserver(object, cb, path, thisArg, observers) {
     const existing = findObserver(object, observers);
     if (existing) {
         const handler = observers.getObserverHandler(existing);
-        handler.update(path, thisArg);
+        handler.setThisArg(thisArg);
+        // We want to tell the handler its new path
+        // ...but not if the new path is just a long circular reference
+        if (! handler.pathIsBetterThan(path)) {
+            handler.setPath(path);
+            observers.setPathHandler(path, handler);
+        }
         return existing;
     } else {
         const handler = new MutationWatcherHandler(
@@ -428,7 +507,7 @@ function findOrBuildObserver(object, cb, path, thisArg, observers) {
             observers
         );
         const observer = new Proxy(object, handler);
-        observers.set(observer, object, handler);
+        observers.set(observer, object, handler, path);
         return observer;
     }
 }

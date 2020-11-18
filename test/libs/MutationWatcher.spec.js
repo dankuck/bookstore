@@ -256,7 +256,63 @@ describe('MutationWatcher', function () {
             assert(proxy.y === proxy.x);
         });
 
-        it('prefers a shorter path if given a circular reference');
+        it('prefers a shorter path if given a circular reference', function () {
+            const node1 = {};
+            const node2 = {};
+            const node3 = {};
+            node1.node2 = node2;
+            node2.node3 = node3;
+            node3.node1 = node1;
+            node3.node2 = node2;
+            const mutations = [];
+            const proxy = observe(node1, mutation => mutations.push(mutation), ['node1']);
+            proxy.node2.node3.node2.node3.x = 1;
+            equal([{path: ['node1', 'node2', 'node3', 'x'], type: 'assign', value: 1}], mutations);
+        });
+
+        it('does not prefer a shorter path if the shorter path has been reassigned', function () {
+            const node1 = {};
+            const node2 = {};
+            const node3 = {};
+            node1.node2 = node2;
+            node2.node3 = node3;
+            node3.node1 = node1;
+            node3.node2 = node2;
+            const mutations = [];
+            const proxy = observe(node1, mutation => mutations.push(mutation), ['node1']);
+            const n2 = proxy.node2;
+            proxy.node2 = 'x';
+            n2.node3.x = 1;
+            equal(
+                [
+                    {path: ['node1', 'node2'], type: 'assign', value: 'x'},
+                    {path: ['node1', 'node2', 'node3', 'x'], type: 'assign', value: 1},
+                ],
+                mutations
+            );
+        });
+
+        it('does not prefer a shorter path if the shorter path has been deleted', function () {
+            const node1 = {};
+            const node2 = {};
+            const node3 = {};
+            node1.node2 = node2;
+            node2.node3 = node3;
+            node3.node1 = node1;
+            node3.node2 = node2;
+            const mutations = [];
+            const proxy = observe(node1, mutation => mutations.push(mutation), ['node1']);
+            const n2 = proxy.node2;
+            delete proxy.node2;
+            n2.node3.x = 1;
+            equal(
+                [
+                    {path: ['node1', 'node2'], type: 'delete'},
+                    {path: ['node1', 'node2', 'node3', 'x'], type: 'assign', value: 1},
+                ],
+                mutations
+            );
+        });
     });
 
     describe('unwraps on assignment', function () {
@@ -428,10 +484,13 @@ describe('MutationWatcher', function () {
             proxy.y = observe({}, (mutation) => mutations.push(mutation), ['y']);
             mutations.splice(0);
             // This assignment should be observed twice
-            proxy.y.z = 3;
+            proxy.y.z = {};
+            proxy.y.z.a = {};
             equal([
-                {path: ['proxy', 'y', 'z'], type: 'assign', value: 3},
-                {path: ['y', 'z'], type: 'assign', value: 3},
+                {path: ['proxy', 'y', 'z'], type: 'assign', value: {a: {}}},
+                {path: ['y', 'z'], type: 'assign', value: {a: {}}},
+                {path: ['proxy', 'y', 'z', 'a'], type: 'assign', value: {}},
+                {path: ['y', 'z', 'a'], type: 'assign', value: {}},
             ], mutations);
         });
 
@@ -470,26 +529,6 @@ describe('MutationWatcher', function () {
             proxy.x = 78;
             equal([{path: [objectPrefix, 'x'], type: 'assign', value: 78}], mutations);
             assert(mutations[0].path[0] === objectPrefix);
-        });
-
-        it('allows any prefix with a concat method', function () {
-            const mutations = [];
-            class LinkedListConcatter {
-                constructor(last, payload) {
-                    this.last = last;
-                    this.payload = payload;
-                }
-
-                concat(things) {
-                    return new LinkedListConcatter(this, things);
-                }
-            }
-            const proxy = observe({x: {}}, (mutation) => mutations.push(mutation), new LinkedListConcatter());
-            const expectedPath = new LinkedListConcatter()
-                .concat('x')
-                .concat('y');
-            proxy.x.y = 34;
-            equal([{path: expectedPath, type: 'assign', value: 34}], mutations);
         });
     });
 
