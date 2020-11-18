@@ -4834,6 +4834,13 @@ var Store = /*#__PURE__*/function () {
         return;
       }
 
+      if (mutation.path.includes('__ob__')) {
+        // The __ob__ object is internal to Vue, we don't need to know it.
+        // Though this would be a nice time to know if the method was
+        // 'splice' or something.
+        return;
+      }
+
       var string = this.convertMutationToString(mutation);
       this.listeners.forEach(function (listener) {
         return listener(string);

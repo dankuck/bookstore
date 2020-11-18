@@ -47,6 +47,12 @@ export default class Store
             // leaving them out for this version
             return;
         }
+        if (mutation.path.includes('__ob__')) {
+            // The __ob__ object is internal to Vue, we don't need to know it.
+            // Though this would be a nice time to know if the method was
+            // 'splice' or something.
+            return;
+        }
         const string = this.convertMutationToString(mutation);
         this.listeners.forEach(listener => listener(string));
     }
