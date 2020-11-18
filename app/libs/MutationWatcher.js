@@ -149,6 +149,10 @@ class ObserverObjectMap {
         this.pathToHandler = {};
     }
 
+    pathToString(path) {
+        return path.map(part => String(part)).join('.');
+    }
+
     set(observer, object, handler, path) {
         this.observerToObject.set(observer, {object, handler});
         this.objectToObserver.set(object, observer);
@@ -156,11 +160,11 @@ class ObserverObjectMap {
     }
 
     setPathHandler(path, handler) {
-        this.pathToHandler[path.join('.')] = handler;
+        this.pathToHandler[this.pathToString(path)] = handler;
     }
 
     clearPath(path) {
-        delete this.pathToHandler[path.join('.')];
+        delete this.pathToHandler[this.pathToString(path)];
     }
 
     hasObserver(observer) {
@@ -184,7 +188,7 @@ class ObserverObjectMap {
     }
 
     getPathHandler(path) {
-        return this.pathToHandler[path.join('.')];
+        return this.pathToHandler[this.pathToString(path)];
     }
 }
 
@@ -427,7 +431,6 @@ class MutationWatcherHandler {
             this.cb,
             {path, type: 'apply', params: cbParams}
         );
-        // Unwrap the params only for certain functions
         const isNative = isNativeCode(target);
         const result = Reflect.apply(
             target,
@@ -486,6 +489,7 @@ function findObserver(object, observers) {
  */
 function findOrBuildObserver(object, cb, path, thisArg, observers) {
     if (! object || ! observableTypes.includes(typeof object)) {
+        observers.clearPath(path);
         return object;
     }
     const existing = findObserver(object, observers);
