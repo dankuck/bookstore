@@ -136,9 +136,6 @@ function callAndIgnoreExceptions(cb, param) {
     return null;
 };
 
-// Gonna compare these a lot so keep them handy
-const {splice, unshift, push} = Array.prototype;
-
 /**
  * This class associates an observer to its object and handler. It can return
  * the observer given the object, the object given the observer, or the handler
@@ -322,31 +319,12 @@ class MutationWatcherHandler {
         return result;
     }
 
-    /**
-     * If we always converted params that are observers to their internal
-     * values, we'd waste time and spoil some uses of ===. So we only unwrap
-     * params during assignment. See `set()` above.
-     *
-     * However, JS has three tricky methods that do assignment and are not
-     * caught by `set()`. They are the three Array mutation functions: splice,
-     * unshift, and push. So we need to see if any of those is being called and
-     * unwrap the parameters if so.
-     *
-     * @param  {any} target
-     * @param  {array} params
-     * @return {array}        usually same as params, but sometimes an
-     *                        altered copy
-     */
-    safeParams(target, params) {
-        if (target === splice || target === unshift || target === push) {
-            return params.map((param, i) => {
-                return this.observers.hasObserver(param)
-                    ? this.observers.getObserverObject(param)
-                    : param;
-            });
-        } else {
-            return params;
-        }
+    unwrap(params) {
+        return params.map((param, i) => {
+            return this.observers.hasObserver(param)
+                ? this.observers.getObserverObject(param)
+                : param;
+        })
     }
 
     /**
@@ -377,16 +355,18 @@ class MutationWatcherHandler {
             {path, type: 'apply', params: cbParams}
         );
         // Unwrap the params only for certain functions
-        const safeParams = this.safeParams(target, params);
+        const isNative = isNativeCode(target);
         const result = Reflect.apply(
             target,
             // Built-in functions often don't like Proxy as `this`.
             // But pure JS functions don't mind, and if they do any
             // further calls or assignments, we want to know
-            isNativeCode(target)
+            isNative
                 ? unwrappedThisArg
                 : thisArg,
-            safeParams
+            isNative
+                ? this.unwrap(params)
+                : params
         );
         callAndIgnoreExceptions(onDone, result);
         return findOrBuildObserver(

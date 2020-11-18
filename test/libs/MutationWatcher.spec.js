@@ -255,6 +255,8 @@ describe('MutationWatcher', function () {
             proxy.y = proxy.x;
             assert(proxy.y === proxy.x);
         });
+
+        it('prefers a shorter path if given a circular reference');
     });
 
     describe('unwraps on assignment', function () {
@@ -431,6 +433,18 @@ describe('MutationWatcher', function () {
                 {path: ['proxy', 'y', 'z'], type: 'assign', value: 3},
                 {path: ['y', 'z'], type: 'assign', value: 3},
             ], mutations);
+        });
+
+        it('unwraps all params for a native function', function () {
+            const proxy = observe([{i: 'am the thing'}]);
+            const thing = proxy[0];
+            // `thing` is an observer. `proxy` is also an observer.
+            // `indexOf` is a native function. We always unwrap `this` for
+            // native functions. So `proxy` will be unwrapped, and its contents
+            // will be unwrapped, and if we don't unwrap `thing`, it will
+            // compare incorrectly.
+            // So we should unwrap all params when we unwrap `this`.
+            equal(0, proxy.indexOf(thing));
         });
     });
 
