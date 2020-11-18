@@ -1894,6 +1894,9 @@ var app = new Vue({
     window.addEventListener('resize', this.resizer);
     this.resizer();
     Object(_app_analytics_js__WEBPACK_IMPORTED_MODULE_10__["default"])(this);
+    this.store.onMutation(function (string) {
+      return console.log('Mutation: ' + string);
+    });
   },
   destroyed: function destroyed() {
     window.removeEventListener('resize', this.resizer);
@@ -3057,6 +3060,603 @@ var Messager = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./app/libs/MutationWatcher.js":
+/*!*************************************!*\
+  !*** ./app/libs/MutationWatcher.js ***!
+  \*************************************/
+/*! exports provided: observe */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "observe", function() { return observe; });
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "./node_modules/@babel/runtime/helpers/typeof.js");
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/slicedToArray.js");
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+
+/**
+ |-----------------------
+ | MutationWatcher
+ |-----------------------
+ | Use MutationWatcher to receive callbacks whenever an object or one of its
+ | descendants is mutated or called.
+ |
+ | This class exports one function: `observe`.
+ |
+ | Pass any object and function into
+ | `observe(object, callback)`. The return value will be a new object, called
+ | an observer, which will reflect all the values of the original object
+ | transparently. The observer will appear just like the original object,
+ | except that an === check will fail.
+ |
+ | Any time you change the observer, the changes will be reflected on the
+ | original object and `callback` will be called.
+ |
+ | The callback will be called with a single parameter, an object with
+ | `{path, type, value, params}`.
+ |
+ | - path   An ordered array of strings, which can be clunkily joined to
+ |          describe the data path to the property being mutated
+ | - type   A string, one of
+ |          'assign' if the mutation was an assignment,
+ |          'apply' if the mutation was a method call,
+ |          'delete' if the mutation was a deletion, or
+ |          'construct' if the mutation was a construction on a class or
+ |          function being observed
+ | - value  The value that was assigned. Only present if the mutation was an
+ |          'assign'
+ | - params An ordered array of the parameters given to a method call. Only
+ |          present if the mutation was an 'apply' or 'construct'
+ |
+ | Example:
+ |   import { observe } from 'MutationWatcher.js';
+ |   const myObject = {answer: 42};
+ |   const observer = observe(myObject, console.log);
+ |
+ |   observer.question = 'What is 6 x 7?';
+ |   // {path: ['root', 'question'], type: 'assign', value: 'What is 6 x 7?'}
+ |   console.log(myObject.question)
+ |   // 'What is 6 x 7?'
+ |
+ | The path given to the callback will refer to your original object as 'root'
+ | unless you provide a third parameter to `observe()`, an array which will
+ | be used to start all the paths given to the callback.
+ |
+ | Example:
+ |   const observer = observe(window.alert, console.log, ['window', 'alert']);
+ |   observer('hi');
+ |   // Alert: hi
+ |   // {path: ['window', 'alert', '(...)'], type: 'apply', params: ['hi']}
+ |
+ | Changes to the original object will be reflected on the observer, but the
+ | callback will not be called.
+ |
+ |--------------------
+ | Best Practice
+ |--------------------
+ |
+ | 1. Best Practice: It is best practice to use only the observer, and ignore
+ |    the original object.
+ |
+ | Just as the observer is a different object from the original object, a
+ | property on the observer will be different from the same property
+ | on the original object.
+ |
+ | Example:
+ |   const myObject = {cake: {}, age: 100}
+ |   const observer = observe(myObject, console.log);
+ |   observer === myObject;
+ |   // false
+ |   observer.cake === myObject.cake
+ |   // false
+ |   observer.age === myObject.age
+ |   // true, primitives are passed through untouched
+ |
+ | 2. Best Practice: Expect new values added to an observer to be converted to
+ |    observers too. Do not depend on === if you add a new value to an
+ |    observer.
+ |
+ | Assignments on an observer involve an implicit observe() call, so the value
+ | being assigned will come back as an observer. I.e., if the value was an
+ | object it will now be a different object. Unless it was already an observer.
+ |
+ | Example:
+ |   const observer = observe([])
+ |   const toy = {};
+ |   observer[0] = toy;
+ |   observer[0] === toy;
+ |   // false, but don't panic
+ |   observer[1] = toy;
+ |   observer[0] === observer[1];
+ |   // true
+ |
+ | 3. Best Practice: Expect `this` to be the observer within methods.
+ |
+ | Methods called on the observer will be called with the observer as the
+ | `this` context.
+ |
+ | Example:
+ |   const original = {
+ |     whoAmI() {
+ |       if (this === original) {
+ |        return 'I am the original';
+ |       } else if (this === observer) {
+ |        return 'I am the observer';
+ |       }
+ |     }
+ |   };
+ |   const observer = observe(original);
+ |   observer.whoAmI();
+ |   // I am the observer
+ |   original.whoAmI();
+ |   // I am the original
+ */
+// Does the string end with "native code] }" or something close? That's not
+// valid JS syntax and proves the function is actually native
+var nativeCode = /native code\]\s*\}$/i;
+
+var isNativeCode = function isNativeCode(func) {
+  return nativeCode.test(Function.prototype.toString.apply(func));
+};
+/**
+ * Call a function with the given parameter and return the results. If the
+ * function is missing or throws an exception, return null.
+ *
+ * @param  {Function|null} cb
+ * @param  {any}   param
+ * @return {any}
+ */
+
+
+function callAndIgnoreExceptions(cb, param) {
+  try {
+    return (cb || null) && cb(param);
+  } catch (e) {} // callback should have caught its own error
+
+
+  return null;
+}
+
+;
+/**
+ * This class associates an observer to its object and handler. It can return
+ * the observer given the object, the object given the observer, or the handler
+ * given the observer. Also its references are weak, so the observer and object
+ * can be garbage collected.
+ */
+
+var ObserverObjectMap = /*#__PURE__*/function () {
+  function ObserverObjectMap() {
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default()(this, ObserverObjectMap);
+
+    this.observerToObject = new WeakMap();
+    this.objectToObserver = new WeakMap();
+    this.pathToHandler = {};
+  }
+
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(ObserverObjectMap, [{
+    key: "pathToString",
+    value: function pathToString(path) {
+      return path.map(function (part) {
+        return String(part);
+      }).join('.');
+    }
+  }, {
+    key: "set",
+    value: function set(observer, object, handler, path) {
+      this.observerToObject.set(observer, {
+        object: object,
+        handler: handler
+      });
+      this.objectToObserver.set(object, observer);
+      this.setPathHandler(path, handler);
+    }
+  }, {
+    key: "setPathHandler",
+    value: function setPathHandler(path, handler) {
+      this.pathToHandler[this.pathToString(path)] = handler;
+    }
+  }, {
+    key: "clearPath",
+    value: function clearPath(path) {
+      delete this.pathToHandler[this.pathToString(path)];
+    }
+  }, {
+    key: "hasObserver",
+    value: function hasObserver(observer) {
+      return this.observerToObject.has(observer);
+    }
+  }, {
+    key: "hasObject",
+    value: function hasObject(object) {
+      return this.objectToObserver.has(object);
+    }
+  }, {
+    key: "getObserverObject",
+    value: function getObserverObject(observer) {
+      return this.observerToObject.get(observer).object;
+    }
+  }, {
+    key: "getObserverHandler",
+    value: function getObserverHandler(observer) {
+      return this.observerToObject.get(observer).handler;
+    }
+  }, {
+    key: "getObjectObserver",
+    value: function getObjectObserver(object) {
+      return this.objectToObserver.get(object);
+    }
+  }, {
+    key: "getPathHandler",
+    value: function getPathHandler(path) {
+      return this.pathToHandler[this.pathToString(path)];
+    }
+  }]);
+
+  return ObserverObjectMap;
+}();
+
+var MutationWatcherHandler = /*#__PURE__*/function () {
+  function MutationWatcherHandler(path, cb, thisArg, observers) {
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default()(this, MutationWatcherHandler);
+
+    // We use path to tell the callback how we got to the target object
+    this.path = path; // We feed mutation information into the callback
+
+    this.cb = cb; // If we're wrapping a function, we use thisArg to know what object we
+    // got the function from. Later, when the function is invoked, we check
+    // to see if a different `this` is being used and it impacts how we
+    // send the path to the callback
+
+    this.thisArg = thisArg; // We keep all of our proxies in the observers map, so we can get at
+    // the original object at any time
+
+    this.observers = observers;
+  }
+
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(MutationWatcherHandler, [{
+    key: "update",
+    value: function update(path, thisArg) {
+      this.path = path;
+      this.thisArg = thisArg;
+    }
+    /**
+     * If you get an observer via one path, assign it to another path, and get
+     * it again from the new path, you will want callbacks to receive the most
+     * recent path information
+     *
+     * findOrBuildObserver uses this method to enable that behavior
+     *
+     * @param  {array} path
+     * @return {void}
+     */
+
+  }, {
+    key: "setPath",
+    value: function setPath(path) {
+      this.path = path;
+    }
+    /**
+     * If you get an observer via one path, assign it to another path, and get
+     * it again from the new path, you will want callbacks to reflect the new parent
+     *
+     * findOrBuildObserver uses this method to enable that behavior
+     *
+     * @param  {any} thisArg
+     * @return {void}
+     */
+
+  }, {
+    key: "setThisArg",
+    value: function setThisArg(thisArg) {
+      this.thisArg = thisArg;
+    }
+    /**
+     * Is the current path better than this new proposed one?
+     *
+     * If the new one starts with the old one, then it looks like a circular
+     * reference. If so the old one is better. But we can only be sure if we
+     * check that the old one still refers to the same handler (this).
+     *
+     * @param  {array} path
+     * @return {bool}
+     */
+
+  }, {
+    key: "pathIsBetterThan",
+    value: function pathIsBetterThan(path) {
+      return this.pathIsBeginningOf(path) && this.pathIsFresh();
+    }
+    /**
+     * Does the new path start with our current path?
+     *
+     * @param  {array} path
+     * @return {bool}
+     */
+
+  }, {
+    key: "pathIsBeginningOf",
+    value: function pathIsBeginningOf(path) {
+      var _this = this;
+
+      return this.path.length <= path.length && path.slice(0, this.path.length).every(function (part, i) {
+        return part === _this.path[i];
+      });
+    }
+    /**
+     * Is the current path still a reference to this handler?
+     *
+     * @return {bool}
+     */
+
+  }, {
+    key: "pathIsFresh",
+    value: function pathIsFresh() {
+      return this.observers.getPathHandler(this.path) === this;
+    }
+    /**
+     * For Proxy:
+     *
+     * When `new myProxy(...)` is evaluated, this intercepts it, calls the
+     * callback, then ensures the result is an observer if possible
+     *
+     * @param  {any} target
+     * @param  {array} params
+     * @param  {object} newTarget
+     * @return {object}
+     */
+
+  }, {
+    key: "construct",
+    value: function construct(target, params, newTarget) {
+      var path = ['new'].concat(this.path).concat('(...)');
+      var onDone = callAndIgnoreExceptions(this.cb, {
+        path: path,
+        type: 'construct',
+        params: params
+      });
+      var result = findOrBuildObserver(Reflect.construct(target, params, newTarget), this.cb, path, null, this.observers);
+      callAndIgnoreExceptions(onDone, result);
+      return result;
+    }
+    /**
+     * For Proxy:
+     *
+     * When `myProxy.x` is evaluated, this intercepts it and ensures
+     * the result is an observer if possible. This also catches `myProxy[0]`.
+     *
+     * @param  {observer} target
+     * @param  {string} propertyKey Always a string, even if [0] or [null] is
+     *                              used
+     * @param  {object|null} receiver
+     * @return {observer|primitive|prototype object}
+     */
+
+  }, {
+    key: "get",
+    value: function get(target, propertyKey, receiver) {
+      if (propertyKey === 'prototype' && typeof receiver === 'function') {
+        // Function prototypes are not observed. Mostly because it breaks
+        // class instantiation somehow
+        return Reflect.get(target, propertyKey, receiver);
+      }
+
+      return findOrBuildObserver(Reflect.get(target, propertyKey, receiver), this.cb, this.path.concat(propertyKey), target, this.observers);
+    }
+    /**
+     * For Proxy:
+     *
+     * When `myProxy.x = 1` is evaluated, this intercepts it, calls the
+     * callback, and ensures that if the incoming value is an observer it is
+     * converted to its internal value before being assigned. This also works
+     * when assigning to `myProxy[0]`
+     *
+     * @param {observer} target
+     * @param {string} propertyKey Always a string, even if [0] or [null] is
+     *                             used
+     * @param {any} value
+     * @return {boolean}
+     */
+
+  }, {
+    key: "set",
+    value: function set(target, propertyKey, value, receiver) {
+      // We want to protect the original object. We should not put observer
+      // proxies into it. So if this value is an observer proxy, unwrap it
+      // first.
+      if (this.observers.hasObserver(value)) {
+        value = this.observers.getObserverObject(value);
+      }
+
+      var path = this.path.concat(propertyKey);
+      var onDone = callAndIgnoreExceptions(this.cb, {
+        path: path,
+        type: 'assign',
+        value: value
+      });
+      var result = Reflect.set(target, propertyKey, value, receiver);
+      callAndIgnoreExceptions(onDone, result);
+
+      if (result) {
+        this.observers.clearPath(path);
+      } // boolean return value doesn't need to be passed through findOrBuildObserver
+
+
+      return result;
+    }
+    /**
+     * For Proxy:
+     *
+     * When `delete myProxy.x` is evaluated, this intercepts it and calls the
+     * callback
+     *
+     * @param  {observer} target
+     * @param  {string} propertyKey Always a string, even if [0] or [null] is
+     *                              used
+     * @return {boolean}
+     */
+
+  }, {
+    key: "deleteProperty",
+    value: function deleteProperty(target, propertyKey) {
+      var path = this.path.concat(propertyKey);
+      var onDone = callAndIgnoreExceptions(this.cb, {
+        path: path,
+        type: 'delete'
+      });
+      var result = Reflect.deleteProperty(target, propertyKey);
+      callAndIgnoreExceptions(onDone, result);
+
+      if (result) {
+        this.observers.clearPath(path);
+      } // boolean return value doesn't need to be passed through findOrBuildObserver
+
+
+      return result;
+    }
+  }, {
+    key: "unwrap",
+    value: function unwrap(params) {
+      var _this2 = this;
+
+      return params.map(function (param, i) {
+        return _this2.observers.hasObserver(param) ? _this2.observers.getObserverObject(param) : param;
+      });
+    }
+    /**
+     * For Proxy:
+     *
+     * When `myProxy.func()` is evaluated, this intercepts it, calls the
+     * callback, converts parameters to internal representation in a few cases
+     * where that's necessary, unwraps the `this` where that's necessary, and
+     * ensures the result is an observer if possible
+     *
+     * @param  {observer<Function>} target
+     * @param  {object} thisArg
+     * @param  {array} params
+     * @return {observer|primitive}
+     */
+
+  }, {
+    key: "apply",
+    value: function apply(target, thisArg, params) {
+      var unwrappedThisArg = this.observers.hasObserver(thisArg) ? this.observers.getObserverObject(thisArg) : thisArg; // If the function is being called on the original `this`, then we can
+      // send normal path and params to the callback.
+      // But if it's some other thing, we guess that apply() was used.
+
+      var _ref = this.thisArg === unwrappedThisArg ? [this.path.concat('(...)'), params] : [this.path.concat(['apply', '(...)']), [unwrappedThisArg, params]],
+          _ref2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default()(_ref, 2),
+          path = _ref2[0],
+          cbParams = _ref2[1];
+
+      var onDone = callAndIgnoreExceptions(this.cb, {
+        path: path,
+        type: 'apply',
+        params: cbParams
+      });
+      var isNative = isNativeCode(target);
+      var result = Reflect.apply(target, // Built-in functions often don't like Proxy as `this`.
+      // But pure JS functions don't mind, and if they do any
+      // further calls or assignments, we want to know
+      isNative ? unwrappedThisArg : thisArg, isNative ? this.unwrap(params) : params);
+      var observer = findOrBuildObserver(result, this.cb, path, undefined, this.observers);
+      callAndIgnoreExceptions(onDone, observer);
+      return observer;
+    }
+  }]);
+
+  return MutationWatcherHandler;
+}();
+
+var observableTypes = ['object', 'function'];
+/**
+ * Convert a value to an observer if possible. If the object already has an
+ * observer associated with it, use that one. Otherwise build one. If the value
+ * given is a primitive or null, then return that value instead.
+ *
+ * @param  {any}   object
+ * @param  {Function} cb
+ * @param  {array}   path
+ * @param  {object|null}   thisArg
+ * @param  {ObserverObjectMap}   observers
+ * @return {any}
+ */
+
+function findOrBuildObserver(object, cb, path, thisArg, observers) {
+  if (!object || !observableTypes.includes(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(object))) {
+    observers.clearPath(path);
+    return object;
+  }
+
+  if (observers.hasObject(object)) {
+    var observer = observers.getObjectObserver(object);
+    var handler = observers.getObserverHandler(observer);
+    handler.setThisArg(thisArg); // We want to tell the handler its new path
+    // ...but not if the new path is just a long circular reference to the
+    // old path
+
+    if (!handler.pathIsBetterThan(path)) {
+      handler.setPath(path);
+      observers.setPathHandler(path, handler);
+    }
+
+    return observer;
+  } else {
+    var _handler = new MutationWatcherHandler(path, cb, thisArg, observers);
+
+    var _observer = new Proxy(object, _handler);
+
+    observers.set(_observer, object, _handler, path);
+    return _observer;
+  }
+}
+/**
+ * Create a proxy object that wraps `object`. Any changes to the proxy will be
+ * reflected on `object` and vice versa. Changes applied to the proxy will
+ * first be sent to the callback `cb`.
+ *
+ * The callback receives one parameter, an object with
+ * {path, type, value, params}.
+ *
+ * - path   An ordered array of strings, which can be clunkily joined to
+ *          describe how to reach the data being mutated
+ * - type   A string, one of
+ *          'assign' if the mutation was an assignment,
+ *          'apply' if the mutation was a method call,
+ *          'delete' if the mutation was a deletion, or
+ *          'construct' if the mutation was a construction on a class or
+ *          function being observed
+ * - value  The value that was assigned. Only present if the mutation was an
+ *          'assign'
+ * - params An ordered array of the parameters given to a method call. Only
+ *          present if the mutation was an 'apply' or 'construct'
+ *
+ * @param  {any}   object      If this is not an object or function, the value
+ *                             will be returned unchanged.
+ * @param  {Function} cb       Receives updates every time an assignment is
+ *                             made or a method is called.
+ * @param  {Array}    path     Optional; an array with a string to identify
+ *                             this root object.
+ */
+
+
+function observe(object) {
+  var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {};
+  var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['root'];
+  return findOrBuildObserver(object, cb, path, undefined, new ObserverObjectMap());
+}
+
+/***/ }),
+
 /***/ "./app/libs/Reviver.js":
 /*!*****************************!*\
   !*** ./app/libs/Reviver.js ***!
@@ -4169,14 +4769,19 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Store; });
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/JsonStorage */ "./app/libs/JsonStorage.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _libs_Reviver__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @libs/Reviver */ "./app/libs/Reviver.js");
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "./node_modules/@babel/runtime/helpers/typeof.js");
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @libs/JsonStorage */ "./app/libs/JsonStorage.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _libs_Reviver__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @libs/Reviver */ "./app/libs/Reviver.js");
+/* harmony import */ var _libs_MutationWatcher__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @libs/MutationWatcher */ "./app/libs/MutationWatcher.js");
+
+
 
 
 
@@ -4189,18 +4794,21 @@ var Store = /*#__PURE__*/function () {
 
     var subKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'data';
 
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Store);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, Store);
 
     this.localStorageKey = localStorageKey;
     this.RootClass = RootClass;
-    this.reviver = new _libs_Reviver__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    this.reviver = new _libs_Reviver__WEBPACK_IMPORTED_MODULE_5__["default"]();
     this.reviver.register(RootClass);
-    var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
-    this.data = storage.read(subKey) || new RootClass(); // Vue is good at watching for changes in a data structure, and we
+    this.listeners = [];
+    var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_3__["default"](window.localStorage, localStorageKey, this.reviver);
+    this.data = Object(_libs_MutationWatcher__WEBPACK_IMPORTED_MODULE_6__["observe"])(storage.read(subKey) || new RootClass(), function (mutation) {
+      return _this.fireMutation(mutation);
+    }, subKey === 'data' ? ['store', 'data'] : [subKey]); // Vue is good at watching for changes in a data structure, and we
     // expect this to be used with Vue, so let's use Vue to watch for the
     // changes
 
-    var watcher = new vue__WEBPACK_IMPORTED_MODULE_3___default.a({
+    var watcher = new vue__WEBPACK_IMPORTED_MODULE_4___default.a({
       data: {
         data: this.data
       }
@@ -4212,7 +4820,59 @@ var Store = /*#__PURE__*/function () {
     });
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Store, [{
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default()(Store, [{
+    key: "onMutation",
+    value: function onMutation(cb) {
+      this.listeners.push(cb);
+    }
+  }, {
+    key: "fireMutation",
+    value: function fireMutation(mutation) {
+      if (mutation.type === 'apply') {
+        // Method calls aren't guaranteed to be interesting, so we're
+        // leaving them out for this version
+        return;
+      }
+
+      var string = this.convertMutationToString(mutation);
+      this.listeners.forEach(function (listener) {
+        return listener(string);
+      });
+    }
+  }, {
+    key: "convertMutationToString",
+    value: function convertMutationToString(mutation) {
+      var _this2 = this;
+
+      var type = mutation.type,
+          path = mutation.path,
+          value = mutation.value,
+          params = mutation.params;
+
+      if (type === 'assign') {
+        return path.join('.') + ' = ' + this.convertParamToString(value);
+      } else if (type === 'apply') {
+        return path.slice(0, -1).join('.') + '(' + params.map(function (param) {
+          return _this2.convertParamToString(param);
+        }) + ')';
+      } else if (type === 'delete') {
+        return 'delete ' + path.join('.');
+      } else if (type === 'construct') {
+        return 'new ' + path.slice(1, -1).join('.') + '(' + params.map(function (param) {
+          return _this2.convertParamToString(param);
+        }) + ')';
+      }
+    }
+  }, {
+    key: "convertParamToString",
+    value: function convertParamToString(param) {
+      if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(param) === 'object') {
+        return '<' + param.constructor.name + '>';
+      } else {
+        return JSON.stringify(param);
+      }
+    }
+  }, {
     key: "reset",
     value: function reset() {
       Object.assign(this.data, new this.RootClass());
@@ -4220,20 +4880,19 @@ var Store = /*#__PURE__*/function () {
   }, {
     key: "save",
     value: function save(localStorageKey) {
-      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
+      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_3__["default"](window.localStorage, localStorageKey, this.reviver);
       storage.write(this.data);
     }
   }, {
     key: "load",
     value: function load(localStorageKey) {
-      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
+      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_3__["default"](window.localStorage, localStorageKey, this.reviver);
       Object.assign(this.data, storage.read() || {});
-      console.log(this.data);
     }
   }, {
     key: "delete",
     value: function _delete(localStorageKey) {
-      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_2__["default"](window.localStorage, localStorageKey, this.reviver);
+      var storage = new _libs_JsonStorage__WEBPACK_IMPORTED_MODULE_3__["default"](window.localStorage, localStorageKey, this.reviver);
       storage["delete"]();
     }
   }]);
