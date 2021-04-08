@@ -114,6 +114,15 @@
  |   // I am the observer
  |   original.whoAmI();
  |   // I am the original
+ |
+ |--------------------
+ | Future
+ |--------------------
+ |
+ | Observers send updates to the callback every time a method is called. But
+ | many methods do not cause mutations. In a future version, we will only send
+ | updates about method calls that result in a mutation: an assignment or one
+ | of several Array methods.
  */
 
 // Does the string end with "native code] }" or something close? That's not
