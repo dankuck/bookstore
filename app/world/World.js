@@ -327,10 +327,10 @@ export default class World
 
     returnLobbyBot(ms) {
         if (this.lobbyBot.location === 'door') {
-            if (this.location !== 'lobby-desk') {
-                this.lobbyBot.location = 'lobby-desk';
-            } else {
+            if (this.location === 'lobby-desk' || this.cutscene === 'doorbell') {
                 this.scheduler.schedule(ms, 'returnLobbyBot', ms);
+            } else {
+                this.lobbyBot.location = 'lobby-desk';
             }
         }
     }

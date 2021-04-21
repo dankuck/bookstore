@@ -6152,10 +6152,10 @@ var World = /*#__PURE__*/function () {
     key: "returnLobbyBot",
     value: function returnLobbyBot(ms) {
       if (this.lobbyBot.location === 'door') {
-        if (this.location !== 'lobby-desk') {
-          this.lobbyBot.location = 'lobby-desk';
-        } else {
+        if (this.location === 'lobby-desk' || this.cutscene === 'doorbell') {
           this.scheduler.schedule(ms, 'returnLobbyBot', ms);
+        } else {
+          this.lobbyBot.location = 'lobby-desk';
         }
       }
     }
@@ -20239,7 +20239,7 @@ __webpack_require__.r(__webpack_exports__);
         return this.robotSay("I'll get it!").then(function () {
           return _this3.app.world.leave('lobby-desk', 'lobby');
         }).then(function () {
-          return _this3.app.world.lobbyBotAnswerDoorbell(20000, 100);
+          return _this3.app.world.lobbyBotAnswerDoorbell(20000, 500);
         });
       }
     },
