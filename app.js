@@ -5713,6 +5713,69 @@ InventoryDoorbell.registerReviver = function (reviver) {
 
 /***/ }),
 
+/***/ "./app/world/InventoryKey.js":
+/*!***********************************!*\
+  !*** ./app/world/InventoryKey.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return InventoryKey; });
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _InventoryBattery__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InventoryBattery */ "./app/world/InventoryBattery.js");
+
+
+
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+
+
+var InventoryKey = /*#__PURE__*/function () {
+  function InventoryKey(data) {
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1___default()(this, InventoryKey);
+
+    this.image = 'images/lobby-key.gif';
+    this.selectable = true;
+    Object.assign(this, data);
+  }
+
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2___default()(InventoryKey, [{
+    key: "hoverName",
+    value: function hoverName(selectedItem) {
+      if (selectedItem) {
+        return 'Use ' + selectedItem.name + ' with ' + this.name;
+      } else {
+        return this.name;
+      }
+    }
+  }]);
+
+  return InventoryKey;
+}();
+
+
+;
+
+InventoryKey.registerReviver = function (reviver) {
+  reviver.addClass('InventoryKey', InventoryKey, function (value) {
+    return new InventoryKey(value);
+  }, function (value) {
+    return _objectSpread({}, value);
+  });
+};
+
+/***/ }),
+
 /***/ "./app/world/World.js":
 /*!****************************!*\
   !*** ./app/world/World.js ***!
@@ -5735,9 +5798,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _world_Collection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @world/Collection */ "./app/world/Collection.js");
 /* harmony import */ var _world_InventoryBattery__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @world/InventoryBattery */ "./app/world/InventoryBattery.js");
 /* harmony import */ var _world_InventoryDoorbell__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @world/InventoryDoorbell */ "./app/world/InventoryDoorbell.js");
-/* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
-/* harmony import */ var _libs_Scheduler__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @libs/Scheduler */ "./app/libs/Scheduler.js");
-/* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
+/* harmony import */ var _world_InventoryKey__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @world/InventoryKey */ "./app/world/InventoryKey.js");
+/* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
+/* harmony import */ var _libs_Scheduler__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @libs/Scheduler */ "./app/libs/Scheduler.js");
+/* harmony import */ var _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @world/InventoryCheese */ "./app/world/InventoryCheese.js");
 
 
 
@@ -5746,6 +5810,7 @@ __webpack_require__.r(__webpack_exports__);
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 
 
 
@@ -5853,7 +5918,7 @@ var upgrader = new _libs_VersionUpgrader__WEBPACK_IMPORTED_MODULE_4__["default"]
 }).version(17, function (world) {
   world.lobbyBot.location = 'lobby-desk';
 }).version(18, function (world) {
-  world.scheduler = new _libs_Scheduler__WEBPACK_IMPORTED_MODULE_9__["default"]();
+  world.scheduler = new _libs_Scheduler__WEBPACK_IMPORTED_MODULE_10__["default"]();
 }).version(19, function (world) {
   world.theCheese = {
     location: 'book'
@@ -5940,6 +6005,22 @@ var World = /*#__PURE__*/function () {
         name: 'Wireless Doorbell'
       }));
       print("You've got the doorbell, now.");
+    }
+    /**
+     * Move the key into the inventory.
+     *
+     * @param {Function} print - accepts strings to echo to the user
+     * @return {void}
+     */
+
+  }, {
+    key: "takeKey",
+    value: function takeKey(print) {
+      this.key.location = 'inventory';
+      this.inventory.push(new _world_InventoryKey__WEBPACK_IMPORTED_MODULE_8__["default"]({
+        name: 'Key'
+      }));
+      print("You've got the key, now.");
     }
   }, {
     key: "removeInventory",
@@ -6082,7 +6163,7 @@ var World = /*#__PURE__*/function () {
     key: "takeCheese",
     value: function takeCheese(print) {
       this.theCheese.location = 'inventory';
-      this.inventory.push(new _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_10__["default"]({
+      this.inventory.push(new _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_11__["default"]({
         name: 'The Cheese'
       }));
       print("You've got the cheese, now.");
@@ -6112,8 +6193,9 @@ World.registerReviver = function (reviver) {
   reviver.register(_world_Collection__WEBPACK_IMPORTED_MODULE_5__["default"]);
   reviver.register(_world_InventoryBattery__WEBPACK_IMPORTED_MODULE_6__["default"]);
   reviver.register(_world_InventoryDoorbell__WEBPACK_IMPORTED_MODULE_7__["default"]);
-  reviver.register(_world_InventoryCheese__WEBPACK_IMPORTED_MODULE_10__["default"]);
-  reviver.register(_libs_Scheduler__WEBPACK_IMPORTED_MODULE_9__["default"]);
+  reviver.register(_world_InventoryKey__WEBPACK_IMPORTED_MODULE_8__["default"]);
+  reviver.register(_world_InventoryCheese__WEBPACK_IMPORTED_MODULE_11__["default"]);
+  reviver.register(_libs_Scheduler__WEBPACK_IMPORTED_MODULE_10__["default"]);
 };
 
 /***/ }),
@@ -20691,9 +20773,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 
 
 
@@ -20732,6 +20811,9 @@ __webpack_require__.r(__webpack_exports__);
       Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_3__["default"])(10, this.key, {
         y: 206
       }, 5);
+    },
+    takeKey: function takeKey() {
+      this.app.world.takeKey(this.queueMessageAt(this.key.x, this.key.y));
     }
   }
 });
@@ -34059,34 +34141,21 @@ var render = function() {
             fn: function() {
               return [
                 _vm.keyVisible
-                  ? _c("easel-bitmap", {
-                      attrs: {
-                        image: "images/lobby-key.gif",
-                        align: "center-center",
-                        x: _vm.key.x,
-                        y: _vm.key.y
-                      }
-                    })
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.keyVisible
-                  ? _c("enzo-click-spot", {
-                      attrs: {
-                        r: "8",
-                        name: "Key",
-                        x: _vm.key.x,
-                        y: _vm.key.y
-                      },
-                      on: {
-                        click: function($event) {
-                          return _vm.queueMessage(
-                            "Get key!",
-                            _vm.key.x,
-                            _vm.key.y
-                          )
-                        }
-                      }
-                    })
+                  ? _c(
+                      "enzo-named-container",
+                      { attrs: { name: "Key", x: _vm.key.x, y: _vm.key.y } },
+                      [
+                        _c("easel-bitmap", {
+                          attrs: {
+                            image: "images/lobby-key.gif",
+                            align: "center-center",
+                            x: 1
+                          },
+                          on: { click: _vm.takeKey }
+                        })
+                      ],
+                      1
+                    )
                   : _vm._e()
               ]
             },

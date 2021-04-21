@@ -41,23 +41,20 @@
             </template>
 
             <template v-slot:front>
-                <easel-bitmap
+                <enzo-named-container
                     v-if="keyVisible"
-                    image="images/lobby-key.gif"
-                    align="center-center"
-                    :x="key.x"
-                    :y="key.y"
-                >
-                </easel-bitmap>
-                <enzo-click-spot
-                    v-if="keyVisible"
-                    r="8"
                     name="Key"
                     :x="key.x"
                     :y="key.y"
-                    @click="queueMessage('Get key!', key.x, key.y)"
                 >
-                </enzo-click-spot>
+                    <easel-bitmap
+                        image="images/lobby-key.gif"
+                        align="center-center"
+                        :x="1"
+                        @click="takeKey"
+                    >
+                    </easel-bitmap>
+                </enzo-named-container>
             </template>
         </stack-room>
     </div>
@@ -101,6 +98,9 @@ export default {
                 r: 0,
             };
             moveTo(10, this.key, {y: 206}, 5);
+        },
+        takeKey() {
+            this.app.world.takeKey(this.queueMessageAt(this.key.x, this.key.y));
         },
     },
 };

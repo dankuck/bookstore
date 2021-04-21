@@ -2,6 +2,7 @@ import VersionUpgrader from '@libs/VersionUpgrader';
 import Collection from '@world/Collection';
 import InventoryBattery from '@world/InventoryBattery';
 import InventoryDoorbell from '@world/InventoryDoorbell';
+import InventoryKey from '@world/InventoryKey';
 import wait from '@libs/wait';
 import Scheduler from '@libs/Scheduler';
 import InventoryCheese from '@world/InventoryCheese';
@@ -194,6 +195,18 @@ export default class World
         print("You've got the doorbell, now.");
     }
 
+    /**
+     * Move the key into the inventory.
+     *
+     * @param {Function} print - accepts strings to echo to the user
+     * @return {void}
+     */
+    takeKey(print) {
+        this.key.location = 'inventory';
+        this.inventory.push(new InventoryKey({name: 'Key'}));
+        print("You've got the key, now.");
+    }
+
     removeInventory(item) {
         const index = this.inventory.indexOf(item);
         if (index < 0) {
@@ -344,6 +357,7 @@ World.registerReviver = function (reviver) {
     reviver.register(Collection);
     reviver.register(InventoryBattery);
     reviver.register(InventoryDoorbell);
+    reviver.register(InventoryKey);
     reviver.register(InventoryCheese);
     reviver.register(Scheduler);
 };
