@@ -153,9 +153,18 @@ function callAndIgnoreExceptions(cb, param) {
  */
 class ObserverObjectMap {
     constructor() {
-        this.observerToObject = new WeakMap();
         this.objectToObserver = new WeakMap();
         this.pathToHandler = {};
+        // When an observer receives a get() request for IS_OBSERVER, it
+        // returns YES_OBSERVER
+        this.IS_OBSERVER = Symbol();
+        this.YES_OBSERVER = Symbol();
+        // When an observer receives a get() request for this, it returns the
+        // internal object
+        this.OBJECT = Symbol();
+        // When an observer receives a get() request for this, it returns the
+        // handler object
+        this.HANDLER = Symbol();
     }
 
     pathToString(path) {
@@ -163,7 +172,6 @@ class ObserverObjectMap {
     }
 
     set(observer, object, handler, path) {
-        this.observerToObject.set(observer, {object, handler});
         this.objectToObserver.set(object, observer);
         this.setPathHandler(path, handler);
     }
@@ -177,22 +185,29 @@ class ObserverObjectMap {
     }
 
     hasObserver(observer) {
-        return this.observerToObject.has(observer);
+        return Boolean(this.getObserverObject(observer));
     }
 
     hasObject(object) {
-        return this.objectToObserver.has(object);
+        return Boolean(this.getObjectObserver(object));
+    }
+
+    isObserver(object) {
+        return object && object[this.IS_OBSERVER] === this.YES_OBSERVER;
     }
 
     getObserverObject(observer) {
-        return this.observerToObject.get(observer).object;
+        return this.isObserver(observer) && observer[this.OBJECT] || null;
     }
 
     getObserverHandler(observer) {
-        return this.observerToObject.get(observer).handler;
+        return this.isObserver(observer) && observer[this.HANDLER] || null;
     }
 
     getObjectObserver(object) {
+        if (this.isObserver(object)) {
+            return object;
+        }
         return this.objectToObserver.get(object);
     }
 
@@ -206,6 +221,7 @@ class MutationWatcherHandler {
     constructor(path, cb, thisArg, observers) {
         // We use path to tell the callback how we got to the target object
         this.path = path;
+        this.originalPath = [...path];
 
         // We feed mutation information into the callback
         this.cb = cb;
@@ -330,10 +346,26 @@ class MutationWatcherHandler {
      * @return {observer|primitive|prototype object}
      */
     get(target, propertyKey, receiver) {
+        if (propertyKey === this.observers.IS_OBSERVER) {
+            return this.observers.YES_OBSERVER;
+        }
         if (propertyKey === 'prototype' && typeof receiver === 'function') {
             // Function prototypes are not observed. Mostly because it breaks
             // class instantiation somehow
             return Reflect.get(target, propertyKey, receiver);
+        }
+        if (propertyKey === this.observers.OBJECT) {
+            // This is a request by the observers object to get the innermost
+            // object. If we are wrapped in several layers of Proxy objects
+            // (maybe because another library has wrapped us up), then we
+            // need to keep drilling down until there's no more drilling down
+            return this.observers.isObserver(target)
+                ? target[this.observers.OBJECT]
+                : target;
+        }
+        if (propertyKey === this.observers.HANDLER) {
+            // This is a request by the observers object to get the handler
+            return this;
         }
         return findOrBuildObserver(
             Reflect.get(target, propertyKey, receiver),
@@ -370,6 +402,7 @@ class MutationWatcherHandler {
             this.cb,
             {path, type: 'assign', value}
         );
+
         const result = Reflect.set(target, propertyKey, value, receiver);
         callAndIgnoreExceptions(onDone, result);
         if (result) {
@@ -465,7 +498,10 @@ class MutationWatcherHandler {
     }
 }
 
-const observableTypes = ['object', 'function'];
+const observableTypes = {
+    'object': true,
+    'function': true,
+};
 
 /**
  * Convert a value to an observer if possible. If the object already has an
@@ -480,7 +516,7 @@ const observableTypes = ['object', 'function'];
  * @return {any}
  */
 function findOrBuildObserver(object, cb, path, thisArg, observers) {
-    if (! object || ! observableTypes.includes(typeof object)) {
+    if (! object || ! observableTypes[typeof object]) {
         observers.clearPath(path);
         return object;
     }

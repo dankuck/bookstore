@@ -688,4 +688,50 @@ describe('MutationWatcher', function () {
         });
     });
 
+    describe('regression', function () {
+
+        // We want to use this library in Vue, rather often. Vue wraps
+        // data in a Proxy machine too. That'll mean that our proxy gets
+        // wrapped in Vue's proxy. Since it does, a lot of equalities cannot
+        // be depended on. So in the example below, w is wrapped in two
+        // proxies, one of them ours, but the other invisible to us, just like
+        // Vue's layer
+        it('does not produce an infinite chain when wrapped in another proxy', function () {
+            const w = new Proxy(observe({}), {});
+            w.x = {w};
+            assert(w.x.w.x.w === w);
+        });
+
+        // Once we began to ask objects whether they have more-internal
+        // objects, we risked getting a truthy response all the time. So we
+        // are implementing a test of the internal object's trustworthiness
+        it('does not fall for tricks from promiscuous objects', function () {
+            try {
+                observe(
+                    new Proxy(
+                        {},
+                        {
+                            get() {
+                                return 'I always return this string';
+                            }
+                        }
+                    )
+                );
+            } catch (e) {
+                assert(false);
+            }
+            assert(true);
+        });
+
+        // Since we're passing the Symbols down, they will be exposed to
+        // other libraries. Those libraries could do things to break ours. Of
+        // course, they could only do that on purpose, and why would they?
+        // If we feel it's necessary, we could change our ObserverObjectMap
+        // class methods to change the OBJECT and HANDLER symbols on each
+        // method call. But since those methods get called several times, it
+        // could be costly. So we aren't going to do it. We'll just leave
+        // this test idea here.
+        //
+        it('uses one-time keys to avoid allowing other libraries to get at the secret data');
+    });
 });
