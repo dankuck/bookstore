@@ -252,5 +252,39 @@ describe('Reviver', function () {
         equal('some x', copy);
     });
 
-    it('puts the toJSONs back if stringify throws an error');
+    // Problem: for a doubly-defined class we would first save aside the native
+    // toJSON and then when reaching the second definition, we would replace the
+    // saved toJSON with the toJSON we had meant to be temporary
+    it('puts the toJSONs back even for multiply-defined classes', function () {
+        const reviver = new Reviver();
+        const DateToJSON = Date.prototype.toJSON;
+        reviver.addClass(
+            'xDate',
+            Date,
+            (str) => new Date(str),
+            (date) => '' + date
+        );
+        const x = new Date();
+        reviver.stringify(x);
+        assert(Date.prototype.toJSON === DateToJSON);
+    });
+
+    it('puts the toJSONs back if stringify throws an error', function () {
+        const reviver = new Reviver();
+        class X {
+            toJSON() { return 'X'; }
+        }
+        const XToJSON = X.prototype.toJSON;
+        reviver.addClass(
+            'X',
+            X,
+            () => { },
+            () => { throw new Error() }
+        );
+        const x = new X();
+        try {
+            reviver.stringify(x);
+        } catch (e) {}
+        assert(X.prototype.toJSON === XToJSON);
+    });
 });

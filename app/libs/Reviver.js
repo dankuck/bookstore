@@ -187,9 +187,11 @@ export default class Reviver
 
     stringify(object) {
         this.beforeReplace();
-        const serial = JSON.stringify(object, this.replace);
-        this.afterReplace();
-        return serial;
+        try {
+            return JSON.stringify(object, this.replace);
+        } finally {
+            this.afterReplace();
+        }
     }
 
     parse(serial) {
@@ -398,7 +400,7 @@ export default class Reviver
     beforeReplace() {
         this.toJSONs = new Map();
         this.classes.forEach(({class: targetClass}) => {
-            if (targetClass.prototype.toJSON) {
+            if (targetClass.prototype.toJSON && ! this.toJSONs.has(targetClass)) {
                 const toJSON = targetClass.prototype.toJSON;
                 this.toJSONs.set(targetClass, toJSON);
                 targetClass.prototype.toJSON = function () {
