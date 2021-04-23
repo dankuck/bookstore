@@ -13,10 +13,15 @@
  | your scheduler and load it up again, the method will be run after you call
  | `setTarget` again.
  |
- | Hint: If you change your target between save and load, make sure it is
- | backwards compatible.
+ | Note: If you alter the code of your target between save and load, make sure
+ | it is backwards compatible.
  |
- | Note: Catch your own errors if you need to. This won't do it for you
+ | Note: Handle your errors if you need to. This will quietly ignore them.
+ |
+ | Note: If the process is stopped right in the middle of your callback (e.g.,
+ | because of a browser refresh), your callback will be called again next time
+ | this is loaded. That may mean you'll start in an inconsistent state. Be
+ | careful in your callback to allow for it to be re-attempted.
  */
 
 export default class Scheduler {
