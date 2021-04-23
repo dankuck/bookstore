@@ -21,6 +21,16 @@
             @click="click(item, index * itemSize, 0)"
         >
         </inventory-item>
+
+        <easel-shape
+            v-if="disabled"
+            form="rect"
+            :dimensions="[app.inventorySize.width, app.inventorySize.height]"
+            fill="black"
+            :alpha="0.75"
+            @click.stop
+        >
+        </easel-shape>
     </easel-container>
 </template>
 
@@ -39,7 +49,7 @@ export default {
             window: this,
         };
     },
-    props: ['x', 'y', 'items'],
+    props: ['x', 'y', 'items', 'disabled'],
     data() {
         return {
             noMobileHoverRing: true,

@@ -1928,7 +1928,7 @@ var app = new Vue({
     viewport: function viewport() {
       return {
         width: this.roomSize.width,
-        height: this.roomSize.height + (this.world.inventory.length === 0 || this.world.cutscene ? 0 : this.inventorySize.height)
+        height: this.roomSize.height + (this.world.inventory.length > 0 ? this.inventorySize.height : 0)
       };
     }
   },
@@ -3074,10 +3074,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/slicedToArray.js");
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "./node_modules/@babel/runtime/helpers/toConsumableArray.js");
+/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__);
+
 
 
 
@@ -3245,14 +3248,23 @@ function callAndIgnoreExceptions(cb, param) {
 
 var ObserverObjectMap = /*#__PURE__*/function () {
   function ObserverObjectMap() {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default()(this, ObserverObjectMap);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3___default()(this, ObserverObjectMap);
 
-    this.observerToObject = new WeakMap();
     this.objectToObserver = new WeakMap();
-    this.pathToHandler = {};
+    this.pathToHandler = {}; // When an observer receives a get() request for IS_OBSERVER, it
+    // returns YES_OBSERVER
+
+    this.IS_OBSERVER = Symbol();
+    this.YES_OBSERVER = Symbol(); // When an observer receives a get() request for this, it returns the
+    // internal object
+
+    this.OBJECT = Symbol(); // When an observer receives a get() request for this, it returns the
+    // handler object
+
+    this.HANDLER = Symbol();
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(ObserverObjectMap, [{
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4___default()(ObserverObjectMap, [{
     key: "pathToString",
     value: function pathToString(path) {
       return path.map(function (part) {
@@ -3262,10 +3274,6 @@ var ObserverObjectMap = /*#__PURE__*/function () {
   }, {
     key: "set",
     value: function set(observer, object, handler, path) {
-      this.observerToObject.set(observer, {
-        object: object,
-        handler: handler
-      });
       this.objectToObserver.set(object, observer);
       this.setPathHandler(path, handler);
     }
@@ -3282,26 +3290,35 @@ var ObserverObjectMap = /*#__PURE__*/function () {
   }, {
     key: "hasObserver",
     value: function hasObserver(observer) {
-      return this.observerToObject.has(observer);
+      return Boolean(this.getObserverObject(observer));
     }
   }, {
     key: "hasObject",
     value: function hasObject(object) {
-      return this.objectToObserver.has(object);
+      return Boolean(this.getObjectObserver(object));
+    }
+  }, {
+    key: "isObserver",
+    value: function isObserver(object) {
+      return object && object[this.IS_OBSERVER] === this.YES_OBSERVER;
     }
   }, {
     key: "getObserverObject",
     value: function getObserverObject(observer) {
-      return this.observerToObject.get(observer).object;
+      return this.isObserver(observer) && observer[this.OBJECT] || null;
     }
   }, {
     key: "getObserverHandler",
     value: function getObserverHandler(observer) {
-      return this.observerToObject.get(observer).handler;
+      return this.isObserver(observer) && observer[this.HANDLER] || null;
     }
   }, {
     key: "getObjectObserver",
     value: function getObjectObserver(object) {
+      if (this.isObserver(object)) {
+        return object;
+      }
+
       return this.objectToObserver.get(object);
     }
   }, {
@@ -3316,10 +3333,11 @@ var ObserverObjectMap = /*#__PURE__*/function () {
 
 var MutationWatcherHandler = /*#__PURE__*/function () {
   function MutationWatcherHandler(path, cb, thisArg, observers) {
-    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2___default()(this, MutationWatcherHandler);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3___default()(this, MutationWatcherHandler);
 
     // We use path to tell the callback how we got to the target object
-    this.path = path; // We feed mutation information into the callback
+    this.path = path;
+    this.originalPath = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_2___default()(path); // We feed mutation information into the callback
 
     this.cb = cb; // If we're wrapping a function, we use thisArg to know what object we
     // got the function from. Later, when the function is invoked, we check
@@ -3332,7 +3350,7 @@ var MutationWatcherHandler = /*#__PURE__*/function () {
     this.observers = observers;
   }
 
-  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3___default()(MutationWatcherHandler, [{
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4___default()(MutationWatcherHandler, [{
     key: "update",
     value: function update(path, thisArg) {
       this.path = path;
@@ -3453,10 +3471,27 @@ var MutationWatcherHandler = /*#__PURE__*/function () {
   }, {
     key: "get",
     value: function get(target, propertyKey, receiver) {
+      if (propertyKey === this.observers.IS_OBSERVER) {
+        return this.observers.YES_OBSERVER;
+      }
+
       if (propertyKey === 'prototype' && typeof receiver === 'function') {
         // Function prototypes are not observed. Mostly because it breaks
         // class instantiation somehow
         return Reflect.get(target, propertyKey, receiver);
+      }
+
+      if (propertyKey === this.observers.OBJECT) {
+        // This is a request by the observers object to get the innermost
+        // object. If we are wrapped in several layers of Proxy objects
+        // (maybe because another library has wrapped us up), then we
+        // need to keep drilling down until there's no more drilling down
+        return this.observers.isObserver(target) ? target[this.observers.OBJECT] : target;
+      }
+
+      if (propertyKey === this.observers.HANDLER) {
+        // This is a request by the observers object to get the handler
+        return this;
       }
 
       return findOrBuildObserver(Reflect.get(target, propertyKey, receiver), this.cb, this.path.concat(propertyKey), target, this.observers);
@@ -3586,7 +3621,10 @@ var MutationWatcherHandler = /*#__PURE__*/function () {
   return MutationWatcherHandler;
 }();
 
-var observableTypes = ['object', 'function'];
+var observableTypes = {
+  'object': true,
+  'function': true
+};
 /**
  * Convert a value to an observer if possible. If the object already has an
  * observer associated with it, use that one. Otherwise build one. If the value
@@ -3601,7 +3639,7 @@ var observableTypes = ['object', 'function'];
  */
 
 function findOrBuildObserver(object, cb, path, thisArg, observers) {
-  if (!object || !observableTypes.includes(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(object))) {
+  if (!object || !observableTypes[_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(object)]) {
     observers.clearPath(path);
     return object;
   }
@@ -3883,9 +3921,12 @@ var Reviver = /*#__PURE__*/function () {
     key: "stringify",
     value: function stringify(object) {
       this.beforeReplace();
-      var serial = JSON.stringify(object, this.replace);
-      this.afterReplace();
-      return serial;
+
+      try {
+        return JSON.stringify(object, this.replace);
+      } finally {
+        this.afterReplace();
+      }
     }
   }, {
     key: "parse",
@@ -4109,7 +4150,7 @@ var Reviver = /*#__PURE__*/function () {
       this.classes.forEach(function (_ref) {
         var targetClass = _ref["class"];
 
-        if (targetClass.prototype.toJSON) {
+        if (targetClass.prototype.toJSON && !_this.toJSONs.has(targetClass)) {
           var toJSON = targetClass.prototype.toJSON;
 
           _this.toJSONs.set(targetClass, toJSON);
@@ -4392,10 +4433,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
  | your scheduler and load it up again, the method will be run after you call
  | `setTarget` again.
  |
- | Hint: If you change your target between save and load, make sure it is
- | backwards compatible.
+ | Note: If you alter the code of your target between save and load, make sure
+ | it is backwards compatible.
  |
- | Note: Catch your own errors if you need to. This won't do it for you
+ | Note: Handle your errors if you need to. This will quietly ignore them.
+ |
+ | Note: If the process is stopped right in the middle of your callback (e.g.,
+ | because of a browser refresh), your callback will be called again next time
+ | this is loaded. That may mean you'll start in an inconsistent state. Be
+ | careful in your callback to allow for it to be re-attempted.
  */
 var Scheduler = /*#__PURE__*/function () {
   function Scheduler() {
@@ -20639,6 +20685,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -20857,6 +20904,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -20870,7 +20927,7 @@ __webpack_require__.r(__webpack_exports__);
       window: this
     };
   },
-  props: ['x', 'y', 'items'],
+  props: ['x', 'y', 'items', 'disabled'],
   data: function data() {
     return {
       noMobileHoverRing: true
@@ -34023,7 +34080,8 @@ var render = function() {
                 attrs: {
                   x: 0,
                   y: _vm.app.roomSize.height,
-                  items: _vm.app.world.inventory
+                  items: _vm.app.world.inventory,
+                  disabled: Boolean(_vm.app.world.cutscene)
                 }
               }),
               _vm._v(" "),
@@ -34220,7 +34278,26 @@ var render = function() {
             }
           }
         })
-      })
+      }),
+      _vm._v(" "),
+      _vm.disabled
+        ? _c("easel-shape", {
+            attrs: {
+              form: "rect",
+              dimensions: [
+                _vm.app.inventorySize.width,
+                _vm.app.inventorySize.height
+              ],
+              fill: "black",
+              alpha: 0.75
+            },
+            on: {
+              click: function($event) {
+                $event.stopPropagation()
+              }
+            }
+          })
+        : _vm._e()
     ],
     2
   )

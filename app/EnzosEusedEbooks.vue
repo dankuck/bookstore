@@ -40,6 +40,7 @@
                 :x="0"
                 :y="app.roomSize.height"
                 :items="app.world.inventory"
+                :disabled="Boolean(app.world.cutscene)"
             >
             </inventory>
 
