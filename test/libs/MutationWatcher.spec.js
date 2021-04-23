@@ -17,10 +17,19 @@ describe('MutationWatcher', function () {
             equal(object, proxy);
         });
 
-        it('does not wrap a primitive', function () {
-            const primitive = 23;
-            const copy = observe(primitive);
-            assert(copy === primitive);
+        [
+            'so primitive',
+            23,
+            Infinity,
+            Symbol(),
+            null,
+            undefined,
+            // NaN, // commented out since NaN === NaN yields false
+        ].map(primitive => {
+            it('does not wrap a primitive: '  + (typeof primitive), function () {
+                const copy = observe(primitive);
+                assert(copy === primitive);
+            });
         });
     });
 
@@ -726,12 +735,42 @@ describe('MutationWatcher', function () {
         // Since we're passing the Symbols down, they will be exposed to
         // other libraries. Those libraries could do things to break ours. Of
         // course, they could only do that on purpose, and why would they?
-        // If we feel it's necessary, we could change our ObserverObjectMap
-        // class methods to change the OBJECT and HANDLER symbols on each
-        // method call. But since those methods get called several times, it
-        // could be costly. So we aren't going to do it. We'll just leave
-        // this test idea here.
-        //
-        it('uses one-time keys to avoid allowing other libraries to get at the secret data');
+        // It may or may not be possible to change the symbols during
+        // processing in such a way that a proxy cannot use them to get at
+        // original objects. But we aren't going to try it right now. So this
+        // test is commented out, as an example in case we decide to try it.
+        // it('uses one-time keys to avoid allowing other libraries to get at the secret data',  function () {
+        //     const secret = {};
+        //     const observer = observe(secret);
+        //     const findMe = {someKey: true};
+        //     observer.findMe = findMe;
+        //     let probablyTheSecret = null;
+        //     observer.spy = new Proxy(
+        //         observer.findMe, // <--- an observer object
+        //         {
+        //             get(target, key, proxy) {
+        //                 // Pass the key on through to the observer's version of
+        //                 // findMe
+        //                 const result = Reflect.get(target, key, proxy);
+        //                 // When a symbol is used to access our original findMe
+        //                 // object, we know it's the key to access originals
+        //                 if (typeof key === 'symbol' && result === findMe) {
+        //                     // The Spy Thinks: Ah this key is the symbol used
+        //                     // to access the internal object. Lets try to use
+        //                     // it right away. If we wait until later, there's a
+        //                     // higher chance some unknown code will change the
+        //                     // symbol.
+        //                     probablyTheSecret = observer[key] || 'SHUCKS';
+        //                 }
+        //                 return result;
+        //             }
+        //         }
+        //     );
+        //     observer.spy.someKey;
+        //     // By now the spy got plenty of chances to collect some keys. But
+        //     // was it able to use those chances to uncover our secret original
+        //     // object? If it wasn't, we helpfully set the value to SHUCKS
+        //     assert(probablyTheSecret === 'SHUCKS');
+        // });
     });
 });
