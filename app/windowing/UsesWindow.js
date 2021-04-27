@@ -3,16 +3,16 @@ export default {
         window: {default: null},
     },
     methods: {
-        absolutePosition({x, y}) {
+        absolutePosition(x, y) {
             if (this.dimensions) {
                 x = parseFloat(x) + parseFloat(this.dimensions.x);
                 y = parseFloat(y) + parseFloat(this.dimensions.y);
             }
 
             if (this.window) {
-                return this.window.absolutePosition({x, y});
+                return this.window.absolutePosition(x, y);
             } else {
-                return {x, y};
+                return [x, y];
             }
         },
     },

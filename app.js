@@ -5140,11 +5140,7 @@ __webpack_require__.r(__webpack_exports__);
      * @return [x, y]
      */
     textLayerWindowAdjustment: function textLayerWindowAdjustment(x, y) {
-      var absolute = this.absolutePosition({
-        x: x,
-        y: y
-      });
-      return [absolute.x, absolute.y];
+      return this.absolutePosition(x, y);
     },
     addToHoverRing: function addToHoverRing() {
       this.textLayer.mobileHoverRing.add(this.hoverCallback);
@@ -5391,25 +5387,16 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    absolutePosition: function absolutePosition(_ref) {
-      var x = _ref.x,
-          y = _ref.y;
-
+    absolutePosition: function absolutePosition(x, y) {
       if (this.dimensions) {
         x = parseFloat(x) + parseFloat(this.dimensions.x);
         y = parseFloat(y) + parseFloat(this.dimensions.y);
       }
 
       if (this.window) {
-        return this.window.absolutePosition({
-          x: x,
-          y: y
-        });
+        return this.window.absolutePosition(x, y);
       } else {
-        return {
-          x: x,
-          y: y
-        };
+        return [x, y];
       }
     }
   }

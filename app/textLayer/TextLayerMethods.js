@@ -22,8 +22,7 @@ export default {
          * @return [x, y]
          */
         textLayerWindowAdjustment(x, y) {
-            const absolute = this.absolutePosition({x, y});
-            return [absolute.x, absolute.y];
+            return this.absolutePosition(x, y);
         },
         addToHoverRing() {
             this.textLayer.mobileHoverRing.add(this.hoverCallback);
