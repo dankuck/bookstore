@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import IsWindow from '@app/windowing/IsWindow';
+import IsWindow from '@windowing/IsWindow';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {

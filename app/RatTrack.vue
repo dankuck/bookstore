@@ -32,7 +32,7 @@ import InventoryCheese from '@world/InventoryCheese';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import delay from '@libs/wait';
 import moveTo from '@libs/moveTo';
-import IsWindow from '@app/windowing/IsWindow';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
     inject: ['app'],

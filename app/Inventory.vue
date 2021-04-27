@@ -37,7 +37,7 @@
 <script>
 import InventoryItem from '@app/InventoryItem';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
-import IsWindow from '@app/windowing/IsWindow';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
     mixins: [UsesTextLayer, IsWindow],

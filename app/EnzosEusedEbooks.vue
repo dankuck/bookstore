@@ -76,7 +76,7 @@ import Inventory from '@app/Inventory';
 import Room from '@app/Room';
 import Cutscene from '@app/Cutscene';
 import HasTextLayer from '@textLayer/HasTextLayer';
-import IsWindow from '@app/windowing/IsWindow';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
     mixins: [HasTextLayer, IsWindow],

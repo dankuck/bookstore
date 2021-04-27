@@ -93,7 +93,7 @@
 import Stack from '@app/Stack';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
-import SlidingWindow from '@app/windowing/SlidingWindow';
+import SlidingWindow from '@windowing/SlidingWindow';
 
 export default {
     mixins: [UsesTextLayer],
