@@ -81,11 +81,12 @@
 <script>
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import ChatBot from '@chat/ChatBot';
+import UsesWindow from '@windowing/UsesWindow';
 const {after, always, everySession} = ChatBot;
 
 export default {
-    inject: ['app', 'window'],
-    mixins: [UsesTextLayer],
+    inject: ['app'],
+    mixins: [UsesTextLayer, UsesWindow],
     props: ['noDialog', 'sayWords'],
     mounted() {
         if (this.noDialog) {

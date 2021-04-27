@@ -102,7 +102,7 @@ export default {
         BookViewer,
         SlidingWindow,
     },
-    inject: ['app', 'window'],
+    inject: ['app'],
     props: [
         'name',
         'width',

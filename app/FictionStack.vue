@@ -73,7 +73,7 @@ export default {
         StackRoom,
         RatTrack,
     },
-    inject: ['app', 'window'],
+    inject: ['app'],
     data() {
         return {
             key: {

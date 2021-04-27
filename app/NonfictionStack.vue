@@ -41,6 +41,6 @@ export default {
     components: {
         StackRoom,
     },
-    inject: ['app', 'window'],
+    inject: ['app'],
 };
 </script>

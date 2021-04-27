@@ -5114,6 +5114,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/slicedToArray.js");
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 
 
 /**
@@ -5126,8 +5127,9 @@ __webpack_require__.r(__webpack_exports__);
  |  HasTextLayer - if the component is intended to have a TextLayer child
  |  UsesTextLayer - if the component is intended to use a parent's TextLayer
  */
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['window'],
+  mixins: [_windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__["default"]],
   methods: {
     /**
      * If this object is, or is within, a window that isn't positioned at
@@ -5138,10 +5140,7 @@ __webpack_require__.r(__webpack_exports__);
      * @return [x, y]
      */
     textLayerWindowAdjustment: function textLayerWindowAdjustment(x, y) {
-      var absolute = this.absolutePosition ? this.absolutePosition({
-        x: x,
-        y: y
-      }) : this.window.absolutePosition({
+      var absolute = this.absolutePosition({
         x: x,
         y: y
       });
@@ -5279,6 +5278,139 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     textLayer: function textLayer() {
       return this.textLayerRoot.textLayer;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./app/windowing/IsWindow.js":
+/*!***********************************!*\
+  !*** ./app/windowing/IsWindow.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _UsesWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./UsesWindow */ "./app/windowing/UsesWindow.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mixins: [_UsesWindow__WEBPACK_IMPORTED_MODULE_0__["default"]],
+  provide: function provide() {
+    return {
+      window: this
+    };
+  }
+});
+
+/***/ }),
+
+/***/ "./app/windowing/SlidingWindow.vue":
+/*!*****************************************!*\
+  !*** ./app/windowing/SlidingWindow.vue ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SlidingWindow.vue?vue&type=template&id=1848e2b5& */ "./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5&");
+/* harmony import */ var _SlidingWindow_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SlidingWindow.vue?vue&type=script&lang=js& */ "./app/windowing/SlidingWindow.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _SlidingWindow_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "app/windowing/SlidingWindow.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./app/windowing/SlidingWindow.vue?vue&type=script&lang=js&":
+/*!******************************************************************!*\
+  !*** ./app/windowing/SlidingWindow.vue?vue&type=script&lang=js& ***!
+  \******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_SlidingWindow_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib!../../node_modules/vue-loader/lib??vue-loader-options!./SlidingWindow.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./app/windowing/SlidingWindow.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_SlidingWindow_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5&":
+/*!************************************************************************!*\
+  !*** ./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5& ***!
+  \************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./SlidingWindow.vue?vue&type=template&id=1848e2b5& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SlidingWindow_vue_vue_type_template_id_1848e2b5___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./app/windowing/UsesWindow.js":
+/*!*************************************!*\
+  !*** ./app/windowing/UsesWindow.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  inject: {
+    window: {
+      "default": null
+    }
+  },
+  methods: {
+    absolutePosition: function absolutePosition(_ref) {
+      var x = _ref.x,
+          y = _ref.y;
+
+      if (this.dimensions) {
+        x = parseFloat(x) + parseFloat(this.dimensions.x);
+        y = parseFloat(y) + parseFloat(this.dimensions.y);
+      }
+
+      if (this.window) {
+        return this.window.absolutePosition({
+          x: x,
+          y: y
+        });
+      } else {
+        return {
+          x: x,
+          y: y
+        };
+      }
     }
   }
 });
@@ -19922,6 +20054,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 //
 //
 //
@@ -19975,12 +20108,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
+
 var priceValue = function priceValue(price) {
   return parseFloat(price.replace(/[^\d\.]/, ''));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['app', 'window'],
+  mixins: [_windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_0__["default"]],
+  inject: ['app'],
   props: ['book'],
   mounted: function mounted() {
     this.bookImage; // cause a load
@@ -20061,6 +20197,7 @@ var priceValue = function priceValue(price) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 //
 //
 //
@@ -20098,11 +20235,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
+  mixins: [_windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__["default"]],
   components: {
     StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  inject: ['app', 'window']
+  inject: ['app']
 });
 
 /***/ }),
@@ -20119,6 +20258,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_Lobby__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/Lobby */ "./app/Lobby.vue");
 /* harmony import */ var _app_DoorbellCutscene__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @app/DoorbellCutscene */ "./app/DoorbellCutscene.vue");
 /* harmony import */ var _app_VModelMixin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/VModelMixin */ "./app/VModelMixin.js");
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 //
 //
 //
@@ -20136,15 +20276,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [_app_VModelMixin__WEBPACK_IMPORTED_MODULE_2__["default"]],
+  mixins: [_app_VModelMixin__WEBPACK_IMPORTED_MODULE_2__["default"], _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_3__["default"]],
   components: {
     doorbell: _app_DoorbellCutscene__WEBPACK_IMPORTED_MODULE_1__["default"]
-  },
-  inject: ['window']
+  }
 });
 
 /***/ }),
@@ -20463,6 +20603,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _libs_sizeText_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @libs/sizeText.js */ "./app/libs/sizeText.js");
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 //
 //
 //
@@ -20487,8 +20628,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['window'],
+  mixins: [_windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_1__["default"]],
   props: ['text', 'x', 'y', 'buffer', 'align', 'color'],
   data: function data() {
     return {
@@ -20555,7 +20697,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_Room__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/Room */ "./app/Room.vue");
 /* harmony import */ var _app_Cutscene__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @app/Cutscene */ "./app/Cutscene.vue");
 /* harmony import */ var _textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @textLayer/HasTextLayer */ "./app/textLayer/HasTextLayer.js");
-!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @windowing/IsWindow */ "./app/windowing/IsWindow.js");
 //
 //
 //
@@ -20635,7 +20777,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_5__["default"], !(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())],
+  mixins: [_textLayer_HasTextLayer__WEBPACK_IMPORTED_MODULE_5__["default"], _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_6__["default"]],
   components: {
     DevTools: _develop_Tools__WEBPACK_IMPORTED_MODULE_0__["default"],
     DevElements: _develop_Elements__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -20768,7 +20910,7 @@ __webpack_require__.r(__webpack_exports__);
     StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"],
     RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  inject: ['app', 'window'],
+  inject: ['app'],
   data: function data() {
     return {
       key: {
@@ -20815,7 +20957,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_InventoryItem__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/InventoryItem */ "./app/InventoryItem.vue");
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
-!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @windowing/IsWindow */ "./app/windowing/IsWindow.js");
 //
 //
 //
@@ -20856,7 +20998,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"], !(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())],
+  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"], _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_2__["default"]],
   components: {
     InventoryItem: _app_InventoryItem__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -21142,16 +21284,6 @@ __webpack_require__.r(__webpack_exports__);
           return _this2.app.world.goTo('nonfiction-stack');
         }
       }, {
-        x: 295,
-        y: 64,
-        dimensionSets: [['rect', -18, -25, [24, 98]]],
-        name: "Shadowy Area",
-        click: function click() {
-          _this2.showMessage("There's nothing in the shadowy area, yet.", 295, 64);
-
-          _this2.app.event('shadowy-area', 'bounce');
-        }
-      }, {
         x: 0,
         y: 168,
         dimensionSets: [['ellipse', 23, 0, [108, 54]], ['rect', 0, 0, [70, 90]], ['rect', 0, 36, [127, 55]]],
@@ -21191,6 +21323,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @chat/ChatBot */ "./app/chat/ChatBot.js");
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 
 //
 //
@@ -21272,14 +21405,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 var after = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].after,
     always = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].always,
     everySession = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].everySession;
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['app', 'window'],
-  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+  inject: ['app'],
+  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"], _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_3__["default"]],
   props: ['noDialog', 'sayWords'],
   mounted: function mounted() {
     var _this = this;
@@ -21662,7 +21796,7 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  inject: ['app', 'window']
+  inject: ['app']
 });
 
 /***/ }),
@@ -21680,7 +21814,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
 /* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
-!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @windowing/IsWindow */ "./app/windowing/IsWindow.js");
 //
 //
 //
@@ -21718,7 +21852,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   inject: ['app'],
   props: ['x', 'y'],
-  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"], !(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())],
+  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"], _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_4__["default"]],
   data: function data() {
     return {
       InventoryCheese: _world_InventoryCheese__WEBPACK_IMPORTED_MODULE_0__["default"],
@@ -21841,7 +21975,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_NonfictionStack__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/NonfictionStack */ "./app/NonfictionStack.vue");
 /* harmony import */ var _app_ChildrenStack__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/ChildrenStack */ "./app/ChildrenStack.vue");
 /* harmony import */ var _app_LobbyDesk__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @app/LobbyDesk */ "./app/LobbyDesk.vue");
-!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @windowing/IsWindow */ "./app/windowing/IsWindow.js");
 //
 //
 //
@@ -21853,7 +21987,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/IsWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())],
+  mixins: [_windowing_IsWindow__WEBPACK_IMPORTED_MODULE_5__["default"]],
   components: {
     Lobby: _app_Lobby__WEBPACK_IMPORTED_MODULE_0__["default"],
     FictionStack: _app_FictionStack__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -22122,7 +22256,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_Stack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/Stack */ "./app/Stack.vue");
 /* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 /* harmony import */ var _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/BookViewer */ "./app/BookViewer.vue");
-!(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/SlidingWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+/* harmony import */ var _windowing_SlidingWindow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @windowing/SlidingWindow */ "./app/windowing/SlidingWindow.vue");
 //
 //
 //
@@ -22223,9 +22357,9 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     Stack: _app_Stack__WEBPACK_IMPORTED_MODULE_0__["default"],
     BookViewer: _app_BookViewer__WEBPACK_IMPORTED_MODULE_2__["default"],
-    SlidingWindow: !(function webpackMissingModule() { var e = new Error("Cannot find module '@windowing/SlidingWindow'"); e.code = 'MODULE_NOT_FOUND'; throw e; }())
+    SlidingWindow: _windowing_SlidingWindow__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  inject: ['app', 'window'],
+  inject: ['app'],
   props: ['name', 'width', 'startX', 'backgroundImage', 'collection', 'shelves', 'align', 'bookcaseImage', 'shadowImage', 'lobbySide'],
   data: function data() {
     return {
@@ -22328,6 +22462,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @windowing/UsesWindow */ "./app/windowing/UsesWindow.js");
 //
 //
 //
@@ -22364,8 +22499,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['window'],
+  mixins: [_windowing_UsesWindow__WEBPACK_IMPORTED_MODULE_0__["default"]],
   data: function data() {
     return {
       points: []
@@ -22616,6 +22752,107 @@ __webpack_require__.r(__webpack_exports__);
     },
     itsAHoverMessage: function itsAHoverMessage() {
       return !this.messagerMessage;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./app/windowing/SlidingWindow.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./app/windowing/SlidingWindow.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _windowing_IsWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @windowing/IsWindow */ "./app/windowing/IsWindow.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mixins: [_windowing_IsWindow__WEBPACK_IMPORTED_MODULE_0__["default"], _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_1__["default"]],
+  props: ['width', 'startX'],
+  data: function data() {
+    return {
+      x: parseInt(this.startX)
+    };
+  },
+  computed: {
+    handleWidth: function handleWidth() {
+      return 0.15 * this.dimensions.width;
+    },
+    maxX: function maxX() {
+      return this.width - this.dimensions.width;
+    },
+    dimensions: function dimensions() {
+      return {
+        x: -this.x,
+        y: this.window.dimensions.y,
+        width: this.window.dimensions.width,
+        height: this.window.dimensions.height
+      };
+    }
+  },
+  methods: {
+    scrollLeft: function scrollLeft() {
+      var amount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+      this.x -= amount;
+
+      if (this.x < 0) {
+        this.x = 0;
+      }
+    },
+    scrollRight: function scrollRight() {
+      var amount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+      this.x += amount;
+
+      if (this.x > this.maxX) {
+        this.x = this.maxX;
+      }
     }
   }
 });
@@ -35449,6 +35686,90 @@ var render = function() {
         1
       )
     : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5&":
+/*!******************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./app/windowing/SlidingWindow.vue?vue&type=template&id=1848e2b5& ***!
+  \******************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "easel-container",
+    [
+      _c("easel-container", { attrs: { x: -_vm.x } }, [_vm._t("default")], 2),
+      _vm._v(" "),
+      _vm.x > 0
+        ? _c(
+            "enzo-hover-spot",
+            {
+              attrs: { speed: 8, x: 0, y: 0 },
+              on: {
+                hovering: _vm.scrollLeft,
+                click: function($event) {
+                  return _vm.scrollLeft(_vm.handleWidth)
+                }
+              }
+            },
+            [
+              _c("easel-shape", {
+                attrs: {
+                  form: "rect",
+                  dimensions: [_vm.handleWidth, _vm.dimensions.height],
+                  fill: "black"
+                }
+              })
+            ],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.x < _vm.maxX
+        ? _c(
+            "enzo-hover-spot",
+            {
+              attrs: {
+                speed: 8,
+                x: _vm.dimensions.width - _vm.handleWidth,
+                y: 0
+              },
+              on: {
+                hovering: _vm.scrollRight,
+                click: function($event) {
+                  return _vm.scrollRight(_vm.handleWidth)
+                }
+              }
+            },
+            [
+              _c("easel-shape", {
+                attrs: {
+                  form: "rect",
+                  dimensions: [_vm.handleWidth, _vm.dimensions.height],
+                  fill: "black"
+                }
+              })
+            ],
+            1
+          )
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true

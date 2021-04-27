@@ -8,9 +8,10 @@
  |  HasTextLayer - if the component is intended to have a TextLayer child
  |  UsesTextLayer - if the component is intended to use a parent's TextLayer
  */
+import UsesWindow from '@windowing/UsesWindow';
 
 export default {
-    inject: ['window'],
+    mixins: [UsesWindow],
     methods: {
         /**
          * If this object is, or is within, a window that isn't positioned at
@@ -21,9 +22,7 @@ export default {
          * @return [x, y]
          */
         textLayerWindowAdjustment(x, y) {
-            const absolute = this.absolutePosition
-                ? this.absolutePosition({x, y})
-                : this.window.absolutePosition({x, y});
+            const absolute = this.absolutePosition({x, y});
             return [absolute.x, absolute.y];
         },
         addToHoverRing() {
