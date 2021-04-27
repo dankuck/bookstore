@@ -175,18 +175,6 @@ export default {
                     click: () => this.app.world.goTo('nonfiction-stack'),
                 },
                 {
-                    x: 295,
-                    y: 64,
-                    dimensionSets: [
-                        ['rect', -18, -25, [24, 98]],
-                    ],
-                    name: "Shadowy Area",
-                    click: () => {
-                        this.showMessage("There's nothing in the shadowy area, yet.", 295, 64);
-                        this.app.event('shadowy-area', 'bounce');
-                    },
-                },
-                {
                     x: 0,
                     y: 168,
                     dimensionSets: [
