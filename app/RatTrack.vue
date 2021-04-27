@@ -32,12 +32,14 @@ import InventoryCheese from '@world/InventoryCheese';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import delay from '@libs/wait';
 import moveTo from '@libs/moveTo';
+import IsWindow from '@app/windowing/IsWindow';
 
 export default {
     inject: ['app'],
     props: ['x', 'y'],
     mixins: [
         UsesTextLayer,
+        IsWindow,
     ],
     data() {
         return {
@@ -67,8 +69,13 @@ export default {
         },
     },
     computed: {
-        textLayerOrigin() {
-            return [this.x, this.y];
+        dimensions() {
+            return {
+                x: this.x,
+                y: this.y,
+                width: 200,
+                height: 50,
+            };
         },
         holeName() {
             if (this.hasCheese) {

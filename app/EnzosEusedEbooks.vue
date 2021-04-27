@@ -76,9 +76,10 @@ import Inventory from '@app/Inventory';
 import Room from '@app/Room';
 import Cutscene from '@app/Cutscene';
 import HasTextLayer from '@textLayer/HasTextLayer';
+import IsWindow from '@app/windowing/IsWindow';
 
 export default {
-    mixins: [HasTextLayer],
+    mixins: [HasTextLayer, IsWindow],
     components: {
         DevTools,
         DevElements,
@@ -87,11 +88,6 @@ export default {
         Cutscene,
     },
     inject: ['app'],
-    provide() {
-        return {
-            window: this,
-        };
-    },
     data() {
         return {
             showGame: false,

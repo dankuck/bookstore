@@ -65,7 +65,7 @@
             <enzo-click-spot
                 name="Lobby"
                 :x="lobbyX"
-                y="150"
+                :y="150"
                 @click="app.world.goTo('lobby')"
             >
                 <easel-shape
@@ -93,7 +93,7 @@
 import Stack from '@app/Stack';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
-import SlidingWindow from '@app/SlidingWindow';
+import SlidingWindow from '@app/windowing/SlidingWindow';
 
 export default {
     mixins: [UsesTextLayer],

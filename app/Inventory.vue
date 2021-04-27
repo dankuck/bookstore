@@ -37,18 +37,14 @@
 <script>
 import InventoryItem from '@app/InventoryItem';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
+import IsWindow from '@app/windowing/IsWindow';
 
 export default {
-    mixins: [UsesTextLayer],
+    mixins: [UsesTextLayer, IsWindow],
     components: {
         InventoryItem,
     },
     inject: ['app'],
-    provide() {
-        return {
-            window: this,
-        };
-    },
     props: ['x', 'y', 'items', 'disabled'],
     data() {
         return {
@@ -56,16 +52,13 @@ export default {
         };
     },
     computed: {
-        textLayerOrigin() {
-            return [this.x, this.y];
-        },
         itemSize() {
             return this.app.inventorySize.height;
         },
         dimensions() {
             return {
-                x: 0,
-                y: 0,
+                x: this.x,
+                y: this.y,
                 width: this.app.inventorySize.width,
                 height: this.app.inventorySize.height,
             };

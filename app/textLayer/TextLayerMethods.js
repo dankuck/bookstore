@@ -10,17 +10,21 @@
  */
 
 export default {
+    inject: ['window'],
     methods: {
-        textLayerAdjustment(x, y) {
-            if (this.textLayerOrigin) {
-                x += parseFloat(this.textLayerOrigin[0]);
-                y += parseFloat(this.textLayerOrigin[1]);
-            }
-            if (this.textLayerParent) {
-                return this.textLayerParent.textLayerAdjustment(x, y);
-            } else {
-                return [x, y];
-            }
+        /**
+         * If this object is, or is within, a window that isn't positioned at
+         * <0, 0>, then we'll need to find the absolute position of it to
+         * figure out where it is trying to put text
+         * @param  {number} x
+         * @param  {number} y
+         * @return [x, y]
+         */
+        textLayerWindowAdjustment(x, y) {
+            const absolute = this.absolutePosition
+                ? this.absolutePosition({x, y})
+                : this.window.absolutePosition({x, y});
+            return [absolute.x, absolute.y];
         },
         addToHoverRing() {
             this.textLayer.mobileHoverRing.add(this.hoverCallback);
@@ -29,14 +33,14 @@ export default {
             this.textLayer.mobileHoverRing.remove(this.hoverCallback);
         },
         queueMessage(text, x, y, color = null, speed = null) {
-            [x, y] = this.textLayerAdjustment(x, y);
+            [x, y] = this.textLayerWindowAdjustment(x, y);
             return this.textLayer.messager.queue({text, x, y, color}, speed);
         },
         queueMessageAt(x, y, color = null, speed = null) {
             return msg => this.queueMessage(msg, x, y, color, speed);
         },
         showMessage(text, x, y, color = null, speed = null) {
-            [x, y] = this.textLayerAdjustment(x, y);
+            [x, y] = this.textLayerWindowAdjustment(x, y);
             return this.textLayer.messager.clear().queue({text, x, y, color}, speed);
         },
         showMessageAt(x, y, color = null, speed = null) {
@@ -46,7 +50,7 @@ export default {
             return this.textLayer.messager.clear();
         },
         hover() {
-            const [x, y] = this.textLayerAdjustment(
+            const [x, y] = this.textLayerWindowAdjustment(
                 this.hoverX || this.x,
                 this.hoverY || this.y
             );
