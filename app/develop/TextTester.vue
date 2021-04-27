@@ -1,8 +1,8 @@
 <template>
     <enzo-text
         :text="DevSettings.showText"
-        :x="1"
-        :y="1"
+        :x="DevSettings.textX"
+        :y="DevSettings.textY"
     >
     </enzo-text>
 </template>

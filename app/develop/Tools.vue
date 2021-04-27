@@ -26,7 +26,10 @@
                 </ol>
             </div>
             <div>
-                Show Text <textarea v-model="DevSettings.showText"></textarea>
+                Show Text
+                <textarea v-model="DevSettings.showText"></textarea>
+                <input v-model="DevSettings.textX" size="3" placeholder="x" />
+                <input v-model="DevSettings.textY" size="3" placeholder="y" />
             </div>
             <div v-if="messager.message" style="color: blue">
                 » {{ messager.message || '' }}
