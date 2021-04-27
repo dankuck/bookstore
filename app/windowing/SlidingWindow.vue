@@ -54,7 +54,7 @@ export default {
     },
     computed: {
         handleWidth() {
-            return 10;//0.15 * this.dimensions.width;
+            return 0.15 * this.dimensions.width;
         },
         maxX() {
             return this.width - this.dimensions.width;
