@@ -39,6 +39,9 @@ export default {
                 ? this.item.hoverName(this.app.world.selectedItem)
                 : this.item.name;
         },
+        hoverY() {
+            return this.y + 10;
+        },
     },
 };
 </script>

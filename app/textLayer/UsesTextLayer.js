@@ -18,12 +18,7 @@
 import TextLayerMethods from '@textLayer/TextLayerMethods';
 
 export default {
-    inject: ['textLayerRoot', 'textLayerParent'],
-    provide() {
-        return {
-            textLayerParent: this,
-        };
-    },
+    inject: ['textLayerRoot'],
     mixins: [TextLayerMethods],
     mounted() {
         this.hoverCallback = () => this.hover();

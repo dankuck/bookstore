@@ -63,7 +63,6 @@
 <script>
 import StackRoom from '@app/StackRoom';
 import RatTrack from '@app/RatTrack';
-import delay from '@libs/wait';
 import moveTo from '@libs/moveTo';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 

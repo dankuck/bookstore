@@ -35,7 +35,6 @@ export default {
     provide() {
         return {
             textLayerRoot: this,
-            textLayerParent: this,
         };
     },
     mounted() {

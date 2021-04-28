@@ -4999,8 +4999,7 @@ __webpack_require__.r(__webpack_exports__);
   inject: ['app'],
   provide: function provide() {
     return {
-      textLayerRoot: this,
-      textLayerParent: this
+      textLayerRoot: this
     };
   },
   mounted: function mounted() {
@@ -5251,12 +5250,7 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  inject: ['textLayerRoot', 'textLayerParent'],
-  provide: function provide() {
-    return {
-      textLayerParent: this
-    };
-  },
+  inject: ['textLayerRoot'],
   mixins: [_textLayer_TextLayerMethods__WEBPACK_IMPORTED_MODULE_0__["default"]],
   mounted: function mounted() {
     var _this = this;
@@ -20821,9 +20815,8 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
 /* harmony import */ var _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @app/RatTrack */ "./app/RatTrack.vue");
-/* harmony import */ var _libs_wait__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/wait */ "./app/libs/wait.js");
-/* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
-/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+/* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 //
 //
 //
@@ -20886,13 +20879,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_4__["default"]],
+  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_3__["default"]],
   components: {
     StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"],
     RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__["default"]
@@ -20921,7 +20913,7 @@ __webpack_require__.r(__webpack_exports__);
         y: 160,
         r: 0
       };
-      Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_3__["default"])(10, this.key, {
+      Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_2__["default"])(10, this.key, {
         y: 206
       }, 5);
     },
@@ -21082,6 +21074,9 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return this.item.hoverName ? this.item.hoverName(this.app.world.selectedItem) : this.item.name;
+    },
+    hoverY: function hoverY() {
+      return this.y + 10;
     }
   }
 });
