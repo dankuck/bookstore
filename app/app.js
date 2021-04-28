@@ -97,8 +97,6 @@ const app = new Vue({
         this.resizer();
 
         analytics(this);
-
-        this.store.onMutation(string => console.log('Mutation: ' + string));
     },
     destroyed() {
         window.removeEventListener('resize', this.resizer);

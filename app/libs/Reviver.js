@@ -87,12 +87,12 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | to add a protection mechanism so you can use those keys.
  |
  | Some built-in types cannot be revived. These are usally for good reasons: a
- | Promise or a Function hold code and getting that right in JSON is often
+ | Promise or a Function holds code and reviving code in JSON is often
  | impossible. Symbols cannot retain the uniqueness feature they are intended
- | for, so they become null.
+ | for, so they become null. See addObject() for a workaround.
  |
- | Reviver's behavior with some of these data types is different from the
- | behavior you would expect if you're familiar with the JSON object.
+ | Reviver's behavior with some data types is different from the behavior you
+ | would expect from the `JSON` object.
  |
  | What follows is an exhaustive list of the ways the Reviver treats data. Any
  | built-in type not represented below has undefined behavior that may change
@@ -154,7 +154,7 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  | Non-class objects can be "saved" as well, by adding them via the
  | addObject() method. These objects will not be converted to JSON at any time.
  | They will simply be referenced as-is. This even works on built-in objects
- | like Math or window.
+ | like `Math` or `window`.
  |
  | Example:
  |
@@ -164,11 +164,13 @@ import ReviverBuiltIns from './ReviverBuiltIns';
  |    console.log(copy.m.pow(2, 3));
  |    // 8
  |
- | This is not the preferred way to store objects, because the objects' state
- | is not saved. Imagine you added an object A and then assigned A.x = 404. The
- | property x will not be stored. If the web page is reloaded, a new A will be
- | added, with its own value for x. In some circumstances, this is desirable
- | behavior. In other cases, it creates confusion for developers.
+ | Remember that the objects' state is not saved. Imagine you create an object
+ | A as {x: Math.random()}. Then you add A to a reviver using addObject() and
+ | pass A to stringify(). The property x will not be stored. If the web page is
+ | reloaded, a new A will be created, with its own random value for x. If you
+ | attempt to parse your stored data, you will only receive the reference to
+ | the new instance of A and its new value for x. This may be the desired
+ | behavior, or it may confuse the developer.
   */
 export default class Reviver
 {

@@ -235,6 +235,16 @@ describe('Reviver', function () {
         assert(copy.theClass === X);
     });
 
+    it('lets us add a symbol with addObject and revive with the same one', function () {
+        const reviver = new Reviver();
+        const X = Symbol();
+
+        reviver.addObject('X', X);
+
+        const copy = reviver.parse(reviver.stringify({X}));
+        assert(copy.X === X);
+    });
+
     it('uses toJSON if the class is not defined', function () {
         class X {
             constructor() {
