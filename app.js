@@ -1959,13 +1959,13 @@ var ChatBot = /*#__PURE__*/function () {
         throw new Error("".concat(code, " has already been added"));
       }
 
-      var noAutoConditions = conditions.reduce(function (acc, condition) {
-        return acc || condition.noAutoConditions;
-      }, false); // The until-self-is-asked condition is implied, so we auto-add it for
+      var skipDefaultConditions = conditions.some(function (condition) {
+        return condition.skipDefaultConditions;
+      }); // The until-self-is-asked condition is implied, so we auto-add it for
       // ease-of-use. That is except under certain conditions such as the
       // `always`  and `everySession` conditions.
 
-      if (!noAutoConditions) {
+      if (!skipDefaultConditions) {
         conditions.push(ChatBot.until(code));
       }
 
@@ -2061,7 +2061,7 @@ ChatBot.always = function always() {
     return true;
   };
 
-  always.noAutoConditions = true;
+  always.skipDefaultConditions = true;
   return always;
 };
 /**
@@ -2076,7 +2076,7 @@ ChatBot.everySession = function everySession() {
     return !chatbot.wasAskedThisSession(code);
   };
 
-  everySession.noAutoConditions = true;
+  everySession.skipDefaultConditions = true;
   return everySession;
 };
 
@@ -6218,17 +6218,17 @@ var World = /*#__PURE__*/function () {
   }, {
     key: "completedAllSteps",
     value: function completedAllSteps() {
-      if (this.theCheese.location === 'book') {
-        return false; // find that cheese!
-      }
-
-      var beenEverywhereMan = this.hasGoneTo('lobby-desk') && this.hasGoneTo('lobby') && this.hasGoneTo('fiction-stack') && this.hasGoneTo('nonfiction-stack') && this.hasGoneTo('children-stack');
-
-      if (!beenEverywhereMan) {
-        return false;
-      }
-
-      return true;
+      return this.hasKey();
+    }
+  }, {
+    key: "hasDoorbell",
+    value: function hasDoorbell() {
+      return this.doorbell.location === 'inventory';
+    }
+  }, {
+    key: "hasKey",
+    value: function hasKey() {
+      return this.key.location === 'inventory';
     }
   }, {
     key: "touchIAmTheCheese",
@@ -21250,7 +21250,7 @@ __webpack_require__.r(__webpack_exports__);
         x: 213,
         y: 53 + 42,
         dimensionSets: [['rect', -45, -42, [109, 84]]],
-        name: this.app.world.hasGoneTo('children-stack') ? 'Musty Children\'s Books' : 'Musty Books',
+        name: 'Musty Children\'s Books',
         click: function click() {
           return _this2.app.world.goTo('children-stack');
         }
@@ -21258,7 +21258,7 @@ __webpack_require__.r(__webpack_exports__);
         x: 118,
         y: 87,
         dimensionSets: [['rect', -46, -37, [96, 84]]],
-        name: this.app.world.hasGoneTo('fiction-stack') ? 'Crusty Fiction' : 'Crusty Books',
+        name: 'Crusty Fiction',
         click: function click() {
           return _this2.app.world.goTo('fiction-stack');
         }
@@ -21266,7 +21266,7 @@ __webpack_require__.r(__webpack_exports__);
         x: 37,
         y: 97,
         dimensionSets: [['rect', -37, -39, [72, 78]]],
-        name: this.app.world.hasGoneTo('nonfiction-stack') ? 'Dusty Non-Fiction' : 'Dusty Books',
+        name: 'Dusty Non-Fiction',
         click: function click() {
           return _this2.app.world.goTo('nonfiction-stack');
         }
@@ -21274,7 +21274,7 @@ __webpack_require__.r(__webpack_exports__);
         x: 0,
         y: 168,
         dimensionSets: [['ellipse', 23, 0, [108, 54]], ['rect', 0, 0, [70, 90]], ['rect', 0, 36, [127, 55]]],
-        name: "Shabby Desk",
+        name: 'Shabby Desk',
         click: function click() {
           return _this2.app.world.goTo('lobby-desk');
         }
@@ -21474,8 +21474,14 @@ var after = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].after,
 
       return new _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"](this.app.world.lobbyBot).add('Q1', "How do you play this game?", [], function () {
         return _this3.say(["This is not a game; this is a bookstore.", "This is not a game; this is a bookstore.\nIt is completely unpersonalized to you!", "This is not a game; this is a bookstore.\nIt is completely unpersonalized to you!\nNothing at Enzo's was chosen to suit your interests.", "How refreshing!"]);
-      }).add('Q5', "How do you play this bookstore?", [after('Q1')], function () {
+      }).add('Q5', "How do you play this bookstore?", [after('Q1'), function () {
+        return !_this3.app.world.hasDoorbell();
+      }], function () {
         return _this3.say(["Our doorbell is missing. Maybe you could find it."]);
+      }).add('Q9', "How do you play this bookstore?", [after('Q1'), function () {
+        return _this3.app.world.hasDoorbell() && !_this3.app.world.hasKey();
+      }], function () {
+        return _this3.say(["We can't find the key to the back door anywhere."]);
       }).add('Q2', "I found this battery...", [function () {
         return _this3.app.world.battery.location === 'inventory';
       }], function () {
@@ -21483,17 +21489,17 @@ var after = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].after,
       }).add('Q3', "So... what should I do with this battery?", [after('Q2'), everySession(), function () {
         return _this3.app.world.battery.location === 'inventory';
       }], function () {
-        _this3.say(["First, stop trying to tempt me with that delicious battery.", "Please hold onto it until another associate can assist you."]);
+        _this3.say(["Stop trying to tempt me with delicious batteries.", "Please hold onto it until another associate can assist you."]);
       }).add('Q6', "Is there anything else to do?", [function () {
         return _this3.app.world.completedAllSteps();
       }], function () {
-        _this3.say(["You could follow Enzo's on Facebook and Twitter!", "Every time something new happens in the bookstore, it will be announced there."]);
+        _this3.say(["You could follow Enzo Eused Ebooks's on Facebook and Twitter!", "Every time something new happens in the bookstore, it will be announced there."]);
 
         _this3.app.flashSocialLinks();
       }).add('Q7', "Is there anything else to do?", [after('Q6'), everySession(), function () {
         return _this3.app.world.completedAllSteps();
       }], function () {
-        _this3.say(["So far, just that thing I said...", "Follow Enzo's on Facebook and Twitter.", "Follow Enzo's on Facebook and Twitter.\nNew developments will be announced there."]);
+        _this3.say(["So far, just that thing I said...", "Follow Enzo's Eused Ebooks on Facebook and Twitter.", "Follow Enzo's Eused Ebooks on Facebook and Twitter.\nNew developments will be announced there."]);
 
         _this3.app.flashSocialLinks();
       }).add('Q8', "Why can't I touch the cheese book?", [everySession(), function () {
@@ -21591,7 +21597,7 @@ var after = _chat_ChatBot__WEBPACK_IMPORTED_MODULE_2__["default"].after,
     pullCheeseRebuff: function pullCheeseRebuff() {
       if (this.app.world.lobbyBot.someoneTriedToGrabTheCheeseNow) {
         this.app.world.lobbyBot.someoneTriedToGrabTheCheeseNow = false;
-        return ["NO ONE TOUCHES THE CHEESE BOOK."];
+        return ["NO ONE MUST TOUCH\nTHE CHEESE BOOK."];
       } else {
         return [];
       }

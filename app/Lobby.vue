@@ -147,9 +147,7 @@ export default {
                     dimensionSets: [
                         ['rect', -45, -42, [109, 84]],
                     ],
-                    name: this.app.world.hasGoneTo('children-stack')
-                        ? 'Musty Children\'s Books'
-                        : 'Musty Books',
+                    name: 'Musty Children\'s Books',
                     click: () => this.app.world.goTo('children-stack'),
                 },
                 {
@@ -158,9 +156,7 @@ export default {
                     dimensionSets: [
                         ['rect', -46, -37, [96, 84]],
                     ],
-                    name: this.app.world.hasGoneTo('fiction-stack')
-                        ? 'Crusty Fiction'
-                        : 'Crusty Books',
+                    name: 'Crusty Fiction',
                     click: () => this.app.world.goTo('fiction-stack'),
                 },
                 {
@@ -169,9 +165,7 @@ export default {
                     dimensionSets: [
                         ['rect', -37, -39, [72, 78]],
                     ],
-                    name: this.app.world.hasGoneTo('nonfiction-stack')
-                        ? 'Dusty Non-Fiction'
-                        : 'Dusty Books',
+                    name: 'Dusty Non-Fiction',
                     click: () => this.app.world.goTo('nonfiction-stack'),
                 },
                 {
@@ -182,7 +176,7 @@ export default {
                         ['rect', 0, 0, [70, 90]],
                         ['rect', 0, 36, [127, 55]],
                     ],
-                    name: "Shabby Desk",
+                    name: 'Shabby Desk',
                     click: () => this.app.world.goTo('lobby-desk'),
                 },
             ];

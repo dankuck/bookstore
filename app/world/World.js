@@ -281,18 +281,15 @@ export default class World
     }
 
     completedAllSteps() {
-        if (this.theCheese.location === 'book') {
-            return false; // find that cheese!
-        }
-        const beenEverywhereMan = this.hasGoneTo('lobby-desk')
-            && this.hasGoneTo('lobby')
-            && this.hasGoneTo('fiction-stack')
-            && this.hasGoneTo('nonfiction-stack')
-            && this.hasGoneTo('children-stack');
-        if (!beenEverywhereMan) {
-            return false;
-        }
-        return true;
+        return this.hasKey();
+    }
+
+    hasDoorbell() {
+        return this.doorbell.location === 'inventory';
+    }
+
+    hasKey() {
+        return this.key.location === 'inventory';
     }
 
     touchIAmTheCheese() {
