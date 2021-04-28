@@ -19,14 +19,15 @@
 import Lobby from '@app/Lobby';
 import DoorbellCutscene from '@app/DoorbellCutscene';
 import VModelMixin from '@app/VModelMixin';
+import UsesWindow from '@windowing/UsesWindow';
 
 export default {
     mixins: [
         VModelMixin,
+        UsesWindow,
     ],
     components: {
         doorbell: DoorbellCutscene,
     },
-    inject: ['window'],
 }
 </script>

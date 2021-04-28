@@ -48,50 +48,6 @@ describe('JsonStorage', function () {
         equal('too', storage.read('and this'));
     });
 
-    it('should revive', function () {
-        const caughtParams = {};
-        const storage = new JsonStorage(
-            {},
-            'myRoot',
-            {
-                revive(key, value) {
-                    if (key === 'x') {
-                        caughtParams[key] = value;
-                        return 'transformed';
-                    } else {
-                        return value;
-                    }
-                },
-            }
-        );
-        storage.write('x', 123);
-        const x = storage.read('x');
-        equal(123, caughtParams.x);
-        equal('transformed', x);
-    });
-
-    it('should replace', function () {
-        const caughtParams = {};
-        const storage = new JsonStorage(
-            {},
-            'myRoot',
-            {
-                replace(key, value) {
-                    if (key === 'x') {
-                        caughtParams[key] = value;
-                        return 'transformed';
-                    } else {
-                        return value;
-                    }
-                },
-            }
-        );
-        storage.write('x', 123);
-        const x = storage.read('x');
-        equal(123, caughtParams.x);
-        equal('transformed', x);
-    });
-
     it('should write with one and read with another', function () {
         const internal = {};
         const storage1 = new JsonStorage(internal, 'myRoot');

@@ -40,8 +40,11 @@
                 :x="0"
                 :y="app.roomSize.height"
                 :items="app.world.inventory"
+                :disabled="Boolean(app.world.cutscene)"
             >
             </inventory>
+
+            <text-layer></text-layer>
 
             <dev-elements v-if="app.config.developmentMode"></dev-elements>
         </easel-canvas>
@@ -72,8 +75,11 @@ import DevElements from '@develop/Elements';
 import Inventory from '@app/Inventory';
 import Room from '@app/Room';
 import Cutscene from '@app/Cutscene';
+import HasTextLayer from '@textLayer/HasTextLayer';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
+    mixins: [HasTextLayer, IsWindow],
     components: {
         DevTools,
         DevElements,
@@ -82,11 +88,6 @@ export default {
         Cutscene,
     },
     inject: ['app'],
-    provide() {
-        return {
-            window: this,
-        };
-    },
     data() {
         return {
             showGame: false,

@@ -3,27 +3,21 @@ export default class InventoryBattery {
 
     constructor(data) {
         this.image = 'images/battery.gif';
+        this.selectable = true;
         Object.assign(this, data);
     }
 
-    click({print, useWith, world}) {
-        useWith(item => {
-            if (item.useBattery) {
-                item.useBattery(print);
-                world.removeInventory(this);
-                world.battery.location = 'used';
-            } else {
-                print("I don't know how to use the battery with that.");
-            }
-        });
+    useUp(world) {
+        world.removeInventory(this);
+        world.battery.location = 'used';
     }
 };
 
 InventoryBattery.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'InventoryBattery',
         InventoryBattery,
-        (key, value) => new InventoryBattery(value),
-        (key, value) => { return {...value} },
+        (value) => new InventoryBattery(value),
+        (value) => { return {...value} },
     );
 };

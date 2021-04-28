@@ -7,21 +7,18 @@
             @words-said="robotSaid"
         ></lobby-desk>
 
-        <text-layer>
-        </text-layer>
-
     </easel-container>
 </template>
 
 <script>
 import LobbyDesk from '@app/LobbyDesk';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import wait from '@libs/wait';
 import doorAnswerPhrases from '@app/doorAnswerPhrases';
 
 export default {
     inject: ['app'],
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         LobbyDesk,
     },
@@ -55,7 +52,7 @@ export default {
             } else {
                 return this.robotSay("I'll get it!")
                     .then(() => this.app.world.leave('lobby-desk', 'lobby'))
-                    .then(() => this.app.world.lobbyBotAnswerDoorbell(20000, 100));
+                    .then(() => this.app.world.lobbyBotAnswerDoorbell(20000, 500));
             }
         },
         robotSay(text) {

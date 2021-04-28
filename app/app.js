@@ -6,9 +6,9 @@
  |
  | It handles screen sizing, and providing globally useful tools and data.
  |
- | Provides itself as `app` to all descendants.
+ | It provides itself as `app` to all descendants.
  |
- | Data includes:
+ | Useful values under `app`:
  |  config: data from config.js
  |  isMobile: dynamic boolean is true if the screen size looks like mobile
  |  viewport.width: the width of the canvas internally
@@ -19,7 +19,6 @@
  |  roomSize.height: the height of the room area
  |  inventorySize.width: the width of the inventory area
  |  inventorySize.height: the height of the inventory area
- |  storage: a JsonStorage object that persists data to localStorage
  |  world: the World object
  |
  | This class does NOT handle rendering anything directly or choosing which
@@ -35,19 +34,18 @@ import EnzosEusedEbooks from '@app/EnzosEusedEbooks.vue';
 import config from '@/config';
 import JsonStorage from '@libs/JsonStorage';
 import World from '@world/World';
-import reviver from '@app/reviver';
 import axios from 'axios';
 import ColorReducer from '@libs/ColorReducer';
 import analytics from '@app/analytics.js';
 import * as Sentry from '@sentry/browser';
 import * as Integrations from '@sentry/integrations';
+import StoreMixin from '@app/store/StoreMixin.js';
 
 // Expose these variables for devtools
 window.Vue = require('vue');
 window.VueEaseljs = require('vue-easeljs');
 window.easeljs = window.VueEaseljs.easeljs;
 window.axios = axios;
-window.reviver = reviver;
 window.JsonStorage = JsonStorage;
 
 if (config.sentry && config.sentry.on) {
@@ -71,22 +69,19 @@ Vue.component('enzo-click-spot', EnzoClickSpot);
 Vue.component('enzo-hover-spot', EnzoHoverSpot);
 Vue.component('enzo-named-container', EnzoNamedContainer);
 
-const storage = new JsonStorage(
-    window.localStorage,
-    'enzos-eused-ebooks',
-    reviver
-);
-
-const world = storage.read('world') || new World();
-
 const app = new Vue({
     el: '#app',
+    mixins: [
+        StoreMixin(World, 'enzos-eused-ebooks', 'world'),
+    ],
     components: {
         EnzosEusedEbooks,
     },
     provide() {
         return {
             app: this,
+            // store comes from StoreMixin
+            // world comes from StoreMixin
         };
     },
     mounted() {
@@ -100,11 +95,6 @@ const app = new Vue({
         };
         window.addEventListener('resize', this.resizer);
         this.resizer();
-        this.$watch(
-            'world',
-            () => this.storage.write('world', this.world),
-            {deep: true}
-        );
 
         analytics(this);
     },
@@ -113,6 +103,8 @@ const app = new Vue({
     },
     data() {
         return {
+            // store comes from StoreMixin
+            // world comes from StoreMixin
             config,
             isMobile: false,
             canvas: {
@@ -127,8 +119,6 @@ const app = new Vue({
                 width: 350,
                 height: 50,
             },
-            storage,
-            world,
             socialLinks: {
                 flashStage: 0,
             },
@@ -138,7 +128,7 @@ const app = new Vue({
         viewport() {
             return {
                 width: this.roomSize.width,
-                height: this.roomSize.height + (this.world.inventory.length === 0 ? 0 : this.inventorySize.height),
+                height: this.roomSize.height + (this.world.inventory.length > 0 ? this.inventorySize.height : 0),
             };
         },
     },

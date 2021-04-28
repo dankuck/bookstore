@@ -94,22 +94,17 @@
         >
         </book-viewer>
 
-        <text-layer
-            v-else
-        >
-        </text-layer>
-
     </easel-container>
 </template>
 
 <script>
 import BigPlant from '@app/BigPlant';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
 
 export default {
     inject: ['app'],
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         BigPlant,
         BookViewer,
@@ -152,9 +147,7 @@ export default {
                     dimensionSets: [
                         ['rect', -45, -42, [109, 84]],
                     ],
-                    name: this.app.world.hasGoneTo('children-stack')
-                        ? 'Musty Children\'s Books'
-                        : 'Musty Books',
+                    name: 'Musty Children\'s Books',
                     click: () => this.app.world.goTo('children-stack'),
                 },
                 {
@@ -163,9 +156,7 @@ export default {
                     dimensionSets: [
                         ['rect', -46, -37, [96, 84]],
                     ],
-                    name: this.app.world.hasGoneTo('fiction-stack')
-                        ? 'Crusty Fiction'
-                        : 'Crusty Books',
+                    name: 'Crusty Fiction',
                     click: () => this.app.world.goTo('fiction-stack'),
                 },
                 {
@@ -174,22 +165,8 @@ export default {
                     dimensionSets: [
                         ['rect', -37, -39, [72, 78]],
                     ],
-                    name: this.app.world.hasGoneTo('nonfiction-stack')
-                        ? 'Dusty Non-Fiction'
-                        : 'Dusty Books',
+                    name: 'Dusty Non-Fiction',
                     click: () => this.app.world.goTo('nonfiction-stack'),
-                },
-                {
-                    x: 295,
-                    y: 64,
-                    dimensionSets: [
-                        ['rect', -18, -25, [24, 98]],
-                    ],
-                    name: "Shadowy Area",
-                    click: () => {
-                        this.showMessage("There's nothing in the shadowy area, yet.", 295, 64);
-                        this.app.event('shadowy-area', 'bounce');
-                    },
                 },
                 {
                     x: 0,
@@ -199,7 +176,7 @@ export default {
                         ['rect', 0, 0, [70, 90]],
                         ['rect', 0, 36, [127, 55]],
                     ],
-                    name: "Shabby Desk",
+                    name: 'Shabby Desk',
                     click: () => this.app.world.goTo('lobby-desk'),
                 },
             ];

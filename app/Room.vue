@@ -8,8 +8,10 @@ import FictionStack from '@app/FictionStack';
 import NonfictionStack from '@app/NonfictionStack';
 import ChildrenStack from '@app/ChildrenStack';
 import LobbyDesk from '@app/LobbyDesk';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
+    mixins: [IsWindow],
     components: {
         Lobby,
         FictionStack,
@@ -18,11 +20,6 @@ export default {
         LobbyDesk,
     },
     inject: ['app'],
-    provide() {
-        return {
-            window: this,
-        };
-    },
     computed: {
         dimensions() {
             return {

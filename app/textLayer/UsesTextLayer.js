@@ -18,7 +18,7 @@
 import TextLayerMethods from '@textLayer/TextLayerMethods';
 
 export default {
-    inject: ['textLayer'],
+    inject: ['textLayerRoot'],
     mixins: [TextLayerMethods],
     mounted() {
         this.hoverCallback = () => this.hover();
@@ -27,5 +27,10 @@ export default {
     destroyed() {
         this.unhover();
         this.removeFromHoverRing();
+    },
+    computed: {
+        textLayer() {
+            return this.textLayerRoot.textLayer;
+        },
     },
 };

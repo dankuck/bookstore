@@ -20,6 +20,9 @@
             >
             </easel-bitmap>
 
+            <slot name="behind-books">
+            </slot>
+
             <stack
                 :collection="collection"
                 :shelves="shelves"
@@ -50,6 +53,9 @@
             >
             </easel-bitmap>
 
+            <slot name="front">
+            </slot>
+
             <easel-bitmap
                 :image="shadowImage"
                 alpha=".5"
@@ -59,7 +65,7 @@
             <enzo-click-spot
                 name="Lobby"
                 :x="lobbyX"
-                y="150"
+                :y="150"
                 @click="app.world.goTo('lobby')"
             >
                 <easel-shape
@@ -72,10 +78,6 @@
                 </easel-shape>
             </enzo-click-spot>
 
-            <text-layer
-                v-if="!viewBook"
-            >
-            </text-layer>
         </sliding-window>
 
         <book-viewer
@@ -89,18 +91,18 @@
 
 <script>
 import Stack from '@app/Stack';
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import BookViewer from '@app/BookViewer';
-import SlidingWindow from '@app/SlidingWindow';
+import SlidingWindow from '@windowing/SlidingWindow';
 
 export default {
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         Stack,
         BookViewer,
         SlidingWindow,
     },
-    inject: ['app', 'window'],
+    inject: ['app'],
     props: [
         'name',
         'width',

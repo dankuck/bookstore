@@ -55,18 +55,33 @@
         >
         </lobby-bot>
 
-        <text-layer>
-        </text-layer>
+        <enzo-click-spot
+            v-if="app.world.lobbyBot.location !== 'lobby-desk'"
+            name="Lobby"
+            :x="app.roomSize.width - 15"
+            y="150"
+            @click="app.world.goTo('lobby')"
+        >
+            <easel-shape
+                form="rect"
+                x="-15"
+                y="-150"
+                :dimensions="[30, 255]"
+                fill="black"
+            >
+            </easel-shape>
+        </enzo-click-spot>
+
     </easel-container>
 </template>
 
 <script>
-import HasTextLayer from '@textLayer/HasTextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
 import LobbyBot from '@app/LobbyBot';
 
 export default {
     inject: ['app'],
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer],
     components: {
         LobbyBot,
     },

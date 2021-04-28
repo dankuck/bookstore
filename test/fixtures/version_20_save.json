@@ -1,0 +1,2190 @@
+{
+    "world": {
+        "__class__": "World",
+        "__data__": {
+            "lobbyPlant": {
+                "animation": "rest",
+                "name": "Suspicious Plant",
+                "ruffled": false
+            },
+            "location": "lobby",
+            "collections": {
+                "bargain": {
+                    "__class__": "Collection",
+                    "__data__": {
+                        "url": "./data/bargain.json",
+                        "key": [
+                            "title"
+                        ],
+                        "default": {
+                            "title": ""
+                        },
+                        "codes": [
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12"
+                        ],
+                        "pendingCodes": [
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12"
+                        ],
+                        "book1": {
+                            "title": ""
+                        },
+                        "book2": {
+                            "title": ""
+                        },
+                        "book3": {
+                            "title": ""
+                        },
+                        "book4": {
+                            "title": ""
+                        },
+                        "book5": {
+                            "title": ""
+                        },
+                        "book6": {
+                            "title": ""
+                        },
+                        "book7": {
+                            "title": ""
+                        },
+                        "book8": {
+                            "title": ""
+                        },
+                        "book9": {
+                            "title": ""
+                        },
+                        "book10": {
+                            "title": ""
+                        },
+                        "book11": {
+                            "title": ""
+                        },
+                        "book12": {
+                            "title": ""
+                        },
+                        "loadedAt": null,
+                        "version": 1
+                    }
+                },
+                "fiction": {
+                    "__class__": "Collection",
+                    "__data__": {
+                        "url": "./data/fiction.json",
+                        "key": [
+                            "title"
+                        ],
+                        "default": {
+                            "title": ""
+                        },
+                        "codes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99",
+                            "book100",
+                            "book101",
+                            "book102",
+                            "book103",
+                            "book104",
+                            "book105",
+                            "book106",
+                            "book107",
+                            "book108",
+                            "book109",
+                            "book110",
+                            "book111",
+                            "book112",
+                            "book113",
+                            "book114",
+                            "book115",
+                            "book116",
+                            "book117",
+                            "book118",
+                            "book119",
+                            "book120",
+                            "book121",
+                            "book122",
+                            "book123",
+                            "book124",
+                            "book125",
+                            "book126",
+                            "book127",
+                            "book128",
+                            "book129",
+                            "book130",
+                            "book131",
+                            "book132",
+                            "book133",
+                            "book134",
+                            "book135",
+                            "book136",
+                            "book137",
+                            "book138",
+                            "book139",
+                            "book140",
+                            "book141",
+                            "book142",
+                            "book143",
+                            "book144",
+                            "book145",
+                            "book146",
+                            "book147",
+                            "book148",
+                            "book149"
+                        ],
+                        "pendingCodes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99",
+                            "book100",
+                            "book101",
+                            "book102",
+                            "book103",
+                            "book104",
+                            "book105",
+                            "book106",
+                            "book107",
+                            "book108",
+                            "book109",
+                            "book110",
+                            "book111",
+                            "book112",
+                            "book113",
+                            "book114",
+                            "book115",
+                            "book116",
+                            "book117",
+                            "book118",
+                            "book119",
+                            "book120",
+                            "book121",
+                            "book122",
+                            "book123",
+                            "book124",
+                            "book125",
+                            "book126",
+                            "book127",
+                            "book128",
+                            "book129",
+                            "book130",
+                            "book131",
+                            "book132",
+                            "book133",
+                            "book134",
+                            "book135",
+                            "book136",
+                            "book137",
+                            "book138",
+                            "book139",
+                            "book140",
+                            "book141",
+                            "book142",
+                            "book143",
+                            "book144",
+                            "book145",
+                            "book146",
+                            "book147",
+                            "book148",
+                            "book149"
+                        ],
+                        "book0": {
+                            "title": ""
+                        },
+                        "book1": {
+                            "title": ""
+                        },
+                        "book2": {
+                            "title": ""
+                        },
+                        "book3": {
+                            "title": ""
+                        },
+                        "book4": {
+                            "title": ""
+                        },
+                        "book5": {
+                            "title": ""
+                        },
+                        "book6": {
+                            "title": ""
+                        },
+                        "book7": {
+                            "title": ""
+                        },
+                        "book8": {
+                            "title": ""
+                        },
+                        "book9": {
+                            "title": ""
+                        },
+                        "book10": {
+                            "title": ""
+                        },
+                        "book11": {
+                            "title": ""
+                        },
+                        "book12": {
+                            "title": ""
+                        },
+                        "book13": {
+                            "title": ""
+                        },
+                        "book14": {
+                            "title": ""
+                        },
+                        "book15": {
+                            "title": ""
+                        },
+                        "book16": {
+                            "title": ""
+                        },
+                        "book17": {
+                            "title": ""
+                        },
+                        "book18": {
+                            "title": ""
+                        },
+                        "book19": {
+                            "title": ""
+                        },
+                        "book20": {
+                            "title": ""
+                        },
+                        "book21": {
+                            "title": ""
+                        },
+                        "book22": {
+                            "title": ""
+                        },
+                        "book23": {
+                            "title": ""
+                        },
+                        "book24": {
+                            "title": ""
+                        },
+                        "book25": {
+                            "title": ""
+                        },
+                        "book26": {
+                            "title": ""
+                        },
+                        "book27": {
+                            "title": ""
+                        },
+                        "book28": {
+                            "title": ""
+                        },
+                        "book29": {
+                            "title": ""
+                        },
+                        "book30": {
+                            "title": ""
+                        },
+                        "book31": {
+                            "title": ""
+                        },
+                        "book32": {
+                            "title": ""
+                        },
+                        "book33": {
+                            "title": ""
+                        },
+                        "book34": {
+                            "title": ""
+                        },
+                        "book35": {
+                            "title": ""
+                        },
+                        "book36": {
+                            "title": ""
+                        },
+                        "book37": {
+                            "title": ""
+                        },
+                        "book38": {
+                            "title": ""
+                        },
+                        "book39": {
+                            "title": ""
+                        },
+                        "book40": {
+                            "title": ""
+                        },
+                        "book41": {
+                            "title": ""
+                        },
+                        "book42": {
+                            "title": ""
+                        },
+                        "book43": {
+                            "title": ""
+                        },
+                        "book44": {
+                            "title": ""
+                        },
+                        "book45": {
+                            "title": ""
+                        },
+                        "book46": {
+                            "title": ""
+                        },
+                        "book47": {
+                            "title": ""
+                        },
+                        "book48": {
+                            "title": ""
+                        },
+                        "book49": {
+                            "title": ""
+                        },
+                        "book50": {
+                            "title": ""
+                        },
+                        "book51": {
+                            "title": ""
+                        },
+                        "book52": {
+                            "title": ""
+                        },
+                        "book53": {
+                            "title": ""
+                        },
+                        "book54": {
+                            "title": ""
+                        },
+                        "book55": {
+                            "title": ""
+                        },
+                        "book56": {
+                            "title": ""
+                        },
+                        "book57": {
+                            "title": ""
+                        },
+                        "book58": {
+                            "title": ""
+                        },
+                        "book59": {
+                            "title": ""
+                        },
+                        "book60": {
+                            "title": ""
+                        },
+                        "book61": {
+                            "title": ""
+                        },
+                        "book62": {
+                            "title": ""
+                        },
+                        "book63": {
+                            "title": ""
+                        },
+                        "book64": {
+                            "title": ""
+                        },
+                        "book65": {
+                            "title": ""
+                        },
+                        "book66": {
+                            "title": ""
+                        },
+                        "book67": {
+                            "title": ""
+                        },
+                        "book68": {
+                            "title": ""
+                        },
+                        "book69": {
+                            "title": ""
+                        },
+                        "book70": {
+                            "title": ""
+                        },
+                        "book71": {
+                            "title": ""
+                        },
+                        "book72": {
+                            "title": ""
+                        },
+                        "book73": {
+                            "title": ""
+                        },
+                        "book74": {
+                            "title": ""
+                        },
+                        "book75": {
+                            "title": ""
+                        },
+                        "book76": {
+                            "title": ""
+                        },
+                        "book77": {
+                            "title": ""
+                        },
+                        "book78": {
+                            "title": ""
+                        },
+                        "book79": {
+                            "title": ""
+                        },
+                        "book80": {
+                            "title": ""
+                        },
+                        "book81": {
+                            "title": ""
+                        },
+                        "book82": {
+                            "title": ""
+                        },
+                        "book83": {
+                            "title": ""
+                        },
+                        "book84": {
+                            "title": ""
+                        },
+                        "book85": {
+                            "title": ""
+                        },
+                        "book86": {
+                            "title": ""
+                        },
+                        "book87": {
+                            "title": ""
+                        },
+                        "book88": {
+                            "title": ""
+                        },
+                        "book89": {
+                            "title": ""
+                        },
+                        "book90": {
+                            "title": ""
+                        },
+                        "book91": {
+                            "title": ""
+                        },
+                        "book92": {
+                            "title": ""
+                        },
+                        "book93": {
+                            "title": ""
+                        },
+                        "book94": {
+                            "title": ""
+                        },
+                        "book95": {
+                            "title": ""
+                        },
+                        "book96": {
+                            "title": ""
+                        },
+                        "book97": {
+                            "title": ""
+                        },
+                        "book98": {
+                            "title": ""
+                        },
+                        "book99": {
+                            "title": ""
+                        },
+                        "book100": {
+                            "title": ""
+                        },
+                        "book101": {
+                            "title": ""
+                        },
+                        "book102": {
+                            "title": ""
+                        },
+                        "book103": {
+                            "title": ""
+                        },
+                        "book104": {
+                            "title": ""
+                        },
+                        "book105": {
+                            "title": ""
+                        },
+                        "book106": {
+                            "title": ""
+                        },
+                        "book107": {
+                            "title": ""
+                        },
+                        "book108": {
+                            "title": ""
+                        },
+                        "book109": {
+                            "title": ""
+                        },
+                        "book110": {
+                            "title": ""
+                        },
+                        "book111": {
+                            "title": ""
+                        },
+                        "book112": {
+                            "title": ""
+                        },
+                        "book113": {
+                            "title": ""
+                        },
+                        "book114": {
+                            "title": ""
+                        },
+                        "book115": {
+                            "title": ""
+                        },
+                        "book116": {
+                            "title": ""
+                        },
+                        "book117": {
+                            "title": ""
+                        },
+                        "book118": {
+                            "title": ""
+                        },
+                        "book119": {
+                            "title": ""
+                        },
+                        "book120": {
+                            "title": ""
+                        },
+                        "book121": {
+                            "title": ""
+                        },
+                        "book122": {
+                            "title": ""
+                        },
+                        "book123": {
+                            "title": ""
+                        },
+                        "book124": {
+                            "title": ""
+                        },
+                        "book125": {
+                            "title": ""
+                        },
+                        "book126": {
+                            "title": ""
+                        },
+                        "book127": {
+                            "title": ""
+                        },
+                        "book128": {
+                            "title": ""
+                        },
+                        "book129": {
+                            "title": ""
+                        },
+                        "book130": {
+                            "title": ""
+                        },
+                        "book131": {
+                            "title": ""
+                        },
+                        "book132": {
+                            "title": ""
+                        },
+                        "book133": {
+                            "title": ""
+                        },
+                        "book134": {
+                            "title": ""
+                        },
+                        "book135": {
+                            "title": ""
+                        },
+                        "book136": {
+                            "title": ""
+                        },
+                        "book137": {
+                            "title": ""
+                        },
+                        "book138": {
+                            "title": ""
+                        },
+                        "book139": {
+                            "title": ""
+                        },
+                        "book140": {
+                            "title": ""
+                        },
+                        "book141": {
+                            "title": ""
+                        },
+                        "book142": {
+                            "title": ""
+                        },
+                        "book143": {
+                            "title": ""
+                        },
+                        "book144": {
+                            "title": ""
+                        },
+                        "book145": {
+                            "title": ""
+                        },
+                        "book146": {
+                            "title": ""
+                        },
+                        "book147": {
+                            "title": ""
+                        },
+                        "book148": {
+                            "title": ""
+                        },
+                        "book149": {
+                            "title": ""
+                        },
+                        "loadedAt": null,
+                        "version": 1
+                    }
+                },
+                "nonfiction": {
+                    "__class__": "Collection",
+                    "__data__": {
+                        "url": "./data/nonfiction.json",
+                        "key": [
+                            "title"
+                        ],
+                        "default": {
+                            "title": ""
+                        },
+                        "codes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99",
+                            "book100",
+                            "book101",
+                            "book102",
+                            "book103",
+                            "book104",
+                            "book105",
+                            "book106",
+                            "book107",
+                            "book108",
+                            "book109",
+                            "book110",
+                            "book111",
+                            "book112",
+                            "book113",
+                            "book114",
+                            "book115",
+                            "book116",
+                            "book117",
+                            "book118",
+                            "book119",
+                            "book120",
+                            "book121",
+                            "book122",
+                            "book123",
+                            "book124",
+                            "book125",
+                            "book126",
+                            "book127",
+                            "book128",
+                            "book129",
+                            "book130",
+                            "book131",
+                            "book132",
+                            "book133",
+                            "book134",
+                            "book135",
+                            "book136",
+                            "book137",
+                            "book138",
+                            "book139",
+                            "book140",
+                            "book141",
+                            "book142",
+                            "book143",
+                            "book144",
+                            "book145",
+                            "book146",
+                            "book147",
+                            "book148",
+                            "book149"
+                        ],
+                        "pendingCodes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99",
+                            "book100",
+                            "book101",
+                            "book102",
+                            "book103",
+                            "book104",
+                            "book105",
+                            "book106",
+                            "book107",
+                            "book108",
+                            "book109",
+                            "book110",
+                            "book111",
+                            "book112",
+                            "book113",
+                            "book114",
+                            "book115",
+                            "book116",
+                            "book117",
+                            "book118",
+                            "book119",
+                            "book120",
+                            "book121",
+                            "book122",
+                            "book123",
+                            "book124",
+                            "book125",
+                            "book126",
+                            "book127",
+                            "book128",
+                            "book129",
+                            "book130",
+                            "book131",
+                            "book132",
+                            "book133",
+                            "book134",
+                            "book135",
+                            "book136",
+                            "book137",
+                            "book138",
+                            "book139",
+                            "book140",
+                            "book141",
+                            "book142",
+                            "book143",
+                            "book144",
+                            "book145",
+                            "book146",
+                            "book147",
+                            "book148",
+                            "book149"
+                        ],
+                        "book0": {
+                            "title": ""
+                        },
+                        "book1": {
+                            "title": ""
+                        },
+                        "book2": {
+                            "title": ""
+                        },
+                        "book3": {
+                            "title": ""
+                        },
+                        "book4": {
+                            "title": ""
+                        },
+                        "book5": {
+                            "title": ""
+                        },
+                        "book6": {
+                            "title": ""
+                        },
+                        "book7": {
+                            "title": ""
+                        },
+                        "book8": {
+                            "title": ""
+                        },
+                        "book9": {
+                            "title": ""
+                        },
+                        "book10": {
+                            "title": ""
+                        },
+                        "book11": {
+                            "title": ""
+                        },
+                        "book12": {
+                            "title": ""
+                        },
+                        "book13": {
+                            "title": ""
+                        },
+                        "book14": {
+                            "title": ""
+                        },
+                        "book15": {
+                            "title": ""
+                        },
+                        "book16": {
+                            "title": ""
+                        },
+                        "book17": {
+                            "title": ""
+                        },
+                        "book18": {
+                            "title": ""
+                        },
+                        "book19": {
+                            "title": ""
+                        },
+                        "book20": {
+                            "title": ""
+                        },
+                        "book21": {
+                            "title": ""
+                        },
+                        "book22": {
+                            "title": ""
+                        },
+                        "book23": {
+                            "title": ""
+                        },
+                        "book24": {
+                            "title": ""
+                        },
+                        "book25": {
+                            "title": ""
+                        },
+                        "book26": {
+                            "title": ""
+                        },
+                        "book27": {
+                            "title": ""
+                        },
+                        "book28": {
+                            "title": ""
+                        },
+                        "book29": {
+                            "title": ""
+                        },
+                        "book30": {
+                            "title": ""
+                        },
+                        "book31": {
+                            "title": ""
+                        },
+                        "book32": {
+                            "title": ""
+                        },
+                        "book33": {
+                            "title": ""
+                        },
+                        "book34": {
+                            "title": ""
+                        },
+                        "book35": {
+                            "title": ""
+                        },
+                        "book36": {
+                            "title": ""
+                        },
+                        "book37": {
+                            "title": ""
+                        },
+                        "book38": {
+                            "title": ""
+                        },
+                        "book39": {
+                            "title": ""
+                        },
+                        "book40": {
+                            "title": ""
+                        },
+                        "book41": {
+                            "title": ""
+                        },
+                        "book42": {
+                            "title": ""
+                        },
+                        "book43": {
+                            "title": ""
+                        },
+                        "book44": {
+                            "title": ""
+                        },
+                        "book45": {
+                            "title": ""
+                        },
+                        "book46": {
+                            "title": ""
+                        },
+                        "book47": {
+                            "title": ""
+                        },
+                        "book48": {
+                            "title": ""
+                        },
+                        "book49": {
+                            "title": ""
+                        },
+                        "book50": {
+                            "title": ""
+                        },
+                        "book51": {
+                            "title": ""
+                        },
+                        "book52": {
+                            "title": ""
+                        },
+                        "book53": {
+                            "title": ""
+                        },
+                        "book54": {
+                            "title": ""
+                        },
+                        "book55": {
+                            "title": ""
+                        },
+                        "book56": {
+                            "title": ""
+                        },
+                        "book57": {
+                            "title": ""
+                        },
+                        "book58": {
+                            "title": ""
+                        },
+                        "book59": {
+                            "title": ""
+                        },
+                        "book60": {
+                            "title": ""
+                        },
+                        "book61": {
+                            "title": ""
+                        },
+                        "book62": {
+                            "title": ""
+                        },
+                        "book63": {
+                            "title": ""
+                        },
+                        "book64": {
+                            "title": ""
+                        },
+                        "book65": {
+                            "title": ""
+                        },
+                        "book66": {
+                            "title": ""
+                        },
+                        "book67": {
+                            "title": ""
+                        },
+                        "book68": {
+                            "title": ""
+                        },
+                        "book69": {
+                            "title": ""
+                        },
+                        "book70": {
+                            "title": ""
+                        },
+                        "book71": {
+                            "title": ""
+                        },
+                        "book72": {
+                            "title": ""
+                        },
+                        "book73": {
+                            "title": ""
+                        },
+                        "book74": {
+                            "title": ""
+                        },
+                        "book75": {
+                            "title": ""
+                        },
+                        "book76": {
+                            "title": ""
+                        },
+                        "book77": {
+                            "title": ""
+                        },
+                        "book78": {
+                            "title": ""
+                        },
+                        "book79": {
+                            "title": ""
+                        },
+                        "book80": {
+                            "title": ""
+                        },
+                        "book81": {
+                            "title": ""
+                        },
+                        "book82": {
+                            "title": ""
+                        },
+                        "book83": {
+                            "title": ""
+                        },
+                        "book84": {
+                            "title": ""
+                        },
+                        "book85": {
+                            "title": ""
+                        },
+                        "book86": {
+                            "title": ""
+                        },
+                        "book87": {
+                            "title": ""
+                        },
+                        "book88": {
+                            "title": ""
+                        },
+                        "book89": {
+                            "title": ""
+                        },
+                        "book90": {
+                            "title": ""
+                        },
+                        "book91": {
+                            "title": ""
+                        },
+                        "book92": {
+                            "title": ""
+                        },
+                        "book93": {
+                            "title": ""
+                        },
+                        "book94": {
+                            "title": ""
+                        },
+                        "book95": {
+                            "title": ""
+                        },
+                        "book96": {
+                            "title": ""
+                        },
+                        "book97": {
+                            "title": ""
+                        },
+                        "book98": {
+                            "title": ""
+                        },
+                        "book99": {
+                            "title": ""
+                        },
+                        "book100": {
+                            "title": ""
+                        },
+                        "book101": {
+                            "title": ""
+                        },
+                        "book102": {
+                            "title": ""
+                        },
+                        "book103": {
+                            "title": ""
+                        },
+                        "book104": {
+                            "title": ""
+                        },
+                        "book105": {
+                            "title": ""
+                        },
+                        "book106": {
+                            "title": ""
+                        },
+                        "book107": {
+                            "title": ""
+                        },
+                        "book108": {
+                            "title": ""
+                        },
+                        "book109": {
+                            "title": ""
+                        },
+                        "book110": {
+                            "title": ""
+                        },
+                        "book111": {
+                            "title": ""
+                        },
+                        "book112": {
+                            "title": ""
+                        },
+                        "book113": {
+                            "title": ""
+                        },
+                        "book114": {
+                            "title": ""
+                        },
+                        "book115": {
+                            "title": ""
+                        },
+                        "book116": {
+                            "title": ""
+                        },
+                        "book117": {
+                            "title": ""
+                        },
+                        "book118": {
+                            "title": ""
+                        },
+                        "book119": {
+                            "title": ""
+                        },
+                        "book120": {
+                            "title": ""
+                        },
+                        "book121": {
+                            "title": ""
+                        },
+                        "book122": {
+                            "title": ""
+                        },
+                        "book123": {
+                            "title": ""
+                        },
+                        "book124": {
+                            "title": ""
+                        },
+                        "book125": {
+                            "title": ""
+                        },
+                        "book126": {
+                            "title": ""
+                        },
+                        "book127": {
+                            "title": ""
+                        },
+                        "book128": {
+                            "title": ""
+                        },
+                        "book129": {
+                            "title": ""
+                        },
+                        "book130": {
+                            "title": ""
+                        },
+                        "book131": {
+                            "title": ""
+                        },
+                        "book132": {
+                            "title": ""
+                        },
+                        "book133": {
+                            "title": ""
+                        },
+                        "book134": {
+                            "title": ""
+                        },
+                        "book135": {
+                            "title": ""
+                        },
+                        "book136": {
+                            "title": ""
+                        },
+                        "book137": {
+                            "title": ""
+                        },
+                        "book138": {
+                            "title": ""
+                        },
+                        "book139": {
+                            "title": ""
+                        },
+                        "book140": {
+                            "title": ""
+                        },
+                        "book141": {
+                            "title": ""
+                        },
+                        "book142": {
+                            "title": ""
+                        },
+                        "book143": {
+                            "title": ""
+                        },
+                        "book144": {
+                            "title": ""
+                        },
+                        "book145": {
+                            "title": ""
+                        },
+                        "book146": {
+                            "title": ""
+                        },
+                        "book147": {
+                            "title": ""
+                        },
+                        "book148": {
+                            "title": ""
+                        },
+                        "book149": {
+                            "title": ""
+                        },
+                        "loadedAt": null,
+                        "version": 1
+                    }
+                },
+                "children": {
+                    "__class__": "Collection",
+                    "__data__": {
+                        "url": "./data/children.json",
+                        "key": [
+                            "title"
+                        ],
+                        "default": {
+                            "title": ""
+                        },
+                        "codes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99"
+                        ],
+                        "pendingCodes": [
+                            "book0",
+                            "book1",
+                            "book2",
+                            "book3",
+                            "book4",
+                            "book5",
+                            "book6",
+                            "book7",
+                            "book8",
+                            "book9",
+                            "book10",
+                            "book11",
+                            "book12",
+                            "book13",
+                            "book14",
+                            "book15",
+                            "book16",
+                            "book17",
+                            "book18",
+                            "book19",
+                            "book20",
+                            "book21",
+                            "book22",
+                            "book23",
+                            "book24",
+                            "book25",
+                            "book26",
+                            "book27",
+                            "book28",
+                            "book29",
+                            "book30",
+                            "book31",
+                            "book32",
+                            "book33",
+                            "book34",
+                            "book35",
+                            "book36",
+                            "book37",
+                            "book38",
+                            "book39",
+                            "book40",
+                            "book41",
+                            "book42",
+                            "book43",
+                            "book44",
+                            "book45",
+                            "book46",
+                            "book47",
+                            "book48",
+                            "book49",
+                            "book50",
+                            "book51",
+                            "book52",
+                            "book53",
+                            "book54",
+                            "book55",
+                            "book56",
+                            "book57",
+                            "book58",
+                            "book59",
+                            "book60",
+                            "book61",
+                            "book62",
+                            "book63",
+                            "book64",
+                            "book65",
+                            "book66",
+                            "book67",
+                            "book68",
+                            "book69",
+                            "book70",
+                            "book71",
+                            "book72",
+                            "book73",
+                            "book74",
+                            "book75",
+                            "book76",
+                            "book77",
+                            "book78",
+                            "book79",
+                            "book80",
+                            "book81",
+                            "book82",
+                            "book83",
+                            "book84",
+                            "book85",
+                            "book86",
+                            "book87",
+                            "book88",
+                            "book89",
+                            "book90",
+                            "book91",
+                            "book92",
+                            "book93",
+                            "book94",
+                            "book95",
+                            "book96",
+                            "book97",
+                            "book98",
+                            "book99"
+                        ],
+                        "book0": {
+                            "title": ""
+                        },
+                        "book1": {
+                            "title": ""
+                        },
+                        "book2": {
+                            "title": ""
+                        },
+                        "book3": {
+                            "title": ""
+                        },
+                        "book4": {
+                            "title": ""
+                        },
+                        "book5": {
+                            "title": ""
+                        },
+                        "book6": {
+                            "title": ""
+                        },
+                        "book7": {
+                            "title": ""
+                        },
+                        "book8": {
+                            "title": ""
+                        },
+                        "book9": {
+                            "title": ""
+                        },
+                        "book10": {
+                            "title": ""
+                        },
+                        "book11": {
+                            "title": ""
+                        },
+                        "book12": {
+                            "title": ""
+                        },
+                        "book13": {
+                            "title": ""
+                        },
+                        "book14": {
+                            "title": ""
+                        },
+                        "book15": {
+                            "title": ""
+                        },
+                        "book16": {
+                            "title": ""
+                        },
+                        "book17": {
+                            "title": ""
+                        },
+                        "book18": {
+                            "title": ""
+                        },
+                        "book19": {
+                            "title": ""
+                        },
+                        "book20": {
+                            "title": ""
+                        },
+                        "book21": {
+                            "title": ""
+                        },
+                        "book22": {
+                            "title": ""
+                        },
+                        "book23": {
+                            "title": ""
+                        },
+                        "book24": {
+                            "title": ""
+                        },
+                        "book25": {
+                            "title": ""
+                        },
+                        "book26": {
+                            "title": ""
+                        },
+                        "book27": {
+                            "title": ""
+                        },
+                        "book28": {
+                            "title": ""
+                        },
+                        "book29": {
+                            "title": ""
+                        },
+                        "book30": {
+                            "title": ""
+                        },
+                        "book31": {
+                            "title": ""
+                        },
+                        "book32": {
+                            "title": ""
+                        },
+                        "book33": {
+                            "title": ""
+                        },
+                        "book34": {
+                            "title": ""
+                        },
+                        "book35": {
+                            "title": ""
+                        },
+                        "book36": {
+                            "title": ""
+                        },
+                        "book37": {
+                            "title": ""
+                        },
+                        "book38": {
+                            "title": ""
+                        },
+                        "book39": {
+                            "title": ""
+                        },
+                        "book40": {
+                            "title": ""
+                        },
+                        "book41": {
+                            "title": ""
+                        },
+                        "book42": {
+                            "title": ""
+                        },
+                        "book43": {
+                            "title": ""
+                        },
+                        "book44": {
+                            "title": ""
+                        },
+                        "book45": {
+                            "title": ""
+                        },
+                        "book46": {
+                            "title": ""
+                        },
+                        "book47": {
+                            "title": ""
+                        },
+                        "book48": {
+                            "title": ""
+                        },
+                        "book49": {
+                            "title": ""
+                        },
+                        "book50": {
+                            "title": ""
+                        },
+                        "book51": {
+                            "title": ""
+                        },
+                        "book52": {
+                            "title": ""
+                        },
+                        "book53": {
+                            "title": ""
+                        },
+                        "book54": {
+                            "title": ""
+                        },
+                        "book55": {
+                            "title": ""
+                        },
+                        "book56": {
+                            "title": ""
+                        },
+                        "book57": {
+                            "title": ""
+                        },
+                        "book58": {
+                            "title": ""
+                        },
+                        "book59": {
+                            "title": ""
+                        },
+                        "book60": {
+                            "title": ""
+                        },
+                        "book61": {
+                            "title": ""
+                        },
+                        "book62": {
+                            "title": ""
+                        },
+                        "book63": {
+                            "title": ""
+                        },
+                        "book64": {
+                            "title": ""
+                        },
+                        "book65": {
+                            "title": ""
+                        },
+                        "book66": {
+                            "title": ""
+                        },
+                        "book67": {
+                            "title": ""
+                        },
+                        "book68": {
+                            "title": ""
+                        },
+                        "book69": {
+                            "title": ""
+                        },
+                        "book70": {
+                            "title": ""
+                        },
+                        "book71": {
+                            "title": ""
+                        },
+                        "book72": {
+                            "title": ""
+                        },
+                        "book73": {
+                            "title": ""
+                        },
+                        "book74": {
+                            "title": ""
+                        },
+                        "book75": {
+                            "title": ""
+                        },
+                        "book76": {
+                            "title": ""
+                        },
+                        "book77": {
+                            "title": ""
+                        },
+                        "book78": {
+                            "title": ""
+                        },
+                        "book79": {
+                            "title": ""
+                        },
+                        "book80": {
+                            "title": ""
+                        },
+                        "book81": {
+                            "title": ""
+                        },
+                        "book82": {
+                            "title": ""
+                        },
+                        "book83": {
+                            "title": ""
+                        },
+                        "book84": {
+                            "title": ""
+                        },
+                        "book85": {
+                            "title": ""
+                        },
+                        "book86": {
+                            "title": ""
+                        },
+                        "book87": {
+                            "title": ""
+                        },
+                        "book88": {
+                            "title": ""
+                        },
+                        "book89": {
+                            "title": ""
+                        },
+                        "book90": {
+                            "title": ""
+                        },
+                        "book91": {
+                            "title": ""
+                        },
+                        "book92": {
+                            "title": ""
+                        },
+                        "book93": {
+                            "title": ""
+                        },
+                        "book94": {
+                            "title": ""
+                        },
+                        "book95": {
+                            "title": ""
+                        },
+                        "book96": {
+                            "title": ""
+                        },
+                        "book97": {
+                            "title": ""
+                        },
+                        "book98": {
+                            "title": ""
+                        },
+                        "book99": {
+                            "title": ""
+                        },
+                        "loadedAt": null,
+                        "version": 1
+                    }
+                }
+            },
+            "locationHistory": [
+                {
+                    "location": "lobby",
+                    "date": {
+                        "__class__": "Date",
+                        "__data__": "2020-10-30T18:12:47.955Z"
+                    }
+                }
+            ],
+            "battery": {
+                "location": "plant"
+            },
+            "inventory": [],
+            "lobbyBot": {
+                "askedCodes": [],
+                "someoneTriedToGrabTheCheeseNow": false,
+                "someoneTriedToGrabTheCheeseOneTime": false,
+                "location": "lobby-desk"
+            },
+            "lastBooksViewed": [],
+            "doorbell": {
+                "location": null
+            },
+            "cutscene": null,
+            "scheduler": {
+                "__class__": "Scheduler",
+                "__data__": {
+                    "scheduled": [],
+                    "target": null,
+                    "timeouts": {
+                        "__class__": "Map",
+                        "__data__": []
+                    }
+                }
+            },
+            "theCheese": {
+                "location": "book"
+            },
+            "key": {
+                "location": "book"
+            },
+            "version": 20,
+            "selectedItem": null
+        }
+    }
+}

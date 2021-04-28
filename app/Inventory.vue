@@ -2,7 +2,6 @@
     <easel-container
         :x="x"
         :y="y"
-        @rollout="clearUseWith"
     >
         <easel-shape
             form="rect"
@@ -16,40 +15,40 @@
             :key="item.name"
             :x="index * itemSize"
             :y="0"
-            v-bind="item"
-            :hover-name="labelFor(item)"
+            :item="item"
+            :image="item.image"
             :size="itemSize"
             @click="click(item, index * itemSize, 0)"
         >
         </inventory-item>
 
-        <text-layer>
-        </text-layer>
+        <easel-shape
+            v-if="disabled"
+            form="rect"
+            :dimensions="[app.inventorySize.width, app.inventorySize.height]"
+            fill="black"
+            :alpha="0.75"
+            @click.stop
+        >
+        </easel-shape>
     </easel-container>
 </template>
 
 <script>
 import InventoryItem from '@app/InventoryItem';
-import HasTextLayer from '@textLayer/HasTextLayer';
-import TextLayer from '@textLayer/TextLayer';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
+import IsWindow from '@windowing/IsWindow';
 
 export default {
-    mixins: [HasTextLayer],
+    mixins: [UsesTextLayer, IsWindow],
     components: {
         InventoryItem,
-        TextLayer,
     },
     inject: ['app'],
-    provide() {
-        return {
-            window: this,
-        };
-    },
-    props: ['x', 'y', 'items'],
+    props: ['x', 'y', 'items', 'disabled'],
     data() {
         return {
             noMobileHoverRing: true,
-            useWith: null,
         };
     },
     computed: {
@@ -58,8 +57,8 @@ export default {
         },
         dimensions() {
             return {
-                x: 0,
-                y: 0,
+                x: this.x,
+                y: this.y,
                 width: this.app.inventorySize.width,
                 height: this.app.inventorySize.height,
             };
@@ -67,34 +66,22 @@ export default {
     },
     methods: {
         click(item, x, y) {
-            if (this.useWith) {
-                this.useWith.callback(item);
-                this.useWith = null;
+            this.clearMessage();
+            if (!this.app.world.selectedItem && item.selectable) {
+                this.app.world.selectedItem = item;
             } else if (item.click) {
                 item.click({
+                    item: this.app.world.selectedItem, // maybe null
                     world: this.app.world,
                     print: this.showMessageAt(x, y),
-                    useWith: callback => {
-                        this.useWith = {
-                            item,
-                            callback,
-                        };
-                        this.showMessage(this.labelFor(item), x, y);
-                    }
                 });
+                this.app.world.selectedItem = null;
+            } else if (this.app.world.selectedItem === item) {
+                this.app.world.selectedItem = null;
             } else {
-                this.showMessage(`Nothing happens.`, x, y);
+                this.showMessage('Nothing happens.', x, y);
+                this.app.world.selectedItem = null;
             }
-        },
-        labelFor(item) {
-            if (this.useWith) {
-                return `Use ${this.useWith.item.name} with ${this.useWith.item === item ? '...' : item.name}`;
-            } else {
-                return item.name;
-            }
-        },
-        clearUseWith() {
-            this.useWith = null;
         },
     },
 };

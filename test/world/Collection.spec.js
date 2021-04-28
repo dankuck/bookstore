@@ -315,7 +315,7 @@ describe('Collection', function () {
         // Capture the revival callbacks
         let revive;
         const reviver = {
-            add(name, cls, reviver, replacer) {
+            addClass(name, cls, reviver, replacer) {
                 if (cls === Collection) {
                     revive = {reviver, replacer};
                 }
@@ -334,7 +334,7 @@ describe('Collection', function () {
                 default: {title: ''},
             });
             collection.load().catch(() => {}); // force the `loading` key to exist
-            const forSave = revive.replacer('collection', collection);
+            const forSave = revive.replacer(collection);
             equal(
                 ['codes', 'key', 'default', 'pendingCodes', 'code1', 'loadedAt', 'version'].sort(),
                 Object.keys(forSave).sort()
@@ -352,9 +352,9 @@ describe('Collection', function () {
                 key: ['title'],
                 default: {title: ''},
             });
-            const forSave = revive.replacer('collection', collection);
+            const forSave = revive.replacer(collection);
             forSave.axios = axios;
-            const collection2 = revive.reviver('collection', forSave);
+            const collection2 = revive.reviver(forSave);
             equal('', collection2.code1.title);
             collection2.load()
                 .then(() => {
@@ -376,9 +376,9 @@ describe('Collection', function () {
             });
             collection.load()
                 .then(() => {
-                    const forSave = revive.replacer('collection', collection);
+                    const forSave = revive.replacer(collection);
                     forSave.axios = axios;
-                    const collection2 = revive.reviver('collection', forSave);
+                    const collection2 = revive.reviver(forSave);
                     equal('a name', collection.code1.title);
                     equal('a name', collection2.code1.title);
                 })

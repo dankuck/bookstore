@@ -1,3 +1,4 @@
+import InventoryBattery from './InventoryBattery';
 
 export default class InventoryDoorbell {
 
@@ -7,25 +8,34 @@ export default class InventoryDoorbell {
         Object.assign(this, data);
     }
 
-    click({print, world}) {
-        if (this.hasBattery) {
+    hoverName(selectedItem) {
+        if (selectedItem) {
+            return 'Use ' + selectedItem.name + ' with ' + this.name;
+        } else {
+            return this.name;
+        }
+    }
+
+    click({item, print, world}) {
+        if (item instanceof InventoryBattery) {
+            print("The battery fits in the doorbell.");
+            this.hasBattery = true;
+            item.useUp(world);
+        } else if (item) {
+            print("It doesn't work with that.");
+        } else if (this.hasBattery) {
             world.cutscene = 'doorbell';
         } else {
             print("Nothing happened. It looks like it needs a battery.");
         }
     }
-
-    useBattery(print) {
-        print("The battery fits in the doorbell!");
-        this.hasBattery = true;
-    }
 };
 
 InventoryDoorbell.registerReviver = function (reviver) {
-    reviver.add(
+    reviver.addClass(
         'InventoryDoorbell',
         InventoryDoorbell,
-        (key, value) => new InventoryDoorbell(value),
-        (key, value) => { return {...value} },
+        (value) => new InventoryDoorbell(value),
+        (value) => { return {...value} },
     );
 };

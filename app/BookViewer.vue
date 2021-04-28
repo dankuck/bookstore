@@ -52,10 +52,12 @@
 </template>
 
 <script>
+import UsesWindow from '@windowing/UsesWindow';
 const priceValue = price => parseFloat(price.replace(/[^\d\.]/, ''));
 
 export default {
-    inject: ['app', 'window'],
+    mixins: [UsesWindow],
+    inject: ['app'],
     props: ['book'],
     mounted() {
         this.bookImage; // cause a load

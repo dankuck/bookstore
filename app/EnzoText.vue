@@ -23,9 +23,10 @@
 
 <script>
 import sizeText from '@libs/sizeText.js';
+import UsesWindow from '@windowing/UsesWindow';
 
 export default {
-    inject: ['window'],
+    mixins: [UsesWindow],
     props: [
         'text',
         'x',

@@ -36,11 +36,11 @@ describe('Reviver', function () {
 
     it('replaces according to added class', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'TestX',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
@@ -50,22 +50,22 @@ describe('Reviver', function () {
         equal({__class__: 'TestX', __data__: 'replaced data'}, replaced);
     });
 
-    it('replaces according to first added class if two matches are added', function () {
+    it('replaces according to last added class if two matches are added', function () {
         const reviver = new Reviver();
-        reviver.add(
-            'TestX',
+        reviver.addClass(
+            'SOMETHING_ELSE',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
         );
-        reviver.add(
-            'SOMETHING_ELSE',
+        reviver.addClass(
+            'TestX',
             Test1,
             null,
-            (key, data) => {
+            (data) => {
                 assert(data === test);
                 return 'replaced data';
             }
@@ -77,10 +77,10 @@ describe('Reviver', function () {
 
     it('revives according to added class', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'DateX',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
@@ -93,19 +93,19 @@ describe('Reviver', function () {
 
     it('revives according to first added name when there are two names', function () {
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'DateX',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
             null
         );
-        reviver.add(
+        reviver.addClass(
             'SOMETHING_ELSE',
             Date,
-            (key, data) => {
+            (data) => {
                 assert(data === '1985-10-26');
                 return 'revived data';
             },
@@ -141,102 +141,160 @@ describe('Reviver', function () {
             }
         };
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
-            (k, v) => v,
-            (k, v) => v,
+            (v) => v,
+            (v) => v,
         );
-        reviver.beforeReplace();
-        const json = JSON.stringify(new X(), reviver.replace);
-        reviver.afterReplace();
+        const json = reviver.stringify(new X());
         assert(calledToJSON);
         equal({__class__: 'X', __data__: 'i am json'}, JSON.parse(json));
     });
 
     it('works with classes that de-circularize themselves', function () {
-        class X {}
-        class Y {}
+        class X {};
+        class Y {};
         const x = new X();
         const y = new Y();
         x.y = y;
         y.x = x;
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'Y',
             Y,
-            (k, v) => new Y(),
-            (k, v) => ({...v})
+            (v) => new Y(),
+            (v) => ({...v})
         );
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
-            (k, v) => new X(),
-            (k, v) => ({...v, y: null})
+            (v) => new X(),
+            (v) => ({...v, y: null})
         );
-        JSON.stringify(y, reviver.replace);
+        reviver.stringify(y);
         // no whammy
     });
 
     it('does not re-re-...-replace if a replacer returns the same value', function () {
-        class X {}
+        class X {};
         const reviver = new Reviver();
-        reviver.add(
+        reviver.addClass(
             'X',
             X,
-            (k, v) => new X(),
-            (k, v) => v
+            (v) => new X(),
+            (v) => v
         );
-        JSON.stringify(new X(), reviver.replace);
+        reviver.stringify(new X());
         // no infinite recursion
     });
 
-    describe('JS built-in types', function () {
-        /**
-         * Reviver should handle some JS built-in types out of the box
-         */
+    it('matches a more-recently-defined subclass before its parent', function () {
+        class X {};
+        class Y extends X {};
 
         const reviver = new Reviver();
+        reviver.addClass(
+            'X',
+            X,
+            (v) => new X(),
+            (v) => v,
+        );
+        reviver.addClass(
+            'Y',
+            Y,
+            (v) => new Y(),
+            (v) => v,
+        );
 
-        it('should save a Date correctly', function () {
-            const date = new Date('Jan 16, 2020');
-            const expect = '{"__class__":"Date","__data__":"2020-01-16T05:00:00.000Z"}';
+        const copy = reviver.parse(reviver.stringify(new Y()));
+        assert(copy instanceof Y);
+    });
 
-            reviver.beforeReplace();
-            equal(expect, JSON.stringify(date, reviver.replace));
-            reviver.afterReplace();
-        });
+    it('lets us add an object and revive with the same one', function () {
+        const reviver = new Reviver();
+        const X = {};
 
-        it('should load a Date correctly', function () {
-            const date = '{"__class__":"Date","__data__":"2020-01-16T05:00:00.000Z"}';
-            const expect = new Date('Jan 16, 2020');
+        reviver.addObject('X', X);
 
-            equal(expect, JSON.parse(date, reviver.revive));
-        });
+        const copy = reviver.parse(reviver.stringify({X}));
+        assert(copy.X === X);
+    });
 
-        it('should save a Map correctly', function () {
-            const map = new Map();
-            map.set(['some', 'key', 'object'], "string value");
-            const expect = '{"__class__":"Map","__data__":[[["some","key","object"],"string value"]]}';
+    it('a class added with addClass can also be stringified as with addObject', function () {
+        class X {};
+        const reviver = new Reviver();
+        reviver.addClass(
+            'X',
+            X,
+            value => Object.assign(new X(), value),
+            value => value
+        );
 
-            reviver.beforeReplace();
-            equal(expect, JSON.stringify(map, reviver.replace));
-            reviver.afterReplace();
-        });
+        const copy = reviver.parse(reviver.stringify({theClass: X}));
+        assert(copy.theClass === X);
+    });
 
-        it('should load a Map correctly', function () {
-            const json = '{"__class__":"Map","__data__":[[["some","key","object"],"string value"]]}';
-            const expect = new Map();
-            expect.set(['some', 'key', 'object'], "string value");
-            const unexpect = new Map();
-            unexpect.set(['not the right array'], "even though this is a string");
+    it('lets us add a symbol with addObject and revive with the same one', function () {
+        const reviver = new Reviver();
+        const X = Symbol();
 
-            const copy = JSON.parse(json, reviver.revive);
+        reviver.addObject('X', X);
 
-            // We need to convert the maps to arrays before testing. It turns out
-            // equal doesn't work right on Maps.
-            equal(Array.from(expect), Array.from(copy));
-            notEqual(Array.from(unexpect), Array.from(copy));
-        });
+        const copy = reviver.parse(reviver.stringify({X}));
+        assert(copy.X === X);
+    });
+
+    it('uses toJSON if the class is not defined', function () {
+        class X {
+            constructor() {
+                this.value = 123;
+            }
+
+            toJSON() {
+                return 'some x';
+            }
+        }
+        const reviver = new Reviver();
+        const copy = reviver.parse(reviver.stringify(new X()));
+        notEqual(123, copy.value);
+        assert(! (copy instanceof X));
+        equal('some x', copy);
+    });
+
+    // Problem: for a doubly-defined class we would first save aside the native
+    // toJSON and then when reaching the second definition, we would replace the
+    // saved toJSON with the toJSON we had meant to be temporary
+    it('puts the toJSONs back even for multiply-defined classes', function () {
+        const reviver = new Reviver();
+        const DateToJSON = Date.prototype.toJSON;
+        reviver.addClass(
+            'xDate',
+            Date,
+            (str) => new Date(str),
+            (date) => '' + date
+        );
+        const x = new Date();
+        reviver.stringify(x);
+        assert(Date.prototype.toJSON === DateToJSON);
+    });
+
+    it('puts the toJSONs back if stringify throws an error', function () {
+        const reviver = new Reviver();
+        class X {
+            toJSON() { return 'X'; }
+        }
+        const XToJSON = X.prototype.toJSON;
+        reviver.addClass(
+            'X',
+            X,
+            () => { },
+            () => { throw new Error() }
+        );
+        const x = new X();
+        try {
+            reviver.stringify(x);
+        } catch (e) {}
+        assert(X.prototype.toJSON === XToJSON);
     });
 });

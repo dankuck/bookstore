@@ -81,11 +81,12 @@
 <script>
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 import ChatBot from '@chat/ChatBot';
+import UsesWindow from '@windowing/UsesWindow';
 const {after, always, everySession} = ChatBot;
 
 export default {
-    inject: ['app', 'window'],
-    mixins: [UsesTextLayer],
+    inject: ['app'],
+    mixins: [UsesTextLayer, UsesWindow],
     props: ['noDialog', 'sayWords'],
     mounted() {
         if (this.noDialog) {
@@ -169,9 +170,19 @@ export default {
                 .add('Q5', "How do you play this bookstore?",
                     [
                         after('Q1'),
+                        () => ! this.app.world.hasDoorbell()
                     ],
                     () => this.say([
                         "Our doorbell is missing. Maybe you could find it.",
+                    ])
+                )
+                .add('Q9', "How do you play this bookstore?",
+                    [
+                        after('Q1'),
+                        () => this.app.world.hasDoorbell() && ! this.app.world.hasKey()
+                    ],
+                    () => this.say([
+                        "We can't find the key to the back door anywhere.",
                     ])
                 )
                 .add('Q2', "I found this battery...",
@@ -193,7 +204,7 @@ export default {
                     ],
                     () => {
                         this.say([
-                            "First, stop trying to tempt me with that delicious battery.",
+                            "Stop trying to tempt me with delicious batteries.",
                             "Please hold onto it until another associate can assist you.",
                         ]);
                     },
@@ -204,7 +215,7 @@ export default {
                     ],
                     () => {
                         this.say([
-                            "You could follow Enzo's on Facebook and Twitter!",
+                            "You could follow Enzo Eused Ebooks's on Facebook and Twitter!",
                             "Every time something new happens in the bookstore, it will be announced there.",
                         ]);
                         this.app.flashSocialLinks();
@@ -219,8 +230,8 @@ export default {
                     () => {
                         this.say([
                             "So far, just that thing I said...",
-                            "Follow Enzo's on Facebook and Twitter.",
-                            "Follow Enzo's on Facebook and Twitter.\nNew developments will be announced there.",
+                            "Follow Enzo's Eused Ebooks on Facebook and Twitter.",
+                            "Follow Enzo's Eused Ebooks on Facebook and Twitter.\nNew developments will be announced there.",
                         ]);
                         this.app.flashSocialLinks();
                     },
@@ -316,7 +327,7 @@ export default {
             if (this.app.world.lobbyBot.someoneTriedToGrabTheCheeseNow) {
                 this.app.world.lobbyBot.someoneTriedToGrabTheCheeseNow = false;
                 return [
-                    "NO ONE TOUCHES THE CHEESE BOOK.",
+                    "NO ONE MUST TOUCH\nTHE CHEESE BOOK.",
                 ];
             } else {
                 return [];

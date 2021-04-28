@@ -19,12 +19,12 @@ export default class ChatBot {
         if (this.questions[code]) {
             throw new Error(`${code} has already been added`);
         }
-        const noAutoConditions = conditions
-            .reduce((acc, condition) => acc || condition.noAutoConditions, false);
+        const skipDefaultConditions = conditions
+            .some(condition => condition.skipDefaultConditions);
         // The until-self-is-asked condition is implied, so we auto-add it for
         // ease-of-use. That is except under certain conditions such as the
         // `always`  and `everySession` conditions.
-        if (!noAutoConditions) {
+        if (!skipDefaultConditions) {
             conditions.push(ChatBot.until(code));
         }
         this.questions[code] = {
@@ -93,7 +93,7 @@ ChatBot.until = function until(code) {
  */
 ChatBot.always = function always() {
     const always = () => true;
-    always.noAutoConditions = true;
+    always.skipDefaultConditions = true;
     return always;
 };
 
@@ -104,6 +104,6 @@ ChatBot.always = function always() {
  */
 ChatBot.everySession = function everySession() {
     const everySession = (chatbot, code) => ! chatbot.wasAskedThisSession(code);
-    everySession.noAutoConditions = true;
+    everySession.skipDefaultConditions = true;
     return everySession;
 };

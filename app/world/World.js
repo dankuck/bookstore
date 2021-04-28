@@ -2,6 +2,7 @@ import VersionUpgrader from '@libs/VersionUpgrader';
 import Collection from '@world/Collection';
 import InventoryBattery from '@world/InventoryBattery';
 import InventoryDoorbell from '@world/InventoryDoorbell';
+import InventoryKey from '@world/InventoryKey';
 import wait from '@libs/wait';
 import Scheduler from '@libs/Scheduler';
 import InventoryCheese from '@world/InventoryCheese';
@@ -124,6 +125,11 @@ const upgrader = new VersionUpgrader()
             location: 'book',
         };
     })
+    .version(20, world => {
+        world.key = {
+            location: 'book',
+        };
+    })
     ;
 
 export default class World
@@ -132,6 +138,7 @@ export default class World
         Object.assign(this, data);
         this.version = upgrader.upgrade(this.version || 0, this);
         this.scheduler.setTarget(this);
+        this.selectedItem = null;
     }
 
     /**
@@ -154,6 +161,9 @@ export default class World
         } else if (somethingFellOut) {
             print("You ruffled the plant. Something fell out.");
         } else {
+            // Lines like this would be unreachable unless you had gone through
+            // some earlier version of the game that did not set ruffled = true
+            // below
             print("You ruffled the plant. You feel superior.");
         };
 
@@ -183,6 +193,18 @@ export default class World
         this.doorbell.location = 'inventory';
         this.inventory.push(new InventoryDoorbell({name: 'Wireless Doorbell'}));
         print("You've got the doorbell, now.");
+    }
+
+    /**
+     * Move the key into the inventory.
+     *
+     * @param {Function} print - accepts strings to echo to the user
+     * @return {void}
+     */
+    takeKey(print) {
+        this.key.location = 'inventory';
+        this.inventory.push(new InventoryKey({name: 'Key'}));
+        print("You've got the key, now.");
     }
 
     removeInventory(item) {
@@ -259,18 +281,15 @@ export default class World
     }
 
     completedAllSteps() {
-        if (this.theCheese.location === 'book') {
-            return false; // find that cheese!
-        }
-        const beenEverywhereMan = this.hasGoneTo('lobby-desk')
-            && this.hasGoneTo('lobby')
-            && this.hasGoneTo('fiction-stack')
-            && this.hasGoneTo('nonfiction-stack')
-            && this.hasGoneTo('children-stack');
-        if (!beenEverywhereMan) {
-            return false;
-        }
-        return true;
+        return this.hasKey();
+    }
+
+    hasDoorbell() {
+        return this.doorbell.location === 'inventory';
+    }
+
+    hasKey() {
+        return this.key.location === 'inventory';
     }
 
     touchIAmTheCheese() {
@@ -305,10 +324,10 @@ export default class World
 
     returnLobbyBot(ms) {
         if (this.lobbyBot.location === 'door') {
-            if (this.location !== 'lobby-desk') {
-                this.lobbyBot.location = 'lobby-desk';
-            } else {
+            if (this.location === 'lobby-desk' || this.cutscene === 'doorbell') {
                 this.scheduler.schedule(ms, 'returnLobbyBot', ms);
+            } else {
+                this.lobbyBot.location = 'lobby-desk';
             }
         }
     }
@@ -321,24 +340,21 @@ export default class World
 };
 
 World.registerReviver = function (reviver) {
-    reviver.add(
-        'World',
+    const add = [
         World,
-        (key, data) => { return new World(data) },
-        (key, data) => { return {...data} }
-    );
+        (data) => { return new World(data) },
+        (data) => { return {...data, selectedItem: null} }
+    ];
     // When we first launched Enzo's, we minimized all the code and World got
     // renamed. Now we are safe against that happening, but we need to be able
     // to handle names from that era.
-    reviver.add(
-        'ot',
-        World,
-        (key, data) => { return new World(data) },
-        (key, data) => { return {...data} }
-    );
+    reviver.addClass('ot', ...add);
+    // The last match is preferred by Reviver
+    reviver.addClass('World', ...add);
     reviver.register(Collection);
     reviver.register(InventoryBattery);
     reviver.register(InventoryDoorbell);
+    reviver.register(InventoryKey);
     reviver.register(InventoryCheese);
     reviver.register(Scheduler);
 };

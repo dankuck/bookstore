@@ -41,15 +41,11 @@
 </template>
 
 <script>
+import IsWindow from '@windowing/IsWindow';
+import UsesTextLayer from '@textLayer/UsesTextLayer';
+
 export default {
-    inject: {
-        parentWindow: {from: 'window'},
-    },
-    provide() {
-        return {
-            window: this,
-        };
-    },
+    mixins: [IsWindow, UsesTextLayer],
     props: ['width', 'startX'],
     data() {
         return {
@@ -65,10 +61,10 @@ export default {
         },
         dimensions() {
             return {
-                x: this.x,
-                y: this.parentWindow.dimensions.y,
-                width: this.parentWindow.dimensions.width,
-                height: this.parentWindow.dimensions.height,
+                x: -this.x,
+                y: this.window.dimensions.y,
+                width: this.window.dimensions.width,
+                height: this.window.dimensions.height,
             };
         },
     },

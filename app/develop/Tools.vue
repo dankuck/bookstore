@@ -12,7 +12,8 @@
                 <button @click="resetWorld">Reset World</button>
             </div>
             <div>
-                <input v-model="saveName" placeholder="Save Name" /> <button @click="saveWorld">Save World</button>
+                <input v-model="saveName" placeholder="Save Name" />
+                <button @click="saveWorld" :disabled="saveName.trim().length === 0">Save World</button>
             </div>
             <div>
                 Saves:
@@ -25,7 +26,10 @@
                 </ol>
             </div>
             <div>
-                Show Text <textarea v-model="DevSettings.showText"></textarea>
+                Show Text
+                <textarea v-model="DevSettings.showText"></textarea>
+                <input v-model="DevSettings.textX" size="3" placeholder="x" />
+                <input v-model="DevSettings.textY" size="3" placeholder="y" />
             </div>
             <div v-if="messager.message" style="color: blue">
                 » {{ messager.message || '' }}
@@ -38,7 +42,6 @@
 import DevSettings from '@develop/DevSettings.js';
 import World from '@world/World';
 import Messager from '@libs/Messager';
-import reviver from '@app/reviver';
 import JsonStorage from '@libs/JsonStorage';
 
 export default {
@@ -64,16 +67,11 @@ export default {
     },
     methods: {
         resetWorld() {
-            this.app.world = new World();
+            this.app.store.reset();
             this.messager.queue(`Reset world`);
         },
         saveWorld() {
-            const storage = new JsonStorage(
-                window.localStorage,
-                this.saveName,
-                reviver
-            );
-            storage.write('world', this.app.world);
+            this.app.store.save(this.saveName);
             this.addSaveName(this.saveName);
             this.messager.queue(`Saved ${this.saveName}`);
             this.saveName = '';
@@ -85,22 +83,12 @@ export default {
             this.saveNames = this.saveNames.filter(saved => saved !== name);
         },
         loadWorld(name) {
-            const storage = new JsonStorage(
-                window.localStorage,
-                name,
-                reviver
-            );
-            this.app.world = storage.read('world');
+            this.app.store.load(name);
             this.messager.queue(`Loaded ${name}`);
         },
         deleteWorld(name) {
             if (confirm(`Delete save ${name}?`)) {
-                const storage = new JsonStorage(
-                    window.localStorage,
-                    name,
-                    reviver
-                );
-                storage.delete();
+                this.app.store.delete(name);
                 this.removeSaveName(name);
                 this.messager.queue(`Deleted ${name}`);
             }

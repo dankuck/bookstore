@@ -20,6 +20,7 @@ module.exports = {
             '@develop': path.resolve(__dirname, './app/develop/'),
             '@libs': path.resolve(__dirname, './app/libs/'),
             '@textLayer': path.resolve(__dirname, './app/textLayer/'),
+            '@windowing': path.resolve(__dirname, './app/windowing/'),
             '@world': path.resolve(__dirname, './app/world/'),
             'vue$': 'vue/dist/vue.js',
         },

@@ -36,11 +36,13 @@
 
 <script>
 import StackRoom from '@app/StackRoom';
+import UsesWindow from '@windowing/UsesWindow';
 
 export default {
+    mixins: [UsesWindow],
     components: {
         StackRoom,
     },
-    inject: ['app', 'window'],
+    inject: ['app'],
 };
 </script>
