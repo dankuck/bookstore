@@ -15,7 +15,7 @@
     <div>
         <stack-room
             name="fiction"
-            width="400"
+            width="450"
             :start-x="10"
             background-image="images/bookcase2-back.gif"
             :collection="app.world.collections.fiction"
@@ -38,6 +38,20 @@
                     @knock-key="knockKey"
                 >
                 </rat-track>
+
+                <enzo-named-container
+                    :name="doorName"
+                    align="right-center"
+                    :x="450"
+                    :y="150"
+                >
+                    <easel-bitmap
+                        image="images/lobby-door.gif"
+                        align="right-center"
+                        @click="openDoor"
+                    >
+                    </easel-bitmap>
+                </enzo-named-container>
             </template>
 
             <template v-slot:front>
@@ -61,9 +75,10 @@
 </template>
 
 <script>
-import StackRoom from '@app/StackRoom';
-import RatTrack from '@app/RatTrack';
+import InventoryKey from '@world/InventoryKey';
 import moveTo from '@libs/moveTo';
+import RatTrack from '@app/RatTrack';
+import StackRoom from '@app/StackRoom';
 import UsesTextLayer from '@textLayer/UsesTextLayer';
 
 export default {
@@ -87,6 +102,13 @@ export default {
         keyVisible() {
             return this.app.world.key.location === 'bookshelf';
         },
+        doorName() {
+            if (this.app.world.selectedItem) {
+                return 'Use ' + this.app.world.selectedItem.name + ' with Door';
+            } else {
+                return 'Door';
+            }
+        },
     },
     methods: {
         knockKey() {
@@ -100,6 +122,18 @@ export default {
         },
         takeKey() {
             this.app.world.takeKey(this.queueMessageAt(this.key.x, this.key.y));
+        },
+        openDoor() {
+            if (this.app.world.selectedItem instanceof InventoryKey) {
+                this.queueMessage('The key fits but the door is stuck.', 300, 150);
+            } else if (this.app.world.selectedItem) {
+                this.queueMessage('You cannot use ' + this.app.world.selectedItem.name + ' with the Door.', 300, 150);
+                this.app.world.selectedItem = null;
+            } else if (! this.app.world.hasKey()) {
+                this.queueMessage('The door needs a key.', 300, 150);
+            } else {
+                this.queueMessage('Use the key.', 300, 150);
+            }
         },
     },
 };

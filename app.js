@@ -20812,10 +20812,11 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
-/* harmony import */ var _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @app/RatTrack */ "./app/RatTrack.vue");
-/* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
-/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
+/* harmony import */ var _world_InventoryKey__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @world/InventoryKey */ "./app/world/InventoryKey.js");
+/* harmony import */ var _libs_moveTo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @libs/moveTo */ "./app/libs/moveTo.js");
+/* harmony import */ var _app_RatTrack__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @app/RatTrack */ "./app/RatTrack.vue");
+/* harmony import */ var _app_StackRoom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @app/StackRoom */ "./app/StackRoom.vue");
+/* harmony import */ var _textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @textLayer/UsesTextLayer */ "./app/textLayer/UsesTextLayer.js");
 //
 //
 //
@@ -20878,15 +20879,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_3__["default"]],
+  mixins: [_textLayer_UsesTextLayer__WEBPACK_IMPORTED_MODULE_4__["default"]],
   components: {
-    StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_0__["default"],
-    RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_1__["default"]
+    StackRoom: _app_StackRoom__WEBPACK_IMPORTED_MODULE_3__["default"],
+    RatTrack: _app_RatTrack__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   inject: ['app'],
   data: function data() {
@@ -20902,6 +20918,13 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     keyVisible: function keyVisible() {
       return this.app.world.key.location === 'bookshelf';
+    },
+    doorName: function doorName() {
+      if (this.app.world.selectedItem) {
+        return 'Use ' + this.app.world.selectedItem.name + ' with Door';
+      } else {
+        return 'Door';
+      }
     }
   },
   methods: {
@@ -20912,12 +20935,24 @@ __webpack_require__.r(__webpack_exports__);
         y: 160,
         r: 0
       };
-      Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_2__["default"])(10, this.key, {
+      Object(_libs_moveTo__WEBPACK_IMPORTED_MODULE_1__["default"])(10, this.key, {
         y: 206
       }, 5);
     },
     takeKey: function takeKey() {
       this.app.world.takeKey(this.queueMessageAt(this.key.x, this.key.y));
+    },
+    openDoor: function openDoor() {
+      if (this.app.world.selectedItem instanceof _world_InventoryKey__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+        this.queueMessage('The key fits but the door is stuck.', 300, 150);
+      } else if (this.app.world.selectedItem) {
+        this.queueMessage('You cannot use ' + this.app.world.selectedItem.name + ' with the Door.', 300, 150);
+        this.app.world.selectedItem = null;
+      } else if (!this.app.world.hasKey()) {
+        this.queueMessage('The door needs a key.', 300, 150);
+      } else {
+        this.queueMessage('Use the key.', 300, 150);
+      }
     }
   }
 });
@@ -34239,7 +34274,7 @@ var render = function() {
       _c("stack-room", {
         attrs: {
           name: "fiction",
-          width: "400",
+          width: "450",
           "start-x": 10,
           "background-image": "images/bookcase2-back.gif",
           collection: _vm.app.world.collections.fiction,
@@ -34263,7 +34298,29 @@ var render = function() {
                 _c("rat-track", {
                   attrs: { x: "33", y: "169" },
                   on: { "knock-key": _vm.knockKey }
-                })
+                }),
+                _vm._v(" "),
+                _c(
+                  "enzo-named-container",
+                  {
+                    attrs: {
+                      name: _vm.doorName,
+                      align: "right-center",
+                      x: 450,
+                      y: 150
+                    }
+                  },
+                  [
+                    _c("easel-bitmap", {
+                      attrs: {
+                        image: "images/lobby-door.gif",
+                        align: "right-center"
+                      },
+                      on: { click: _vm.openDoor }
+                    })
+                  ],
+                  1
+                )
               ]
             },
             proxy: true
